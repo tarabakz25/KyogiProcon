@@ -1,0 +1,11 @@
+{
+    "C_Cpp.errorSquiggles": "enabled",
+    "editor.fontFamily": "Fira Code",
+    "files.associations": {
+        "*.py": "python",
+        "*.html": "html",
+        "*.css": "css",
+        "*.js": "javascript",
+        "tuple": "cpp"
+    }
+}
