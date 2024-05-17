@@ -64,6 +64,7 @@ void search_next(int road_num){
             root_node_num++;
         }else{
             i--;
+			
         }
 
         
