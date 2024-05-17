@@ -1,4 +1,4 @@
-#include <bits/stdc++.h>
+﻿#include <bits/stdc++.h>
 #include "json.hpp"
 using namespace std;
 using json = nlohmann::json;
@@ -43,19 +43,6 @@ int loadBoard(const json& jobj, vector<vector<int>>& startBoard, vector<vector<i
     return 0;
 }
 
-// JSONから抜き型を読み込む関数
-// int generateNukigata(const json& jobj) 
-// {
-//     for (const auto& pattern : jobj["general"]["patterns"]) {
-//         int index = pattern["p"];
-//         vector<vector<int>> patternCells;
-//         for (const auto& line : pattern["cells"]) {
-//             patternCells.push_back(stringToVector(line.get<string>()));
-//         }
-//         nukigata[index] = patternCells;
-//     }
-//     return 0;
-// }
 
 // ボードを表示する関数
 void printBoard(const vector<vector<int>>& board1, const vector<vector<int>>& board2, bool action) {
@@ -132,7 +119,7 @@ int main()
 
     while(totalMaxScore != 100)
     {
-    for(int i = 0; i < board.size()-1; i++)
+    for(int i = 0; i < board.size(); i++)
     {
         int j = 0;       
         
@@ -147,7 +134,8 @@ int main()
                 count ++;
             }
 
-            for(int k = i; k < board.size()-1; k++){
+            for(int k = i; k < i + 2; k++){
+                if(k == board.size()-1) break;
                 katanuki(tmpBoard, board, k+1, 0, 1);
                 count ++;
             }
@@ -174,6 +162,7 @@ int main()
         
         //if(count >= breakPoint) break;
     }
+    break;
     //if(count >= breakPoint) break;
     }
 
