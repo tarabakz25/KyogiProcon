@@ -98,7 +98,6 @@ void make_finish_board(int num[4]){
     }
 }
 
-
 void random_finish_board(int num[4]){
     int random;
     int shuffle1[2] ={0};
