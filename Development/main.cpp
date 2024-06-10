@@ -12,6 +12,10 @@
 #include "board_setting.cpp"
 #include "evaluation.cpp"
 
+#include "json.hpp"
+using namespace std;
+using json = nlohmann::json;
+
 
 using namespace std;
 
