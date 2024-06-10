@@ -209,8 +209,6 @@ double Search(int parent_id, int parentdepth){
 }
 
 
-
-
 int main(){
     string input_csv_file_path = "";
     string output_csv_file_path = "test.csv";

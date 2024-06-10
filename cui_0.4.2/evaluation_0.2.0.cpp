@@ -1,6 +1,8 @@
 #include <bits/stdc++.h>
 using namespace std;
 
+#include "board_setting_0.4.1.cpp"
+
 double Evaluation(int depth){ //ロードされている盤面を評価する。
     double score;
 
