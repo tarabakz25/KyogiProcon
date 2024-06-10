@@ -19,6 +19,31 @@ using json = nlohmann::json;
 
 using namespace std;
 
+// 文字列からベクトルに変換する関数
+vector<int> stringToVector(const string &str)
+{
+    vector<int> row;
+    for (char c : str)
+    {
+        row.push_back(c - '0'); // 文字を整数に変換
+    }
+    return row;
+}
+
+// JSONからボードを読み込む関数
+int loadBoard(const json &jobj, vector<vector<int>> &startBoard, vector<vector<int>> &goalBoard)
+{
+    for (const auto &line : jobj["board"]["start"])
+    {
+        startBoard.push_back(stringToVector(line.get<string>()));
+    }
+    for (const auto &line : jobj["board"]["goal"])
+    {
+        goalBoard.push_back(stringToVector(line.get<string>()));
+    }
+    return 0;
+}
+
 
 int main(){
     string input_csv_file_path = "";
@@ -35,7 +60,21 @@ int main(){
     outputfile << ",";
     outputfile << "\n";
 
-    board_set(); //初期状態の設定と表示
+
+	// JSONファイルの読み込み
+    ifstream ifs("./sample2.json");
+    string str((istreambuf_iterator<char>(ifs)), istreambuf_iterator<char>());
+    json jobj = json::parse(str);
+    vector<vector<int>> startBoard, goalBoard;
+    loadBoard(jobj, startBoard, goalBoard);
+    int boardSide = jobj["board"]["width"].get<int>();
+    int boardWarp = jobj["board"]["height"].get<int>();
+
+	board = startBoard;
+	finish_board = goalBoard;
+
+    show_setting_board(); //初期状態の表示
+
 
     cout << "かみやまひらがなこうせんは　たまねぎを　はなった！" << endl;
     cout << "＞＞「くらえッ　タマネギ！」" << endl;
@@ -56,6 +95,11 @@ int main(){
     | katanuki(型番号, 型抜きする場所の左上のx座標, 型抜きする場所の左上のy座標, 詰める方向(0:上, 1:下, 2:左, 3:右));    |
     | で呼び出してください。                                                                                    |
     ------------------------------------------------------------------------------------------------------*/
+
+    
+
+
+
     
 
     katanuki(6, 2, 2, 1); 

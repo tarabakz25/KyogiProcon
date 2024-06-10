@@ -73,5 +73,8 @@ katanuki(型番号, X座標, Y座標, 方向);
 2 左
 3 右
 
-board_set();
-初期状態、完成形をリセットし、再設定します。
+show_setting_board();
+最初の盤面表示用。
+
+start_and_finish();
+一定のルールに従って初期盤面と最終盤面を作ります。

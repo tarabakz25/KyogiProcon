@@ -5,8 +5,8 @@
 
 using namespace std;
 
-int board_size_width =  5;  //盤面の大きさ
-int board_size_height = 5;
+int board_size_width =  4;  //盤面の大きさ
+int board_size_height = 4;
 int MOVE = 1;
 
 vector<vector<int>> board(board_size_height, vector<int>(board_size_width)); //型番号、縦、横の順番
@@ -370,8 +370,9 @@ void katanuki(int piece_num, int x_min, int y_min, int direction){
     }
 }
 
-void board_set(){
-    define_nukigata(); //抜き型を生成。
+
+void start_and_finish(){
+	define_nukigata(); //抜き型を生成。
 
     int used_num[4] ={0};
     int used_num_counter[4] = {0};
@@ -386,25 +387,26 @@ void board_set(){
     
     //random_finish_board(used_num);  //ランダム
     make_finish_board(used_num);  //最終状態を生成する
-    
 
 
-    
+	cout << "0: " <<used_num_counter[0] << endl;
+    cout << "1: " <<used_num_counter[1] << endl;
+    cout << "2: " <<used_num_counter[2] << endl;
+    cout << "3: " <<used_num_counter[3] << endl;
+}
+
+
+void show_setting_board(){
+	//start_and_finish();
+
     //表示用 
     cout << "\x1b[31m" << "\x1b[1m" << "start" << "\x1b[m" << endl;
     show_first_board();
     cout << endl << "\x1b[31m" << "\x1b[1m" << "finish" << "\x1b[m" << endl;
     show_finish_board();
-
-    cout << "0: " <<used_num_counter[0] << endl;
-    cout << "1: " <<used_num_counter[1] << endl;
-    cout << "2: " <<used_num_counter[2] << endl;
-    cout << "3: " <<used_num_counter[3] << endl;
-    
+	cout << "\n";
 
     //操作前画面表示
-    
-
     cout << "0手目(操作前)" << endl;
     show_board(1);
     cout << "\x1b[33m" << "MATCH : " << 100*(count_match()+0.0) / (board_size_width * board_size_height) << "%" << "\x1b[m" << endl << endl;
