@@ -5,8 +5,8 @@
 
 using namespace std;
 
-int board_size_width =  4;  //盤面の大きさ
-int board_size_height = 4;
+int board_size_width =  6;  //盤面の大きさ
+int board_size_height = 6;
 int MOVE = 1;
 
 vector<vector<int>> board(board_size_height, vector<int>(board_size_width)); //型番号、縦、横の順番
@@ -246,12 +246,13 @@ int compare_with0(){ //ID0(最初のノード)と比較する（100%の場合変
 void katanuki(int piece_num, int x_min, int y_min, int direction){
     
     cout << MOVE << "手目" << endl;
+
     /* for(int i=0; i<size.at(piece_num).at(0); i++){
         for(int j=0; j<size.at(piece_num).at(1); j++){
             cout << "[" << nukigata.at(piece_num).at(i).at(j) << "]";
         }
         cout << endl;
-    } */
+    }  */
 
     cout  << "抜き型No." <<  piece_num << "を適用" << endl;
     int x_max = x_min + size.at(piece_num).at(0) - 1;
@@ -372,7 +373,7 @@ void katanuki(int piece_num, int x_min, int y_min, int direction){
 
 
 void start_and_finish(){
-	define_nukigata(); //抜き型を生成。
+
 
     int used_num[4] ={0};
     int used_num_counter[4] = {0};
@@ -397,6 +398,7 @@ void start_and_finish(){
 
 
 void show_setting_board(){
+	define_nukigata(); //抜き型を生成。
 	//start_and_finish();
 
     //表示用 

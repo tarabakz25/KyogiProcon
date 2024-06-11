@@ -44,6 +44,39 @@ int loadBoard(const json &jobj, vector<vector<int>> &startBoard, vector<vector<i
     return 0;
 }
 
+vector<vector<int>> compare_vartical(vector<vector<int>> compare1, vector<vector<int>> compare2, int size_x, int size_y){
+	vector<vector<int>> numbers1(size_x, vector<int>(4, 0));
+	vector<vector<int>> numbers2(size_x, vector<int>(4, 0));
+    vector<vector<int>> result(size_x, vector<int>(4, 0));
+
+	for(int i=0; i<size_x; i++){
+		for(int j=0; j<size_y; j++){
+			numbers1.at(i).at(compare1.at(j).at(i)) += 1; //横i列目を縦に見て、0の数を0番目、1の数を1番目...というように格納。
+			numbers2.at(i).at(compare2.at(j).at(i)) += 1;
+		}
+		cout << numbers1.at(i).at(0) << " ";
+		cout << numbers1.at(i).at(1) << " ";
+		cout << numbers1.at(i).at(2) << " ";
+		cout << numbers1.at(i).at(3) << "　";
+		cout << numbers2.at(i).at(0) << " ";
+		cout << numbers2.at(i).at(1) << " ";
+		cout << numbers2.at(i).at(2) << " ";
+		cout << numbers2.at(i).at(3) << "\n";  
+        
+        result.at(i).at(0) = abs(numbers1.at(i).at(0) - numbers2.at(i).at(0));
+        result.at(i).at(1) = abs(numbers1.at(i).at(1) - numbers2.at(i).at(1));
+        result.at(i).at(2) = abs(numbers1.at(i).at(2) - numbers2.at(i).at(2));
+        result.at(i).at(3) = abs(numbers1.at(i).at(3) - numbers2.at(i).at(3));
+        
+
+	}
+
+    return result;
+
+
+	
+}
+
 
 int main(){
     string input_csv_file_path = "";
@@ -62,7 +95,7 @@ int main(){
 
 
 	// JSONファイルの読み込み
-    ifstream ifs("./sample2.json");
+    ifstream ifs("./sample1.json");
     string str((istreambuf_iterator<char>(ifs)), istreambuf_iterator<char>());
     json jobj = json::parse(str);
     vector<vector<int>> startBoard, goalBoard;
@@ -95,23 +128,73 @@ int main(){
     | katanuki(型番号, 型抜きする場所の左上のx座標, 型抜きする場所の左上のy座標, 詰める方向(0:上, 1:下, 2:左, 3:右));    |
     | で呼び出してください。                                                                                    |
     ------------------------------------------------------------------------------------------------------*/
+    
+/* 
+    katanuki(0, 1, 1, 1); 
+    show_board(1);
+    cout << "\x1b[33m" << MOVE << "手目"   << "MATCH : " << 100*(count_match()+0.0) / (board_size_width * board_size_height) << "%" << "\x1b[m" << endl << endl;
+    MOVE++;
 
+    katanuki(1, 5, 2, 3); 
+    show_board(1);
+    cout << "\x1b[33m" << MOVE << "手目"   << "MATCH : " << 100*(count_match()+0.0) / (board_size_width * board_size_height) << "%" << "\x1b[m" << endl << endl;
+    MOVE++;
+ */
+
+	int result_before;
+	int result_after;
+
+	//ここからwhile
+
+    vector<vector<int>> vartical_check = compare_vartical(board, finish_board, 6, 6);
+	cout << vartical_check.at(0).at(0) << "\n";
+    cout << vartical_check.at(0).at(1) << "\n";
+    cout << vartical_check.at(0).at(2) << "\n";
+    cout << vartical_check.at(0).at(3) << "\n";
+
+	result_before = vartical_check.at(0).at(0) + vartical_check.at(0).at(1) + vartical_check.at(0).at(2) + vartical_check.at(0).at(3);
+	cout << result_before << "\n";
+
+
+    board_save(1);
+
+    katanuki(0, 0, 0, 2);  //試す
+    
+	vartical_check = compare_vartical(board, finish_board, 6, 6); //評価
+	cout << vartical_check.at(0).at(0) << "\n";
+    cout << vartical_check.at(0).at(1) << "\n";
+    cout << vartical_check.at(0).at(2) << "\n";
+    cout << vartical_check.at(0).at(3) << "\n";
+
+	result_after = vartical_check.at(0).at(0) + vartical_check.at(0).at(1) + vartical_check.at(0).at(2) + vartical_check.at(0).at(3);
+	cout << result_after << "\n";
+
+	if(result_before < result_after){
+		//手を確定させる
+		show_board(1);
+    	cout << "\x1b[33m" << MOVE << "手目"   << "MATCH : " << 100*(count_match()+0.0) / (board_size_width * board_size_height) << "%" << "\x1b[m" << endl << endl;
+    	MOVE++;
+
+	}else{
+		//もとに戻って無かった事にする。
+		board_road(1);
+	}
+
+	//ここでwhileとじる。
+
+
+
+
+		
+    
+	
     
 
 
 
     
 
-    katanuki(6, 2, 2, 1); 
-    show_board(1);
-    cout << "\x1b[33m" << MOVE << "手目"   << "MATCH : " << 100*(count_match()+0.0) / (board_size_width * board_size_height) << "%" << "\x1b[m" << endl << endl;
-    MOVE++;
-
-    katanuki(2, 5, 2, 3); 
-    show_board(1);
-    cout << "\x1b[33m" << MOVE << "手目"   << "MATCH : " << 100*(count_match()+0.0) / (board_size_width * board_size_height) << "%" << "\x1b[m" << endl << endl;
-    MOVE++;
-
+	
 
     
     
