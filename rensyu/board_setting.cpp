@@ -18,12 +18,20 @@ vector<vector<int>> size(30, vector<int>(2));
 
 
 void define_nukigata(){
-    size.at(0) = {1,1};
+    //size.at(0) = {1,1};
+    size.at(0).at(0) = 1;
+    size.at(0).at(1) = 1;
     
     for(int i=1,t=2; i<24; i++){
-        size.at(i) = {t,t};
-        size.at(i+1) = {t,t};
-        size.at(i+2) = {t,t};
+        size.at(i).at(0) = t;
+        size.at(i).at(1) = t; 
+        size.at(i+1).at(0) = t;
+        size.at(i+1).at(1) = t;
+        size.at(i+2).at(0) = t;
+        size.at(i+2).at(1) = t;                            
+        //size.at(i) = {t,t};
+        //size.at(i+1) = {t,t};
+        //size.at(i+2) = {t,t};
        
         //抜き型サイズ表示用(あとで消す)
         //cout << "piece" << i << ";" << size.at(i).at(0) << endl;
