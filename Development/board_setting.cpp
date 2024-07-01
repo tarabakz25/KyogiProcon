@@ -245,7 +245,7 @@ int compare_with0(){ //ID0(最初のノード)と比較する（100%の場合変
 
 void katanuki(int piece_num, int x_min, int y_min, int direction){
     
-    cout << MOVE << "手目" << endl;
+    //cout << MOVE << "手目" << endl;
 
     /* for(int i=0; i<size.at(piece_num).at(0); i++){
         for(int j=0; j<size.at(piece_num).at(1); j++){
@@ -261,7 +261,7 @@ void katanuki(int piece_num, int x_min, int y_min, int direction){
     
     //範囲表示。
     cout << "型抜き範囲x:" << x_min << " - " << x_max <<endl;
-    cout << "型抜き範囲y:" << y_min << " - " << y_max;
+    cout << "型抜き範囲y:" << y_min << " - " << y_max << endl;
     //cout << "抜き出したもの" << endl;
      
 
@@ -286,11 +286,11 @@ void katanuki(int piece_num, int x_min, int y_min, int direction){
        // cout << endl;
     }
 
-    cout << endl << "方向:";
+   // cout << endl << "方向:";
     switch (direction)
     {
     case 0: //上方向
-        cout << "上方向" << endl;
+        //cout << "上方向" << endl;
         for(int i=0; i<board_size_height; i++){
             for(int j=0; j<board_size_width; j++){
                 if(i != 0){
@@ -307,7 +307,7 @@ void katanuki(int piece_num, int x_min, int y_min, int direction){
         break;
 
     case 1: //下方向
-        cout << "下方向" << endl;
+        //cout << "下方向" << endl;
         for(int i=board_size_height-1; i>-1; i--){
             for(int j=0; j<board_size_width; j++){
                 if(i != board_size_height-1){
@@ -324,7 +324,7 @@ void katanuki(int piece_num, int x_min, int y_min, int direction){
         break;
 
     case 2: //左方向
-        cout << "左方向" << endl;
+        //cout << "左方向" << endl;
         for(int j=0; j<board_size_width; j++){
             for(int i=0; i<board_size_height; i++){
                 if(j != 0){
@@ -340,7 +340,7 @@ void katanuki(int piece_num, int x_min, int y_min, int direction){
         break;    
 
     case 3: //右方向
-        cout << "右方向" << endl;
+        //cout << "右方向" << endl;
         for(int j=board_size_width-1; j>-1; j--){
             for(int i=0; i<board_size_height; i++){
                 if(j != board_size_width-1){

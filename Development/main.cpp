@@ -54,27 +54,21 @@ vector<vector<int>> compare_vartical(vector<vector<int>> compare1, vector<vector
 			numbers1.at(i).at(compare1.at(j).at(i)) += 1; //横i列目を縦に見て、0の数を0番目、1の数を1番目...というように格納。
 			numbers2.at(i).at(compare2.at(j).at(i)) += 1;
 		}
-		cout << numbers1.at(i).at(0) << " ";
+		/*   cout << numbers1.at(i).at(0) << " ";
 		cout << numbers1.at(i).at(1) << " ";
 		cout << numbers1.at(i).at(2) << " ";
 		cout << numbers1.at(i).at(3) << "　";
 		cout << numbers2.at(i).at(0) << " ";
 		cout << numbers2.at(i).at(1) << " ";
 		cout << numbers2.at(i).at(2) << " ";
-		cout << numbers2.at(i).at(3) << "\n";  
+		cout << numbers2.at(i).at(3) << "\n";  */
         
         result.at(i).at(0) = abs(numbers1.at(i).at(0) - numbers2.at(i).at(0));
         result.at(i).at(1) = abs(numbers1.at(i).at(1) - numbers2.at(i).at(1));
         result.at(i).at(2) = abs(numbers1.at(i).at(2) - numbers2.at(i).at(2));
         result.at(i).at(3) = abs(numbers1.at(i).at(3) - numbers2.at(i).at(3));
-        
-
 	}
-
     return result;
-
-
-	
 }
 
 
@@ -143,61 +137,95 @@ int main(){
 
 	int result_before;
 	int result_after;
+	
+	int check_x = 0;
+	while(check_x < board_size_width){
+		int shift_y = 0;
+		while(shift_y < board_size_height){
+				vector<vector<int>> vartical_check = compare_vartical(board, finish_board, board_size_width, board_size_height);
+				/* cout << vartical_check.at(check_x).at(0) << "\n";
+				cout << vartical_check.at(check_x).at(1) << "\n";
+				cout << vartical_check.at(check_x).at(2) << "\n";
+				cout << vartical_check.at(check_x).at(3) << "\n"; */
 
-	//ここからwhile
-
-    vector<vector<int>> vartical_check = compare_vartical(board, finish_board, 6, 6);
-	cout << vartical_check.at(0).at(0) << "\n";
-    cout << vartical_check.at(0).at(1) << "\n";
-    cout << vartical_check.at(0).at(2) << "\n";
-    cout << vartical_check.at(0).at(3) << "\n";
-
-	result_before = vartical_check.at(0).at(0) + vartical_check.at(0).at(1) + vartical_check.at(0).at(2) + vartical_check.at(0).at(3);
-	cout << result_before << "\n";
+				result_before = vartical_check.at(check_x).at(0) + vartical_check.at(check_x).at(1) + vartical_check.at(check_x).at(2) + vartical_check.at(check_x).at(3);
+				cout << result_before << "\n";
 
 
-    board_save(1);
+				board_save(1);
+				cout << "shift_y = " << shift_y << "\n";
+				katanuki(0, check_x, shift_y, 2);  //試す
+				
+				vartical_check = compare_vartical(board, finish_board, board_size_width, board_size_height); //評価
+				/* cout << vartical_check.at(check_x).at(0) << "\n";
+				cout << vartical_check.at(check_x).at(1) << "\n";
+				cout << vartical_check.at(check_x).at(2) << "\n";
+				cout << vartical_check.at(check_x).at(3) << "\n"; */
 
-    katanuki(0, 0, 0, 2);  //試す
-    
-	vartical_check = compare_vartical(board, finish_board, 6, 6); //評価
-	cout << vartical_check.at(0).at(0) << "\n";
-    cout << vartical_check.at(0).at(1) << "\n";
-    cout << vartical_check.at(0).at(2) << "\n";
-    cout << vartical_check.at(0).at(3) << "\n";
+				result_after = vartical_check.at(check_x).at(0) + vartical_check.at(check_x).at(1) + vartical_check.at(check_x).at(2) + vartical_check.at(check_x).at(3);
+				cout << result_after << "\n";
 
-	result_after = vartical_check.at(0).at(0) + vartical_check.at(0).at(1) + vartical_check.at(0).at(2) + vartical_check.at(0).at(3);
-	cout << result_after << "\n";
+				if(result_before > result_after){
+					//手を確定させる
+					cout << "確定" << endl;
+					show_board(1);
+					cout << "\x1b[33m" << MOVE << "手目"   << "MATCH : " << 100*(count_match()+0.0) / (board_size_width * board_size_height) << "%" << "\x1b[m" << endl << endl;
+					MOVE++;
+					result_before = result_after;
 
-	if(result_before < result_after){
-		//手を確定させる
-		show_board(1);
-    	cout << "\x1b[33m" << MOVE << "手目"   << "MATCH : " << 100*(count_match()+0.0) / (board_size_width * board_size_height) << "%" << "\x1b[m" << endl << endl;
-    	MOVE++;
+				}else{
+					//もとに戻って無かった事にする。
+					board_road(1);
+				}
+			
+			if(result_after == 0){
+				break;
+			}
 
-	}else{
-		//もとに戻って無かった事にする。
-		board_road(1);
-	}
+			shift_y += 1;
 
+		}
+		cout << "after"<<shift_y << endl;
+
+		check_x++;
+	}  
+
+
+
+
+
+	
+
+	vector<vector<int>> vartical_check = compare_vartical(board, finish_board, board_size_width, board_size_height);
+				/* cout << vartical_check.at(check_x).at(0) << "\n";
+				cout << vartical_check.at(check_x).at(1) << "\n";
+				cout << vartical_check.at(check_x).at(2) << "\n";
+				cout << vartical_check.at(check_x).at(3) << "\n"; */
+
+	
+	  
+
+	
+	
 	//ここでwhileとじる。
 
 
+    check_x = 0;
+    int check_y = 0;
 
-
-		
+    for(int i=0; i<board_size_width; i++){
+        for(int j=0; j<board_size_height; j++){
+            while(board.at(j).at(i) != finish_board.at(j).at(i)){
+                katanuki(0, i, j, 0); 
+                show_board(1);
+                cout << "\x1b[33m" << MOVE << "手目"   << "MATCH : " << 100*(count_match()+0.0) / (board_size_width * board_size_height) << "%" << "\x1b[m" << endl << endl;
+                MOVE++; 
+            }
+        }
+    } 
     
-	
-    
 
 
-
-    
-
-	
-
-    
-    
 
 
 
