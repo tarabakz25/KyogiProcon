@@ -11,10 +11,39 @@
 
 #include "board_setting.cpp"
 #include "evaluation.cpp"
+#include "json.hpp"
+
+using namespace std;
+using json = nlohmann::json;
 
 
 
 using namespace std;
+
+// 文字列からベクトルに変換する関数
+vector<int> stringToVector(const string &str)
+{
+    vector<int> row;
+    for (char c : str)
+    {
+        row.push_back(c - '0'); // 文字を整数に変換
+    }
+    return row;
+}
+
+// JSONからボードを読み込む関数
+int loadBoard(const json &jobj, vector<vector<int>> &startBoard, vector<vector<int>> &goalBoard)
+{
+    for (const auto &line : jobj["board"]["start"])
+    {
+        startBoard.push_back(stringToVector(line.get<string>()));
+    }
+    for (const auto &line : jobj["board"]["goal"])
+    {
+        goalBoard.push_back(stringToVector(line.get<string>()));
+    }
+    return 0;
+}
 
 
 int main(){
@@ -32,10 +61,23 @@ int main(){
     outputfile << ",";
     outputfile << "\n";
 
+    // JSONファイルの読み込み
+    ifstream ifs("./sample1.json");
+    string str((istreambuf_iterator<char>(ifs)), istreambuf_iterator<char>());
+    json jobj = json::parse(str);
+    vector<vector<int>> startBoard, goalBoard;
+    loadBoard(jobj, startBoard, goalBoard);
+    int boardSide = jobj["board"]["width"].get<int>();
+    int boardWarp = jobj["board"]["height"].get<int>();
+
+	board = startBoard;
+	finish_board = goalBoard;
+
 
     
 
-    board_set();
+    //board_set();
+    show_setting_board();
 
 
     cout << "かみやまひらがなこうせんは　たまねぎを　はなった！" << endl;

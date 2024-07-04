@@ -443,3 +443,22 @@ void board_set(){
 
 
 }
+
+void show_setting_board(){
+	define_nukigata(); //抜き型を生成。
+	//start_and_finish();
+
+    //表示用 
+    cout << "\x1b[31m" << "\x1b[1m" << "start" << "\x1b[m" << endl;
+    show_first_board();
+    cout << endl << "\x1b[31m" << "\x1b[1m" << "finish" << "\x1b[m" << endl;
+    show_finish_board();
+	cout << "\n";
+
+    //操作前画面表示
+    cout << "0手目(操作前)" << endl;
+    show_board(1);
+    cout << "\x1b[33m" << "MATCH : " << 100*(count_match()+0.0) / (board_size_width * board_size_height) << "%" << "\x1b[m" << endl << endl;
+
+
+}
