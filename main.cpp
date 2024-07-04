@@ -29,6 +29,8 @@ vector<int> stringToVector(const string &str)
 /* boardやその他情報を表示する */
 void printBoard(vector<vector<int>> &board, vector<vector<int>> &goalBoard,  int matchRate)
 {
+    system("cls");
+
     for(int i = 0; i < board.size(); i ++){
         for(int j = 0; j < board[i].size(); j ++){
             if(board[i][j] == goalBoard[i][j]){
@@ -65,7 +67,7 @@ int katanuki(vector<vector<int>> &tmpBoard, vector<vector<int>> &board, int i, i
             tmpBoard[i][board[i].size() - 1] = tmp;
         
         default:
-           return -1;
+           ;
     }
     actionCount ++;
     return 0;
@@ -203,7 +205,7 @@ int main()
     /* ここからメインプログラム */
     try
     {
-        while(calculateMatchRate(board, goalBoard) == 100.0)
+        while(calculateMatchRate(board, goalBoard) < 100.0)
         {
             for(int ia = 0; ia < boardWarp; ia ++){
                 for(int ja = 0; ja < boardSide; ja ++){
@@ -238,4 +240,4 @@ int main()
     catch(const int e){
         errorException(e);
     }
-}   
+}
