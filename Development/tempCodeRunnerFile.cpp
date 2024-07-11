@@ -1,8 +1,10 @@
- cout << numbers1.at(i).at(0) << " ";
-		cout << numbers1.at(i).at(1) << " ";
-		cout << numbers1.at(i).at(2) << " ";
-		cout << numbers1.at(i).at(3) << "　";
-		cout << numbers2.at(i).at(0) << " ";
-		cout << numbers2.at(i).at(1) << " ";
-		cout << numbers2.at(i).at(2) << " ";
-		cout << numbers2.at(i).at(3) << "\n";
+// 文字列からベクトルに変換する関数
+vector<int> stringToVector(const string &str)
+{
+    vector<int> row;
+    for (char c : str)
+    {
+        row.push_back(c - '0'); // 文字を整数に変換
+    }
+    return row;
+}

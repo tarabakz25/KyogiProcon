@@ -12,6 +12,7 @@
 #include "board_setting.cpp"
 #include "evaluation.cpp"
 #include "json.hpp"
+#include "search_block.cpp"
 
 using namespace std;
 using json = nlohmann::json;
@@ -62,6 +63,7 @@ int main(){
     outputfile << "\n";
 
     // JSONファイルの読み込み
+    /* 
     ifstream ifs("./sample1.json");
     string str((istreambuf_iterator<char>(ifs)), istreambuf_iterator<char>());
     json jobj = json::parse(str);
@@ -72,18 +74,17 @@ int main(){
 
 	board = startBoard;
 	finish_board = goalBoard;
-
-
+    */
     
-
-    
-    show_setting_board(); //json
-    //board_set();  // random
+    //show_setting_board(); //json
+    board_set();  // random
 
 
     cout << "かみやまひらがなこうせんは　たまねぎを　はなった！" << endl;
     cout << "＞＞「くらえッ　タマネギ！」" << endl;
     board_save(0);
+
+    search_block();
 
     //実行時間計測用
     std::chrono::system_clock::time_point  start, end; 
@@ -117,41 +118,7 @@ int main(){
 
     
 
-    while(1){
-        int in_kata, in_x, in_y, in_direction_num;
-        char in_direction;
-        cout << "抜き型を選択してください" << endl;
-        cin >> in_kata;
-        cout << "適用するx,yを入力(x y)" << endl;
-        cin >> in_x >> in_y;
-        cout << "方向をwasdキーで入力してください" << endl;
-        cin >> in_direction;
-
-        switch (in_direction){
-            case 'w':
-                in_direction_num = 0;
-                break;
-            case 's':
-                in_direction_num = 1;
-                break;
-            case 'a':
-                in_direction_num = 2;
-                break;
-            case 'd':
-                in_direction_num = 3;
-                break;                                                
-        
-            default:
-                break;
-        }
-
-        katanuki(in_kata, in_x, in_y, in_direction_num); 
-        show_board(1);
-        cout << "\x1b[33m" << MOVE << "手目"   << "MATCH : " << 100*(count_match()+0.0) / (board_size_width * board_size_height) << "%" << "\x1b[m" << endl << endl;
-        MOVE++;         
-
-    }
-
+    
 
     //実行時間計測用
     end = std::chrono::system_clock::now();  // 計測終了時間
