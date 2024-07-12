@@ -41,7 +41,7 @@ void search_block(){
     }
     cout << "\n";
 
-    block_type = 3;
+    block_type = 2;
 
     search_now_x = 0;
     search_now_y = 0;

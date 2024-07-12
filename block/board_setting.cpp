@@ -5,8 +5,8 @@
 
 using namespace std;
 
-int board_size_width =  32;  //盤面の大きさ
-int board_size_height = 32;
+int board_size_width =  10;  //盤面の大きさ
+int board_size_height = 10;
 int MOVE = 1;
 
 vector<vector<int>> board(board_size_height, vector<int>(board_size_width)); //型番号、縦、横の順番
