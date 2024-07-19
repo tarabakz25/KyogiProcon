@@ -55,7 +55,7 @@ void search_block(){
             blockcheck_now.at(i).at(j) = 0;
         }
     }
-    block_type = 4;
+    block_type = 2;
 
     search_now_x = 0;
     search_now_y = 0;
