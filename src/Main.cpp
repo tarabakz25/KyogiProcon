@@ -8,7 +8,7 @@ int BOARD_WIDTH;
 int BOARD_HEIGHT;
 
 void Board_draw(int position_x, int position_y, int side_length, vector<int> &board_now, const Font& font);
-void comparison(int block_type, int now_x, int now_y, int end_x, int end_y, vector<int>& board_now, vector<int>& board_finish, vector<int>& blockcheck_now, vector<int>& blockcheck_end);
+void comparison(int block_type, int now_x, int now_y, int end_x, int end_y, vector<int>& board_now, vector<int>& board_finish, vector<int>& blockcheck_now, vector<int>& blockcheck_end, vector<vector<int>>& blockcheck_result);
 vector<vector<int>> search_block(vector<int>& board_now, vector<int>& board_finish);
 
 void Main()
@@ -26,7 +26,7 @@ void Main()
     vector<int> board_finish (BOARD_WIDTH * BOARD_HEIGHT, 0);
     vector<vector<int>> blockcheck_result;
 
-	//board_setting
+	//board_setting(random)
 	for(int i = 0; i < BOARD_HEIGHT; i++){
 		for(int j = 0; j < BOARD_WIDTH; j++){
 			board_now.at(BOARD_WIDTH * i + j) = rand() % 4;
@@ -38,20 +38,16 @@ void Main()
 		}
 	}
 
-    blockcheck_result = search_block(board_now, board_finish);
-
+    blockcheck_result = search_block(board_now, board_finish); //2*2ブロック探す
     for(int i = 0; i < blockcheck_result.size(); i++){
-
         cout << "\033[33m";
         cout << "p" << blockcheck_result.at(i).at(0) <<" s" << blockcheck_result.at(i).at(1) << "," <<  blockcheck_result.at(i).at(2) << ",. e" << blockcheck_result.at(i).at(3) << "," << blockcheck_result.at(i).at(4) << "が一致" << endl;
         cout << "\033[37m";
-        
     }
 
 
-	
-	while (System::Update())
-	{
+	//描画開始
+	while (System::Update()){
 	 	//gui_drawing
         font(U"NOW").draw(10, 25, ColorF{ 1.0, 1.0, 1.0 });
         Board_draw(10, 50, side_length, board_now, font);
@@ -63,14 +59,11 @@ void Main()
              Rect{ 50 + side_length * BOARD_WIDTH +  side_length * blockcheck_result.at(i).at(3), 50 + side_length * blockcheck_result.at(i).at(4), side_length*blockcheck_result.at(i).at(0), side_length*blockcheck_result.at(i).at(0) }.drawFrame(0.8, 0.8, Palette::Red);
         
         }
-
-		
 	}
 }
 
-
+//盤面の表示
 void Board_draw(int position_x, int position_y, int side_length, vector<int> &board_now, const Font& font){
-
     for(int x = 0; x<BOARD_HEIGHT; x++){
             for(int y =0; y<BOARD_WIDTH; y++){
                 switch(board_now.at(x + BOARD_WIDTH * y)){
@@ -98,10 +91,39 @@ void Board_draw(int position_x, int position_y, int side_length, vector<int> &bo
         }
 }
 
+//ブロックに分けて探す
+vector<vector<int>> search_block(vector<int>& board_now, vector<int>& board_finish){
+    vector<int> blockcheck_now(BOARD_WIDTH * BOARD_HEIGHT, 0); 
+    vector<int> blockcheck_end(BOARD_WIDTH * BOARD_HEIGHT, 0);
+    vector<vector<int>> blockcheck_result;
+    int block_type = 4;
+
+    //重複チェック用配列の初期化
+    for(int i = 0; i<BOARD_HEIGHT; i++){
+        for(int j = 0; j<BOARD_WIDTH; j++){
+            blockcheck_now.at(j+ BOARD_WIDTH* i) = 0;
+            //blockcheck_now.at(i).at(j) = 0;
+        }
+    }
+    block_type = 2;
+
+    for(int i = 0; i < BOARD_WIDTH - block_type + 1; i++){
+        for(int j = 0; j < BOARD_HEIGHT - block_type + 1; j++){
+            for(int k = 0; k < BOARD_WIDTH - block_type + 1; k++){
+                for(int l = 0; l < BOARD_HEIGHT - block_type + 1; l++){
+                    //重複チェック
+                    comparison(block_type, i, j, k, l, board_now, board_finish, blockcheck_now, blockcheck_end, blockcheck_result);
+                }
+            }
+        }
+    }
+
+    return blockcheck_result;
+
+}
 
 
-
-
+//重複チェック
 void comparison(int block_type, int now_x, int now_y, int end_x, int end_y, vector<int>& board_now, vector<int>& board_finish, vector<int>& blockcheck_now, vector<int>& blockcheck_end, vector<vector<int>>& blockcheck_result){
     int count = 0;
     int use = 1; //干渉していたら不採用、最初は採用にする。
@@ -142,35 +164,3 @@ void comparison(int block_type, int now_x, int now_y, int end_x, int end_y, vect
     
 }
 
-vector<vector<int>> search_block(vector<int>& board_now, vector<int>& board_finish){
-    vector<int> blockcheck_now(BOARD_WIDTH * BOARD_HEIGHT, 0); 
-    vector<int> blockcheck_end(BOARD_WIDTH * BOARD_HEIGHT, 0);
-    vector<vector<int>> blockcheck_result;
-    int block_type = 4;
-
-    //重複チェック用配列の初期化
-    for(int i = 0; i<BOARD_HEIGHT; i++){
-        for(int j = 0; j<BOARD_WIDTH; j++){
-            blockcheck_now.at(j+ BOARD_WIDTH* i) = 0;
-            //blockcheck_now.at(i).at(j) = 0;
-        }
-    }
-    block_type = 2;
-
-    for(int i = 0; i < BOARD_WIDTH - block_type + 1; i++){
-        for(int j = 0; j < BOARD_HEIGHT - block_type + 1; j++){
-            for(int k = 0; k < BOARD_WIDTH - block_type + 1; k++){
-                for(int l = 0; l < BOARD_HEIGHT - block_type + 1; l++){
-                    comparison(block_type, i, j, k, l, board_now, board_finish, blockcheck_now, blockcheck_end, blockcheck_result);
-                }
-            }
-        }
-    }
- 
-
-    return blockcheck_result;
-
-
-    
-
-}
