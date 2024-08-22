@@ -1,15 +1,27 @@
 #include <Siv3D.hpp> // Siv3D v0.6.15
 #include <string.h>
+#include <stdlib.h>
+#include <vector>
 #include "json.hpp"
+#include "board_setting.cpp"
+
+#include "setting.hpp"
 //using namespace nlohman;
 using namespace std;
 
 int BOARD_WIDTH;
 int BOARD_HEIGHT;
 
+//プロトタイプ宣言
 void Board_draw(int position_x, int position_y, int side_length, vector<int> &board_now, const Font& font);
 void comparison(int block_type, int now_x, int now_y, int end_x, int end_y, vector<int>& board_now, vector<int>& board_finish, vector<int>& blockcheck_now, vector<int>& blockcheck_end, vector<vector<int>>& blockcheck_result);
 vector<vector<int>> search_block(vector<int>& board_now, vector<int>& board_finish);
+
+
+vector<vector<int>> define_size();
+vector<vector<vector<int> > > define_nukigata(vector<vector<int>> size);
+vector<int> katanuki(int piece_num, int x_min, int y_min, int direction, vector<vector<int>>& size, vector<vector<vector<int>>>& nukigata, vector<int> board, int BOARD_WIDTH, int BOARD_HEIGHT);
+
 
 void Main()
 {
@@ -17,11 +29,23 @@ void Main()
 	//Scene::SetBackground(ColorF{ 0.0, 0.0, 0.0 });
 	const int side_length = 14;
     const Font font{ FontMethod::MSDF, 12, Typeface::Bold };
-	
+    
+    // ウィンドウを自由にサイズ変更可能に設定
+    Window::SetStyle(WindowStyle::Sizable);
+    // ウィンドウサイズを 800x600 に設定
+    Window::Resize(800, 700);
+
+    TextEditState te1{ U"0 0 0 0" };// デフォルトのテキストを設定する
+    String entered_text;
+
+
+
+
 
     BOARD_WIDTH = 20;
     BOARD_HEIGHT = 20;
 
+    vector<int> board_start (BOARD_WIDTH * BOARD_HEIGHT, 0);
 	vector<int> board_now (BOARD_WIDTH * BOARD_HEIGHT, 0);
     vector<int> board_finish (BOARD_WIDTH * BOARD_HEIGHT, 0);
     vector<vector<int>> blockcheck_result;
@@ -29,7 +53,7 @@ void Main()
 	//board_setting(random)
 	for(int i = 0; i < BOARD_HEIGHT; i++){
 		for(int j = 0; j < BOARD_WIDTH; j++){
-			board_now.at(BOARD_WIDTH * i + j) = rand() % 4;
+			board_start.at(BOARD_WIDTH * i + j) = rand() % 4;
 		}
 	}
     for(int i = 0; i < BOARD_HEIGHT; i++){
@@ -38,26 +62,66 @@ void Main()
 		}
 	}
 
+    board_now = board_start;
+
+    //block_check
     blockcheck_result = search_block(board_now, board_finish); //2*2ブロック探す
-    for(int i = 0; i < blockcheck_result.size(); i++){
+    for(size_t i = 0; i < blockcheck_result.size(); i++){
         cout << "\033[33m";
         cout << "p" << blockcheck_result.at(i).at(0) <<" s" << blockcheck_result.at(i).at(1) << "," <<  blockcheck_result.at(i).at(2) << ",. e" << blockcheck_result.at(i).at(3) << "," << blockcheck_result.at(i).at(4) << "が一致" << endl;
         cout << "\033[37m";
     }
 
+    vector<vector<int>> size = define_size();
+    vector<vector<vector<int> > > nukigata = define_nukigata(size);
+
+    //board_now = katanuki(1, 0, 0, 2, size, nukigata, board_start, BOARD_WIDTH, BOARD_HEIGHT);
+    //[0:up 1:down 2:left 3:right]
+
+
 
 	//描画開始
 	while (System::Update()){
 	 	//gui_drawing
-        font(U"NOW").draw(10, 25, ColorF{ 1.0, 1.0, 1.0 });
-        Board_draw(10, 50, side_length, board_now, font);
+        font(U"START").draw(10, 25, ColorF{ 1.0, 1.0, 1.0 });
+        Board_draw(10, 50, side_length, board_start, font);
+
+        font(U"NOW").draw(10, 70 + side_length * BOARD_HEIGHT, ColorF{ 1.0, 1.0, 1.0 });
+        Board_draw(10, 95 + side_length * BOARD_HEIGHT, side_length, board_now, font);
+
         font(U"FINISH").draw(50 + side_length * BOARD_WIDTH, 25, ColorF{ 1.0, 1.0, 1.0 });
         Board_draw(50 + 14 * BOARD_WIDTH, 50, side_length, board_finish, font);
 
-        for(int i = 0; i < blockcheck_result.size(); i++){
+        for(size_t i = 0; i < blockcheck_result.size(); i++){
              Rect{ 10 + side_length * blockcheck_result.at(i).at(1), 50 + side_length * blockcheck_result.at(i).at(2), side_length*blockcheck_result.at(i).at(0), side_length*blockcheck_result.at(i).at(0) }.drawFrame(0.8, 0.8, Palette::Red);
              Rect{ 50 + side_length * BOARD_WIDTH +  side_length * blockcheck_result.at(i).at(3), 50 + side_length * blockcheck_result.at(i).at(4), side_length*blockcheck_result.at(i).at(0), side_length*blockcheck_result.at(i).at(0) }.drawFrame(0.8, 0.8, Palette::Red);
         
+        }
+
+        //Print << te1.active; // アクティブかどうか
+		//Print << te1.text; // 入力されたテキスト (String)
+
+		SimpleGUI::TextBox(te1, Vec2{ 330, 380 });
+
+        if(KeyEnter.down()){
+            entered_text = te1.text;
+
+            te1.clear();
+            //Print << U"Entered text: " << entered_text;
+
+            Array<String> tokens = entered_text.split(U' ');
+            int num1 = Parse<int>(tokens[0]);
+            int num2 = Parse<int>(tokens[1]);
+            int num3 = Parse<int>(tokens[2]);
+            int num4 = Parse<int>(tokens[3]);
+
+            /* Print << U"num1: " << num1;
+            Print << U"num2: " << num2;
+            Print << U"num3: " << num3;
+            Print << U"num4: " << num4; */
+
+            board_now = katanuki(num1, num2, num3, num4, size, nukigata, board_now, BOARD_WIDTH, BOARD_HEIGHT);
+
         }
 	}
 }
@@ -96,7 +160,7 @@ vector<vector<int>> search_block(vector<int>& board_now, vector<int>& board_fini
     vector<int> blockcheck_now(BOARD_WIDTH * BOARD_HEIGHT, 0); 
     vector<int> blockcheck_end(BOARD_WIDTH * BOARD_HEIGHT, 0);
     vector<vector<int>> blockcheck_result;
-    int block_type = 4;
+    int block_type;
 
     //重複チェック用配列の初期化
     for(int i = 0; i<BOARD_HEIGHT; i++){
@@ -105,13 +169,13 @@ vector<vector<int>> search_block(vector<int>& board_now, vector<int>& board_fini
             //blockcheck_now.at(i).at(j) = 0;
         }
     }
-    block_type = 2;
+    block_type = 2; // 2*2で探す。
 
     for(int i = 0; i < BOARD_WIDTH - block_type + 1; i++){
         for(int j = 0; j < BOARD_HEIGHT - block_type + 1; j++){
             for(int k = 0; k < BOARD_WIDTH - block_type + 1; k++){
                 for(int l = 0; l < BOARD_HEIGHT - block_type + 1; l++){
-                    //重複チェック
+                    //重複チェック 始点(i,j) 終点(k,l)
                     comparison(block_type, i, j, k, l, board_now, board_finish, blockcheck_now, blockcheck_end, blockcheck_result);
                 }
             }
@@ -119,7 +183,6 @@ vector<vector<int>> search_block(vector<int>& board_now, vector<int>& board_fini
     }
 
     return blockcheck_result;
-
 }
 
 
