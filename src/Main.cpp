@@ -33,14 +33,10 @@ void Main()
     // ウィンドウを自由にサイズ変更可能に設定
     Window::SetStyle(WindowStyle::Sizable);
     // ウィンドウサイズを 800x600 に設定
-    Window::Resize(800, 700);
+    Window::Resize(800, 600);
 
-    TextEditState te1{ U"0 0 0 0" };// デフォルトのテキストを設定する
+    TextEditState te1{ U"0 0 0" };// デフォルトのテキストを設定する
     String entered_text;
-
-
-
-
 
     BOARD_WIDTH = 20;
     BOARD_HEIGHT = 20;
@@ -103,6 +99,22 @@ void Main()
 
 		SimpleGUI::TextBox(te1, Vec2{ 330, 380 });
 
+        int num4;
+
+        //矢印キー入力で型抜き方向を決定
+        if(KeyRight.down()){
+            num4 = 0;
+        }
+        else if (KeyLeft.down()){
+            num4 = 1;
+        }
+        else if (KeyUp.down()){
+            num4 = 2;
+        }
+        else if (KeyDown.down()){
+            num4 = 3;
+        }
+
         if(KeyEnter.down()){
             entered_text = te1.text;
 
@@ -113,7 +125,6 @@ void Main()
             int num1 = Parse<int>(tokens[0]);
             int num2 = Parse<int>(tokens[1]);
             int num3 = Parse<int>(tokens[2]);
-            int num4 = Parse<int>(tokens[3]);
 
             /* Print << U"num1: " << num1;
             Print << U"num2: " << num2;
@@ -227,3 +238,57 @@ void comparison(int block_type, int now_x, int now_y, int end_x, int end_y, vect
     
 }
 
+vector<vector<int>> define_size(){
+    //返却値宣言
+    vector<vector<int>> size(25, vector<int> (2));
+
+    int b = 0;  //配列の要素指定変数
+    size.at(b) = {1, 1};
+
+    b++;
+    for (int i = 0; i < 8; i++){
+        for (int j = 0; j < 3; j++){
+            size.at(b) = {2 << i, 2 << i}; //ビット操作で256まで計算
+            b++;    //配列の要素を更新
+        }
+    }
+
+    return (size);
+}
+
+vector<vector<vector<int>>>  define_nukigata(vector<vector<int>> size){
+    //返却値宣言
+    vector<vector<vector<int>>> nukigata(25, vector<vector<int>> (256, vector<int> (256, 0)));
+
+    //一番目の抜き型を初期化
+    nukigata.at(0).at(0).at(0) = 1;
+
+    //二~二十五番目の抜き型を初期化
+    for (int i = 0; i < 8; i++){
+        for (int j = 0; j < 3; j++){
+            if (j == 0){
+                for (int k = 0; k < 2 << i; k++){
+                    for (int l = 0; l < 2 << i; l++){
+                        nukigata.at(i * 3 + j).at(k).at(l) = 1;
+                    }
+                }
+            }
+            else if (j == 1){
+                for (int k = 0; k < 2 << i; k++){
+                    for (int l = 0; l < 2 << i; l += 2){
+                        nukigata.at(i * 3 + j).at(k).at(l) = 1;
+                    }
+                }
+            }
+            else if (j == 2){
+                for (int k = 0; k < 2 << i; k += 2){
+                    for (int l = 0; l < 2 << i; l++){
+                        nukigata.at(i * 3 + j).at(k).at(l) = 1;
+                    }
+                }
+            }
+        }
+    }
+
+    return (nukigata);
+}
