@@ -24,7 +24,7 @@ vector<vector<int>> define_size();
 
 vector<vector<vector<int> > > define_nukigata(vector<vector<int>> size);
 define_size();で返ってきた定型抜き型の大きさをもとに、抜き型を作ります。
-抜き型は3次元配列です。
+抜き型は3次元配列で返します。
 
 vector<int> katanuki(int piece_num, int x_min, int y_min, int direction, vector<vector<int>>& size, vector<vector<vector<int>>>& nukigata, vector<int> board, int BOARD_WIDTH, int BOARD_HEIGHT);
 型抜きをします。
