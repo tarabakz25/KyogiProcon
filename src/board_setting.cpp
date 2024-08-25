@@ -4,86 +4,59 @@
 using namespace std;
 
 vector<vector<int>> define_size(){
-    vector<vector<int>> size(30, vector<int>(2));
-    //size.at(0) = {1,1};
-    size.at(0).at(0) = 1;
-    size.at(0).at(1) = 1;
-    
-    for(int i=1,t=2; i<24; i++){
-        size.at(i).at(0) = t;
-        size.at(i).at(1) = t; 
-        size.at(i+1).at(0) = t;
-        size.at(i+1).at(1) = t;
-        size.at(i+2).at(0) = t;
-        size.at(i+2).at(1) = t;
+    //返却値宣言
+    vector<vector<int>> size(25, vector<int> (2));
 
-        i += 2;
-        t *= 2;
+    int b = 0;  //配列の要素指定変数
+    size.at(b) = {1, 1};
+
+    b++;
+    for (int i = 0; i < 8; i++){
+        for (int j = 0; j < 3; j++){
+            size.at(b) = {2 << i, 2 << i}; //ビット操作で256まで計算
+            b++;    //配列の要素を更新
+        }
     }
 
-    //抜き型サイズ表示用(あとで消す)
-    /* for(int i=0; i < 25; i++){
-        cout << "piece" << i << ";" << size.at(i).at(0) << endl;
-    } */
-    return size;
+    return (size);
 }
 
-vector<vector<vector<int> > > define_nukigata(vector<vector<int>> size){ 
-    vector<vector<vector<int> > > nukigata(25);
-    for(int p = 0; p < 25; p++) {
-        nukigata[p].resize(size[p][0], vector<int>(size[p][1], 0)); // それぞれのサイズに合わせて初期化
+vector<vector<vector<int>>>  define_nukigata(vector<vector<int>> size){
+    //返却値宣言
+    vector<vector<vector<int>>> nukigata(25, vector<vector<int>> (256, vector<int> (256, 0)));
+
+    //一番目の抜き型を初期化
+    nukigata.at(0).at(0).at(0) = 1;
+
+    //二~二十五番目の抜き型を初期化
+    for (int i = 0; i < 8; i++){
+        for (int j = 0; j < 3; j++){
+            if (j == 0){
+                for (int k = 0; k < 2 << i; k++){
+                    for (int l = 0; l < 2 << i; l++){
+                        nukigata.at(i * 3 + j).at(k).at(l) = 1;
+                    }
+                }
+            }
+            else if (j == 1){
+                for (int k = 0; k < 2 << i; k++){
+                    for (int l = 0; l < 2 << i; l += 2){
+                        nukigata.at(i * 3 + j).at(k).at(l) = 1;
+                    }
+                }
+            }
+            else if (j == 2){
+                for (int k = 0; k < 2 << i; k += 2){
+                    for (int l = 0; l < 2 << i; l++){
+                        nukigata.at(i * 3 + j).at(k).at(l) = 1;
+                    }
+                }
+            }
+        }
     }
 
-    int p = 0;
-    nukigata.at(p).at(0).at(0) = 1; //1*1のボード
-
-    //2*2以上の定型抜き型(24個)を生成。
-    p = 1;
-    while(p<24){
-        //typeI
-        for(int i=0; i < size.at(p).at(0); i++){
-            for(int j=0; j < size.at(p).at(1); j++){
-                nukigata.at(p).at(i).at(j) = 1;
-            }
-        }
-        p++;
-
-        //typeII
-        for(int i=0; i < size.at(p).at(0); i++){
-            for(int j=0; j < size.at(p).at(1); j++){
-                nukigata.at(p).at(i).at(j) = 1;
-            }
-            i++;
-        }
-        p++;
-
-        //typeIII
-        for(int j=0; j < size.at(p).at(1); j++){
-            for(int i=0; i < size.at(p).at(0); i++){
-                nukigata.at(p).at(i).at(j) = 1;
-            }
-            j++;
-        }
-        p++;
-    }
-
-    //抜き型表示用（仮。あとで消す）
-
-    for(int i=0; i<10; i++){
-        cout << "nukigata_num : " << i << endl;
-        for(int j=0; j<size.at(i).at(0); j++){
-            for(int k=0; k<size.at(i).at(1); k++){
-                cout << "[" << nukigata.at(i).at(j).at(k) << "]";
-            }    
-            cout << endl;
-        }
-        cout << endl;
-    }    
-    return nukigata;
+    return (nukigata);
 }
-
-
-
 
 vector<int> katanuki(int piece_num, int x_min, int y_min, int direction, vector<vector<int>>& size, vector<vector<vector<int>>>& nukigata, vector<int> board, int BOARD_WIDTH, int BOARD_HEIGHT){
     
