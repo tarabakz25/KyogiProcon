@@ -103,16 +103,16 @@ void Main()
 
         //矢印キー入力で型抜き方向を決定
         if(KeyRight.down()){
-            num4 = 0;
+            num4 = 3;
         }
         else if (KeyLeft.down()){
-            num4 = 1;
-        }
-        else if (KeyUp.down()){
             num4 = 2;
         }
+        else if (KeyUp.down()){
+            num4 = 0;
+        }
         else if (KeyDown.down()){
-            num4 = 3;
+            num4 = 1;
         }
 
         if(KeyEnter.down()){

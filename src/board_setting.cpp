@@ -30,24 +30,24 @@ vector<vector<vector<int>>>  define_nukigata(vector<vector<int>> size){
 
     //二~二十五番目の抜き型を初期化
     for (int i = 0; i < 8; i++){
-        for (int j = 0; j < 3; j++){
-            if (j == 0){
-                for (int k = 0; k < 2 << i; k++){
-                    for (int l = 0; l < 2 << i; l++){
+        for (int j = 1; j <= 3; j++){
+            if (j == 1){
+                for (int k = 0; k < 2; k++){
+                    for (int l = 0; l < 2; l++){
                         nukigata.at(i * 3 + j).at(k).at(l) = 1;
                     }
                 }
             }
-            else if (j == 1){
-                for (int k = 0; k < 2 << i; k++){
-                    for (int l = 0; l < 2 << i; l += 2){
+            else if (j == 3){
+                for (int k = 0; k < 2; k++){
+                    for (int l = 0; l < 2; l += 2){
                         nukigata.at(i * 3 + j).at(k).at(l) = 1;
                     }
                 }
             }
             else if (j == 2){
-                for (int k = 0; k < 2 << i; k += 2){
-                    for (int l = 0; l < 2 << i; l++){
+                for (int k = 0; k < 2; k += 2){
+                    for (int l = 0; l < 2; l++){
                         nukigata.at(i * 3 + j).at(k).at(l) = 1;
                     }
                 }
