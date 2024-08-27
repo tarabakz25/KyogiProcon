@@ -105,7 +105,7 @@ vector<int> katanuki(int piece_num, int x_min, int y_min, int direction, vector<
     switch (direction)
     {
     case 0: //上方向
-        cout << "上方向" << endl;
+        //cout << "上方向" << endl;
         for(int i=0; i<BOARD_HEIGHT; i++){
             for(int j=0; j<BOARD_WIDTH; j++){
                 if(i != 0){
