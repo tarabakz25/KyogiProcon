@@ -75,8 +75,8 @@ vector<int> katanuki(int piece_num, int x_min, int y_min, int direction, vector<
     
     
     //範囲表示。
-    cout << "型抜き範囲x:" << x_min << " - " << x_max <<endl;
-    cout << "型抜き範囲y:" << y_min << " - " << y_max << endl;
+    cout << "型抜き範囲x:" << x_min << " ~ " << x_max <<endl;
+    cout << "型抜き範囲y:" << y_min << " ~ " << y_max << endl;
     //cout << "抜き出したもの" << endl;
      
 
@@ -89,10 +89,9 @@ vector<int> katanuki(int piece_num, int x_min, int y_min, int direction, vector<
 
             }else{
                 if(nukigata.at(piece_num).at(i).at(j) == 1){
-                    kata_1d.at(kata_1d_in) = board.at(y_min+i * BOARD_WIDTH + (x_min + j)); //一次元配列に格納
+                    kata_1d.at(kata_1d_in) = board.at((y_min+i) * BOARD_WIDTH + (x_min + j)); //一次元配列に格納
                     
-                    
-                    board.at(y_min+i * BOARD_WIDTH + (x_min + j)) = 9; //抜かれた部分は9にする
+                    board.at((y_min+i) * BOARD_WIDTH + (x_min + j)) = 9; //抜かれた部分は9にする
     
                     //cout << "[" << kata_1d.at(kata_1d_in)  << "]" ; 
                     kata_1d_in++;
@@ -106,7 +105,7 @@ vector<int> katanuki(int piece_num, int x_min, int y_min, int direction, vector<
     switch (direction)
     {
     case 0: //上方向
-        //cout << "上方向" << endl;
+        cout << "上方向" << endl;
         for(int i=0; i<BOARD_HEIGHT; i++){
             for(int j=0; j<BOARD_WIDTH; j++){
                 if(i != 0){

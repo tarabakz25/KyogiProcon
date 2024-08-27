@@ -126,10 +126,10 @@ void Main()
             int num2 = Parse<int>(tokens[1]);
             int num3 = Parse<int>(tokens[2]);
 
-            /* Print << U"num1: " << num1;
-            Print << U"num2: " << num2;
-            Print << U"num3: " << num3;
-            Print << U"num4: " << num4; */
+            cout << "num1: " << num1 << endl;
+            cout << "num2: " << num2 << endl;
+            cout << "num3: " << num3 << endl;
+            cout << "num4: " << num4 << endl;
 
             board_now = katanuki(num1, num2, num3, num4, size, nukigata, board_now, BOARD_WIDTH, BOARD_HEIGHT);
 
