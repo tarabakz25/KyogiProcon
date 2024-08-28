@@ -33,9 +33,9 @@ void Main()
     // ウィンドウを自由にサイズ変更可能に設定
     Window::SetStyle(WindowStyle::Sizable);
     // ウィンドウサイズを 800x600 に設定
-    Window::Resize(800, 600);
+    Window::Resize(800, 800);
 
-    TextEditState te1{ U"0 0 0" };// デフォルトのテキストを設定する
+    TextEditState te1{ U"0,0,0" };// デフォルトのテキストを設定する
     String entered_text;
 
     BOARD_WIDTH = 20;
@@ -79,25 +79,25 @@ void Main()
 	//描画開始
 	while (System::Update()){
 	 	//gui_drawing
-        font(U"START").draw(10, 25, ColorF{ 1.0, 1.0, 1.0 });
-        Board_draw(10, 50, side_length, board_start, font);
+        font(U"START").draw(40, 15, ColorF{ 1.0, 1.0, 1.0 });
+        Board_draw(40, 60, side_length, board_start, font);
 
-        font(U"NOW").draw(10, 70 + side_length * BOARD_HEIGHT, ColorF{ 1.0, 1.0, 1.0 });
-        Board_draw(10, 95 + side_length * BOARD_HEIGHT, side_length, board_now, font);
+        font(U"NOW").draw(40, 70 + side_length * BOARD_HEIGHT, ColorF{ 1.0, 1.0, 1.0 });
+        Board_draw(40, 115 + side_length * BOARD_HEIGHT, side_length, board_now, font);
 
-        font(U"FINISH").draw(50 + side_length * BOARD_WIDTH, 25, ColorF{ 1.0, 1.0, 1.0 });
-        Board_draw(50 + 14 * BOARD_WIDTH, 50, side_length, board_finish, font);
+        font(U"FINISH").draw(80 + side_length * BOARD_WIDTH, 15, ColorF{ 1.0, 1.0, 1.0 });
+        Board_draw(80 + 14 * BOARD_WIDTH, 60, side_length, board_finish, font);
 
         for(size_t i = 0; i < blockcheck_result.size(); i++){
-             Rect{ 10 + side_length * blockcheck_result.at(i).at(1), 50 + side_length * blockcheck_result.at(i).at(2), side_length*blockcheck_result.at(i).at(0), side_length*blockcheck_result.at(i).at(0) }.drawFrame(0.8, 0.8, Palette::Red);
-             Rect{ 50 + side_length * BOARD_WIDTH +  side_length * blockcheck_result.at(i).at(3), 50 + side_length * blockcheck_result.at(i).at(4), side_length*blockcheck_result.at(i).at(0), side_length*blockcheck_result.at(i).at(0) }.drawFrame(0.8, 0.8, Palette::Red);
+             Rect{ 40 + side_length * blockcheck_result.at(i).at(1), 60 + side_length * blockcheck_result.at(i).at(2), side_length*blockcheck_result.at(i).at(0), side_length*blockcheck_result.at(i).at(0) }.drawFrame(0.8, 0.8, Palette::Red);
+             Rect{ 80 + side_length * BOARD_WIDTH +  side_length * blockcheck_result.at(i).at(3), 60 + side_length * blockcheck_result.at(i).at(4), side_length*blockcheck_result.at(i).at(0), side_length*blockcheck_result.at(i).at(0) }.drawFrame(0.8, 0.8, Palette::Red);
         
         }
 
         //Print << te1.active; // アクティブかどうか
 		//Print << te1.text; // 入力されたテキスト (String)
 
-		SimpleGUI::TextBox(te1, Vec2{ 330, 380 });
+		SimpleGUI::TextBox(te1, Vec2{ 80 + side_length * BOARD_WIDTH, 100 + side_length * BOARD_HEIGHT});
 
         int num4;
 
@@ -121,7 +121,7 @@ void Main()
             te1.clear();
             //Print << U"Entered text: " << entered_text;
 
-            Array<String> tokens = entered_text.split(U' ');
+            Array<String> tokens = entered_text.split(U',');
             int num1 = Parse<int>(tokens[0]);
             int num2 = Parse<int>(tokens[1]);
             int num3 = Parse<int>(tokens[2]);
@@ -140,6 +140,32 @@ void Main()
 //盤面の表示
 void Board_draw(int position_x, int position_y, int side_length, vector<int> &board_now, const Font& font){
     for(int x = 0; x<BOARD_HEIGHT; x++){
+        if (x == 0){
+            for (int j = 0; j < BOARD_WIDTH; j++){
+                if (j == 0){
+                    font(j % 10).draw(position_x + 3 - side_length * 2 , position_y - 1 + side_length * j, ColorF(255, 255, 255));
+                }
+                else if (j % 100 == 0){
+                    font(j).draw(position_x + 3 - side_length * 3 , position_y - 1 + side_length * j, ColorF(255, 255, 255));
+                }
+                else if (j % 10 == 0){
+                    font(j).draw(position_x + 3 - side_length * 2.5 , position_y - 1 + side_length * j, ColorF(255, 255, 255));
+                }
+                else {
+                    font(j % 10).draw(position_x + 3 - side_length * 2 , position_y - 1 + side_length * j, ColorF(255, 255, 255));
+                }
+                if (j == 0){
+                    font(j % 10).draw(position_x + 3 + side_length * j , position_y - 1 - side_length * 2, ColorF(255, 255, 255));
+                }
+                else if (j % 10 == 0){
+                    font(j).draw(position_x + 3 + side_length * j , position_y - 1 - side_length * 3, ColorF(255, 255, 255));
+                    font(0).draw(position_x + 3 + side_length * j , position_y - 1 - side_length * 2, ColorF(255, 255, 255));
+                }
+                else {
+                    font(j % 10).draw(position_x + 3 + side_length * j , position_y - 1 - side_length * 2, ColorF(255, 255, 255));
+                }
+            }
+        }
             for(int y =0; y<BOARD_WIDTH; y++){
                 switch(board_now.at(x + BOARD_WIDTH * y)){
                     case 0:
