@@ -80,24 +80,24 @@ void Main()
 	while (System::Update()){
 	 	//gui_drawing
         font(U"START").draw(40, 15, ColorF{ 1.0, 1.0, 1.0 });
-        Board_draw(40, 60, side_length, board_start, font);
+        Board_draw(40, 70, side_length, board_start, font);
 
-        font(U"NOW").draw(40, 70 + side_length * BOARD_HEIGHT, ColorF{ 1.0, 1.0, 1.0 });
-        Board_draw(40, 115 + side_length * BOARD_HEIGHT, side_length, board_now, font);
+        font(U"NOW").draw(40, 80 + side_length * BOARD_HEIGHT, ColorF{ 1.0, 1.0, 1.0 });
+        Board_draw(40, 135 + side_length * BOARD_HEIGHT, side_length, board_now, font);
 
-        font(U"FINISH").draw(80 + side_length * BOARD_WIDTH, 15, ColorF{ 1.0, 1.0, 1.0 });
-        Board_draw(80 + 14 * BOARD_WIDTH, 60, side_length, board_finish, font);
+        font(U"FINISH").draw(90 + side_length * BOARD_WIDTH, 15, ColorF{ 1.0, 1.0, 1.0 });
+        Board_draw(90 + 14 * BOARD_WIDTH, 70, side_length, board_finish, font);
 
         for(size_t i = 0; i < blockcheck_result.size(); i++){
-             Rect{ 40 + side_length * blockcheck_result.at(i).at(1), 60 + side_length * blockcheck_result.at(i).at(2), side_length*blockcheck_result.at(i).at(0), side_length*blockcheck_result.at(i).at(0) }.drawFrame(0.8, 0.8, Palette::Red);
-             Rect{ 80 + side_length * BOARD_WIDTH +  side_length * blockcheck_result.at(i).at(3), 60 + side_length * blockcheck_result.at(i).at(4), side_length*blockcheck_result.at(i).at(0), side_length*blockcheck_result.at(i).at(0) }.drawFrame(0.8, 0.8, Palette::Red);
+             Rect{ 40 + side_length * blockcheck_result.at(i).at(1), 70 + side_length * blockcheck_result.at(i).at(2), side_length*blockcheck_result.at(i).at(0), side_length*blockcheck_result.at(i).at(0) }.drawFrame(0.8, 0.8, Palette::Red);
+             Rect{ 90 + side_length * BOARD_WIDTH +  side_length * blockcheck_result.at(i).at(3), 70 + side_length * blockcheck_result.at(i).at(4), side_length*blockcheck_result.at(i).at(0), side_length*blockcheck_result.at(i).at(0) }.drawFrame(0.8, 0.8, Palette::Red);
         
         }
 
         //Print << te1.active; // アクティブかどうか
 		//Print << te1.text; // 入力されたテキスト (String)
 
-		SimpleGUI::TextBox(te1, Vec2{ 80 + side_length * BOARD_WIDTH, 100 + side_length * BOARD_HEIGHT});
+		SimpleGUI::TextBox(te1, Vec2{ 90 + side_length * BOARD_WIDTH, 100 + side_length * BOARD_HEIGHT});
 
         int num4;
 
