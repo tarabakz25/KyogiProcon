@@ -16,6 +16,7 @@ int BOARD_HEIGHT;
 void Board_draw(int position_x, int position_y, int side_length, vector<int> &board_now, const Font& font);
 void comparison(int block_type, int now_x, int now_y, int end_x, int end_y, vector<int>& board_now, vector<int>& board_finish, vector<int>& blockcheck_now, vector<int>& blockcheck_end, vector<vector<int>>& blockcheck_result);
 vector<vector<int>> search_block(vector<int>& board_now, vector<int>& board_finish);
+pair<pair<int, int>, pair<int, int>> baord_sort_search(vector<int>& board_now, vector<int>&board_finish);
 
 
 vector<vector<int>> define_size();
@@ -45,6 +46,7 @@ void Main()
 	vector<int> board_now (BOARD_WIDTH * BOARD_HEIGHT, 0);
     vector<int> board_finish (BOARD_WIDTH * BOARD_HEIGHT, 0);
     vector<vector<int>> blockcheck_result;
+    pair<pair<int, int>, pair<int, int>> sort_result;
 
 	//board_setting(random)
 	for(int i = 0; i < BOARD_HEIGHT; i++){
@@ -94,10 +96,17 @@ void Main()
         
         }
 
+        sort_result = baord_sort_search(board_now, board_finish);
+        //cout << sort_result.second.first << ',' << sort_result.second.second << endl;
+        Rect{40, 135 + side_length * BOARD_HEIGHT, side_length * sort_result.first.second, side_length * sort_result.first.first}.drawFrame(0.8, 0.8, Palette::Green);
+        Rect{40, 135 + side_length * BOARD_HEIGHT + side_length * sort_result.first.first, side_length * sort_result.second.second, side_length * (sort_result.second.first - sort_result.first.first)}.drawFrame(0.8, 0.8, Palette::Green);
+
         //Print << te1.active; // アクティブかどうか
 		//Print << te1.text; // 入力されたテキスト (String)
 
 		SimpleGUI::TextBox(te1, Vec2{ 90 + side_length * BOARD_WIDTH, 100 + side_length * BOARD_HEIGHT});
+        font(U"フォーマット「num,x,y」で入力してください。").draw(90 + side_length * BOARD_WIDTH, 135 + side_length * BOARD_HEIGHT, ColorF{1,1,1});
+        font(U"num, x, yは変数です。").draw(90 + side_length * BOARD_WIDTH, 147 + side_length * BOARD_HEIGHT, ColorF{1,1,1});
 
         int num4;
 
@@ -262,4 +271,41 @@ void comparison(int block_type, int now_x, int now_y, int end_x, int end_y, vect
     }
     
     
+}
+
+pair<pair<int, int>, pair<int, int>> baord_sort_search(vector<int>& board_now, vector<int>&board_finish){
+    vector<int> sort_check(BOARD_HEIGHT * BOARD_WIDTH);
+    pair<pair<int, int>, pair<int, int>> sort_result;
+
+    int a = 0;
+    for (int i = 0; i <= BOARD_HEIGHT; i += 2){
+        for (int j = 0; j <= BOARD_WIDTH; j++){
+            if (board_now.at(i * BOARD_HEIGHT + j) == board_finish.at(i * BOARD_HEIGHT + j) && board_now.at((i + 1) * BOARD_HEIGHT + j) == board_finish.at((i + 1) * BOARD_HEIGHT + j)){
+                sort_check.at(i * BOARD_HEIGHT + j) = 1;
+                sort_check.at((i + 1) * BOARD_HEIGHT + j) = 1;
+                sort_result.second = {i + 2, j + 1};
+            }
+            else {
+                a = 1;
+                break;
+            }
+        }
+        if (a == 1){
+            break;
+        }
+    }
+    if (a == 0){
+        sort_result.second = {BOARD_HEIGHT, BOARD_WIDTH};
+        sort_result.first = {0, 0};
+    }
+    else {
+        if (sort_result.second.first - 2 <= 0){
+            sort_result.first = {0, 0};
+        }
+        else {
+            sort_result.first = {sort_result.second.first - 2, BOARD_WIDTH};
+        }
+    }
+
+    return sort_result;
 }
