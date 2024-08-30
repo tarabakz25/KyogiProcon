@@ -86,14 +86,14 @@ void Main()
 	//描画開始
 	while (System::Update()){
 	 	//gui_drawing
-        font(U"START").draw(40, 15, ColorF{ 1.0, 1.0, 1.0 });
-        Board_draw(40, 70, side_length, board_start, font);
+        font(U"START").draw(90 + side_length * BOARD_WIDTH, 15, ColorF{ 1.0, 1.0, 1.0 });
+        Board_draw(90 + side_length * BOARD_WIDTH, 70, side_length, board_start, font);
 
         font(U"NOW").draw(40, 80 + side_length * BOARD_HEIGHT, ColorF{ 1.0, 1.0, 1.0 });
         Board_draw(40, 135 + side_length * BOARD_HEIGHT, side_length, board_now, font);
 
-        font(U"FINISH").draw(90 + side_length * BOARD_WIDTH, 15, ColorF{ 1.0, 1.0, 1.0 });
-        Board_draw(90 + 14 * BOARD_WIDTH, 70, side_length, board_finish, font);
+        font(U"FINISH").draw(40, 15, ColorF{ 1.0, 1.0, 1.0 });
+        Board_draw(40, 70, side_length, board_finish, font);
 
         /*
         for(size_t i = 0; i < blockcheck_result.size(); i++){
@@ -116,7 +116,7 @@ void Main()
         font(U"num, x, yは変数です。").draw(90 + side_length * BOARD_WIDTH, 147 + side_length * BOARD_HEIGHT, ColorF{1,1,1});
 
         //数字キー入力で各種対応数字を強調
-        if (Key0.down()){
+        if (KeyA.down()){
             if (zero == 0){
                 zero = 1;
             }
@@ -124,7 +124,7 @@ void Main()
                 zero = 0;
             }
         }
-        if (Key1.down()){
+        if (KeyB.down()){
             if (one == 0){
                 one = 1;
             }
@@ -132,7 +132,7 @@ void Main()
                 one = 0;
             }
         }
-        if (Key2.down()){
+        if (KeyC.down()){
             if (two == 0){
                 two = 1;
             }
@@ -140,7 +140,7 @@ void Main()
                 two = 0;
             }
         }
-        if (Key3.down()){
+        if (KeyD.down()){
             if (three == 0){
                 three = 1;
             }
@@ -154,10 +154,10 @@ void Main()
         number_draw_now(1, one, board_now, side_length);
         number_draw_now(2, two, board_now, side_length);
         number_draw_now(3, three, board_now, side_length);
-        number_draw_finish(0, zero, board_now, side_length);
-        number_draw_finish(1, one, board_now, side_length);
-        number_draw_finish(2, two, board_now, side_length);
-        number_draw_finish(3, three, board_now, side_length);
+        number_draw_finish(0, zero, board_finish, side_length);
+        number_draw_finish(1, one, board_finish, side_length);
+        number_draw_finish(2, two, board_finish, side_length);
+        number_draw_finish(3, three, board_finish, side_length);
         
         int num4;
 
