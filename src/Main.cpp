@@ -17,6 +17,8 @@ void Board_draw(int position_x, int position_y, int side_length, vector<int> &bo
 void comparison(int block_type, int now_x, int now_y, int end_x, int end_y, vector<int>& board_now, vector<int>& board_finish, vector<int>& blockcheck_now, vector<int>& blockcheck_end, vector<vector<int>>& blockcheck_result);
 vector<vector<int>> search_block(vector<int>& board_now, vector<int>& board_finish);
 pair<pair<int, int>, pair<int, int>> baord_sort_search(vector<int>& board_now, vector<int>&board_finish);
+void number_draw_now (int number, bool num, vector<int> &board_now, int side_length);
+void number_draw_finish (int number, bool num, vector<int> &board_finish, int side_length);
 
 
 vector<vector<int>> define_size();
@@ -76,7 +78,10 @@ void Main()
     //board_now = katanuki(1, 0, 0, 2, size, nukigata, board_start, BOARD_WIDTH, BOARD_HEIGHT);
     //[0:up 1:down 2:left 3:right]
 
-
+    bool zero = 0;
+    bool one = 0;
+    bool two = 0;
+    bool three = 0;
 
 	//描画開始
 	while (System::Update()){
@@ -90,11 +95,13 @@ void Main()
         font(U"FINISH").draw(90 + side_length * BOARD_WIDTH, 15, ColorF{ 1.0, 1.0, 1.0 });
         Board_draw(90 + 14 * BOARD_WIDTH, 70, side_length, board_finish, font);
 
+        /*
         for(size_t i = 0; i < blockcheck_result.size(); i++){
-             Rect{ 40 + side_length * blockcheck_result.at(i).at(1), 70 + side_length * blockcheck_result.at(i).at(2), side_length*blockcheck_result.at(i).at(0), side_length*blockcheck_result.at(i).at(0) }.drawFrame(0.8, 0.8, Palette::Red);
-             Rect{ 90 + side_length * BOARD_WIDTH +  side_length * blockcheck_result.at(i).at(3), 70 + side_length * blockcheck_result.at(i).at(4), side_length*blockcheck_result.at(i).at(0), side_length*blockcheck_result.at(i).at(0) }.drawFrame(0.8, 0.8, Palette::Red);
+            Rect{ 40 + side_length * blockcheck_result.at(i).at(1), 70 + side_length * blockcheck_result.at(i).at(2), side_length*blockcheck_result.at(i).at(0), side_length*blockcheck_result.at(i).at(0) }.drawFrame(0.8, 0.8, Palette::Red);
+            Rect{ 90 + side_length * BOARD_WIDTH +  side_length * blockcheck_result.at(i).at(3), 70 + side_length * blockcheck_result.at(i).at(4), side_length*blockcheck_result.at(i).at(0), side_length*blockcheck_result.at(i).at(0) }.drawFrame(0.8, 0.8, Palette::Red);
         
         }
+        */
 
         sort_result = baord_sort_search(board_now, board_finish);
         //cout << sort_result.second.first << ',' << sort_result.second.second << endl;
@@ -108,6 +115,48 @@ void Main()
         font(U"フォーマット「num,x,y」で入力してください。").draw(90 + side_length * BOARD_WIDTH, 135 + side_length * BOARD_HEIGHT, ColorF{1,1,1});
         font(U"num, x, yは変数です。").draw(90 + side_length * BOARD_WIDTH, 147 + side_length * BOARD_HEIGHT, ColorF{1,1,1});
 
+        if (Key0.down()){
+            if (zero == 0){
+                zero = 1;
+            }
+            else if (zero == 1){
+                zero = 0;
+            }
+        }
+        if (Key1.down()){
+            if (one == 0){
+                one = 1;
+            }
+            else if (one == 1){
+                one = 0;
+            }
+        }
+        if (Key2.down()){
+            if (two == 0){
+                two = 1;
+            }
+            else if (two == 1){
+                two = 0;
+            }
+        }
+        if (Key3.down()){
+            if (three == 0){
+                three = 1;
+            }
+            else if (three == 1){
+                three = 0;
+            }
+        }
+
+        number_draw_now(0, zero, board_now, side_length);
+        number_draw_now(1, one, board_now, side_length);
+        number_draw_now(2, two, board_now, side_length);
+        number_draw_now(3, three, board_now, side_length);
+        number_draw_finish(0, zero, board_now, side_length);
+        number_draw_finish(1, one, board_now, side_length);
+        number_draw_finish(2, two, board_now, side_length);
+        number_draw_finish(3, three, board_now, side_length);
+        
         int num4;
 
         //矢印キー入力で型抜き方向を決定
@@ -308,4 +357,56 @@ pair<pair<int, int>, pair<int, int>> baord_sort_search(vector<int>& board_now, v
     }
 
     return sort_result;
+}
+
+void number_draw_now (int number, bool num, vector<int> &board_now, int side_length){
+    if (num == 0){
+
+    }
+    else if (num == 1){
+        for (int i = 0; i < BOARD_HEIGHT; i++){
+            for (int j = 0; j < BOARD_WIDTH; j++){
+                if (board_now.at(i * BOARD_HEIGHT + j) == number){
+                    if (number == 0){
+                        Rect{40 + side_length * j, 135 + side_length * BOARD_HEIGHT + side_length * i, side_length, side_length}.drawFrame(0.8, 0.8, Palette::Black);
+                    }
+                    else if (number == 1){
+                        Rect{40 + side_length * j, 135 + side_length * BOARD_HEIGHT + side_length * i, side_length, side_length}.drawFrame(0.8, 0.8, Palette::Red);
+                    }
+                    else if (number == 2){
+                        Rect{40 + side_length * j, 135 + side_length * BOARD_HEIGHT + side_length * i, side_length, side_length}.drawFrame(0.8, 0.8, Palette::Yellow);
+                    }
+                    else if (number == 3){
+                        Rect{40 + side_length * j, 135 + side_length * BOARD_HEIGHT + side_length * i, side_length, side_length}.drawFrame(0.8, 0.8, Palette::Blue);
+                    }
+                }
+            }
+        }
+    }
+}
+
+void number_draw_finish (int number, bool num, vector<int> &board_finish, int side_length){
+    if (num == 0){
+
+    }
+    else if (num == 1){
+        for (int i = 0; i < BOARD_HEIGHT; i++){
+            for (int j = 0; j < BOARD_WIDTH; j++){
+                if (board_finish.at(i * BOARD_HEIGHT + j) == number){
+                    if (number == 0){
+                        Rect{40 + side_length * j, 70 + side_length * i, side_length, side_length}.drawFrame(0.8, 0.8, Palette::Black);
+                    }
+                    else if (number == 1){
+                        Rect{40 + side_length * j, 70 + side_length * i, side_length, side_length}.drawFrame(0.8, 0.8, Palette::Red);
+                    }
+                    else if (number == 2){
+                        Rect{40 + side_length * j, 70 + side_length * i, side_length, side_length}.drawFrame(0.8, 0.8, Palette::Yellow);
+                    }
+                    else if (number == 3){
+                        Rect{40 + side_length * j, 70  + side_length * i, side_length, side_length}.drawFrame(0.8, 0.8, Palette::Blue);
+                    }
+                }
+            }
+        }
+    }
 }
