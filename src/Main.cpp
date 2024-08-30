@@ -115,6 +115,7 @@ void Main()
         font(U"フォーマット「num,x,y」で入力してください。").draw(90 + side_length * BOARD_WIDTH, 135 + side_length * BOARD_HEIGHT, ColorF{1,1,1});
         font(U"num, x, yは変数です。").draw(90 + side_length * BOARD_WIDTH, 147 + side_length * BOARD_HEIGHT, ColorF{1,1,1});
 
+        //数字キー入力で各種対応数字を強調
         if (Key0.down()){
             if (zero == 0){
                 zero = 1;
@@ -148,6 +149,7 @@ void Main()
             }
         }
 
+        //表示関数
         number_draw_now(0, zero, board_now, side_length);
         number_draw_now(1, one, board_now, side_length);
         number_draw_now(2, two, board_now, side_length);
