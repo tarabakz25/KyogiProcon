@@ -16,10 +16,11 @@ int BOARD_HEIGHT;
 void Board_draw(int position_x, int position_y, int side_length, vector<int> &board_now, const Font& font);
 void comparison(int block_type, int now_x, int now_y, int end_x, int end_y, vector<int>& board_now, vector<int>& board_finish, vector<int>& blockcheck_now, vector<int>& blockcheck_end, vector<vector<int>>& blockcheck_result);
 vector<vector<int>> search_block(vector<int>& board_now, vector<int>& board_finish);
-pair<pair<int, int>, pair<int, int>> baord_sort_search(vector<int>& board_now, vector<int>&board_finish);
+pair<pair<int, int>, pair<int, int>> baord_sort_search(vector<int>& board_now, vector<int>&board_finish, int &num);
 void number_draw_now (int number, bool num, vector<int> &board_now, int side_length);
 void number_draw_finish (int number, bool num, vector<int> &board_finish, int side_length);
-
+void check(vector<int> &board_now, vector<int> &board_finish, int &num);
+void check_result_draw (vector<int> &board_now, vector<int> &board_finish, int side_length);
 
 vector<vector<int>> define_size();
 vector<vector<vector<int> > > define_nukigata(vector<vector<int>> size);
@@ -32,6 +33,10 @@ void Main()
 	//Scene::SetBackground(ColorF{ 0.0, 0.0, 0.0 });
 	const int side_length = 14;
     const Font font{ FontMethod::MSDF, 12, Typeface::Bold };
+    float persent;
+    float sort_persent;
+    int num;
+    int sort_num;
     
     // ウィンドウを自由にサイズ変更可能に設定
     Window::SetStyle(WindowStyle::Sizable);
@@ -41,8 +46,8 @@ void Main()
     TextEditState te1{ U"0,0,0" };// デフォルトのテキストを設定する
     String entered_text;
 
-    BOARD_WIDTH = 20;
-    BOARD_HEIGHT = 20;
+    BOARD_WIDTH = 8;
+    BOARD_HEIGHT = 8;
 
     vector<int> board_start (BOARD_WIDTH * BOARD_HEIGHT, 0);
 	vector<int> board_now (BOARD_WIDTH * BOARD_HEIGHT, 0);
@@ -99,11 +104,12 @@ void Main()
         for(size_t i = 0; i < blockcheck_result.size(); i++){
             Rect{ 40 + side_length * blockcheck_result.at(i).at(1), 70 + side_length * blockcheck_result.at(i).at(2), side_length*blockcheck_result.at(i).at(0), side_length*blockcheck_result.at(i).at(0) }.drawFrame(0.8, 0.8, Palette::Red);
             Rect{ 90 + side_length * BOARD_WIDTH +  side_length * blockcheck_result.at(i).at(3), 70 + side_length * blockcheck_result.at(i).at(4), side_length*blockcheck_result.at(i).at(0), side_length*blockcheck_result.at(i).at(0) }.drawFrame(0.8, 0.8, Palette::Red);
-        
         }
         */
 
-        sort_result = baord_sort_search(board_now, board_finish);
+       check(board_now, board_finish, num);
+
+        sort_result = baord_sort_search(board_now, board_finish, sort_num);
         //cout << sort_result.second.first << ',' << sort_result.second.second << endl;
         Rect{40, 135 + side_length * BOARD_HEIGHT, side_length * sort_result.first.second, side_length * sort_result.first.first}.drawFrame(0.8, 0.8, Palette::Green);
         Rect{40, 135 + side_length * BOARD_HEIGHT + side_length * sort_result.first.first, side_length * sort_result.second.second, side_length * (sort_result.second.first - sort_result.first.first)}.drawFrame(0.8, 0.8, Palette::Green);
@@ -115,6 +121,11 @@ void Main()
         font(U"フォーマット「num,x,y」で入力してください。").draw(90 + side_length * BOARD_WIDTH, 135 + side_length * BOARD_HEIGHT, ColorF{1,1,1});
         font(U"num, x, yは変数です。").draw(90 + side_length * BOARD_WIDTH, 147 + side_length * BOARD_HEIGHT, ColorF{1,1,1});
 
+        sort_persent = ((float)sort_num / (BOARD_HEIGHT * BOARD_WIDTH)) * 100;
+        font(U"ソート一致率{}%"_fmt(sort_persent)).draw(20, Vec2{90 + side_length * BOARD_WIDTH, 170 + side_length * BOARD_HEIGHT}, ColorF{1,1,1});
+        persent = ((float)num / (BOARD_HEIGHT * BOARD_WIDTH)) * 100;
+        font(U"一致率{}%"_fmt(persent)).draw(20, Vec2{90 + side_length * BOARD_WIDTH, 200 + side_length * BOARD_HEIGHT}, ColorF{1,1,1});
+		
         //数字キー入力で各種対応数字を強調
         if (KeyA.down()){
             if (zero == 0){
@@ -147,6 +158,14 @@ void Main()
             else if (three == 1){
                 three = 0;
             }
+        }
+
+        if (KeyEscape.down()){
+            break;
+        }
+
+        if (KeyTab.pressed()){
+            check_result_draw(board_now, board_finish, side_length);    //最終ボードと一致しているすべてのピースを表示する
         }
 
         //表示関数
@@ -324,17 +343,21 @@ void comparison(int block_type, int now_x, int now_y, int end_x, int end_y, vect
     
 }
 
-pair<pair<int, int>, pair<int, int>> baord_sort_search(vector<int>& board_now, vector<int>&board_finish){
+pair<pair<int, int>, pair<int, int>> baord_sort_search(vector<int>& board_now, vector<int>&board_finish, int &num){
     vector<int> sort_check(BOARD_HEIGHT * BOARD_WIDTH);
     pair<pair<int, int>, pair<int, int>> sort_result;
+    //sort_result.firstでBORAD_WIDTH×(n*mますまで一致している場合のn-1行目まで)の長方形分の正誤判定を出力する
+    //sort/result.secondでn行目のmますまでの一列の正誤判定を出力する
 
-    int a = 0;
-    for (int i = 0; i <= BOARD_HEIGHT; i += 2){
+    num = 0;    //ソートによるピースの一致個数を測る
+
+    bool a = 0;
+    for (int i = 0; i <= BOARD_HEIGHT; i++){
         for (int j = 0; j <= BOARD_WIDTH; j++){
-            if (board_now.at(i * BOARD_HEIGHT + j) == board_finish.at(i * BOARD_HEIGHT + j) && board_now.at((i + 1) * BOARD_HEIGHT + j) == board_finish.at((i + 1) * BOARD_HEIGHT + j)){
+            if (board_now.at(i * BOARD_HEIGHT + j) == board_finish.at(i * BOARD_HEIGHT + j)){
                 sort_check.at(i * BOARD_HEIGHT + j) = 1;
-                sort_check.at((i + 1) * BOARD_HEIGHT + j) = 1;
-                sort_result.second = {i + 2, j + 1};
+                sort_result.second = {i + 1, j + 1};
+                num++;
             }
             else {
                 a = 1;
@@ -350,11 +373,11 @@ pair<pair<int, int>, pair<int, int>> baord_sort_search(vector<int>& board_now, v
         sort_result.first = {0, 0};
     }
     else {
-        if (sort_result.second.first - 2 <= 0){
+        if (sort_result.second.first - 1 <= 0){
             sort_result.first = {0, 0};
         }
         else {
-            sort_result.first = {sort_result.second.first - 2, BOARD_WIDTH};
+            sort_result.first = {sort_result.second.first - 1, BOARD_WIDTH};
         }
     }
 
@@ -408,6 +431,26 @@ void number_draw_finish (int number, bool num, vector<int> &board_finish, int si
                         Rect{40 + side_length * j, 70  + side_length * i, side_length, side_length}.drawFrame(0.8, 0.8, Palette::Blue);
                     }
                 }
+            }
+        }
+    }
+}
+
+void check(vector<int> &board_now, vector<int> &board_finish, int &num){
+    num = 0;
+    for (int i = 0; i < BOARD_HEIGHT * BOARD_WIDTH; i++){
+        if (board_now.at(i) == board_finish.at(i)){
+            num++;
+        }
+    }
+}
+
+
+void check_result_draw (vector<int> &board_now, vector<int> &board_finish, int side_length){
+    for (int i = 0; i < BOARD_HEIGHT; i++){
+        for (int j = 0; j < BOARD_WIDTH; j++){
+            if (board_now.at(i * BOARD_WIDTH + j) == board_finish.at(i * BOARD_WIDTH + j)){
+                Rect{40 + side_length * j, 135 + side_length * BOARD_HEIGHT + side_length * i, side_length, side_length}.drawFrame(0.8, 0.8, Palette::Purple);
             }
         }
     }
