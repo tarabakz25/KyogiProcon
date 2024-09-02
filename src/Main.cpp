@@ -84,7 +84,7 @@ void Main()
     pair<pair<int, int>, pair<int, int>> sort_result;
 
 	//board_setting(random)
-	for(int i = 0; i < BOARD_HEIGHT; i++){
+	/*for(int i = 0; i < BOARD_HEIGHT; i++){
 		for(int j = 0; j < BOARD_WIDTH; j++){
 			board_start.at(BOARD_WIDTH * i + j) = rand() % 4;
 		}
@@ -92,8 +92,49 @@ void Main()
     for(int i = 0; i < BOARD_HEIGHT; i++){
 		for(int j = 0; j < BOARD_WIDTH; j++){
 			board_finish.at(BOARD_WIDTH * i + j) = rand() % 4;
-		}
-	}
+		}*/
+
+    std::filesystem::current_path("../"); //カレントディレクトリをソースファイルに変更。
+    cout << "Current path: " << std::filesystem::current_path().c_str() << endl; //カレントディレクトリを表示;
+
+    //jsonファイル存在するか確認。
+    if (!std::filesystem::exists("./src/sample1.json")) {
+        std::cerr << "File does not exist at path: ./src/sample1.json" << std::endl;
+        return;
+    }
+
+    // JSONファイルの読み込み
+    std::ifstream ifs("./src/sample1.json");
+
+    //ファイル開け成功したか
+    if (!ifs.is_open()) {
+        std::cerr << "Failed to open the file!!!" << std::endl;
+        return;
+    } else {
+        std::cout << "File opened successfully!" << std::endl;
+    }
+
+    // ファイル内容を読み込み成功したか
+    std::string str((std::istreambuf_iterator<char>(ifs)), std::istreambuf_iterator<char>());
+    if (str.empty()) {
+        std::cerr << "File is empty: ./src/sample1.json" << std::endl;
+        return;
+    }
+    //std::cout << "File content: " << str << std::endl; //中身表示
+
+    json jobj = json::parse(str);
+    std::cout << "JSON parsed successfully!" << std::endl;
+
+    //初期盤面、終了盤面取得
+    vector<int> startBoard, goalBoard;
+    loadBoard(jobj, startBoard, goalBoard); 
+    board_start = startBoard;
+    board_finish = goalBoard;
+
+    //幅と高さ取得
+    BOARD_WIDTH = jobj["board"]["width"].get<int>();
+    BOARD_HEIGHT = jobj["board"]["height"].get<int>();
+    cout << "WIDTH"<<BOARD_WIDTH << " HIGHT"<<BOARD_HEIGHT << endl;
 
     board_now = board_start;
 
