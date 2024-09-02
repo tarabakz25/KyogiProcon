@@ -26,6 +26,34 @@ vector<vector<int>> define_size();
 vector<vector<vector<int> > > define_nukigata(vector<vector<int>> size);
 vector<int> katanuki(int piece_num, int x_min, int y_min, int direction, vector<vector<int>>& size, vector<vector<vector<int>>>& nukigata, vector<int> board, int BOARD_WIDTH, int BOARD_HEIGHT);
 
+//jsonファイル読み込み系
+// 文字列からベクトルに変換する関数(一列分を返す)
+vector<int> stringToVector(const string &str)
+{
+    vector<int> row;
+    for (char c : str)
+    {
+        row.push_back(c - '0'); // 文字を整数に変換
+    }
+    return row;
+}
+
+// JSONからボードを読み込む関数
+int loadBoard(const json &jobj, vector<int> &startBoard, vector<int> &goalBoard)
+{
+    for (const auto &line : jobj["board"]["start"])
+    {
+        vector<int> row = stringToVector(line.get<string>()); //一列分をrowに格納
+        startBoard.insert(startBoard.end(), row.begin(), row.end()); //.insert()で一次元に変換。
+    }
+
+    for (const auto &line : jobj["board"]["goal"])
+    {
+        vector<int> row = stringToVector(line.get<string>());
+        goalBoard.insert(goalBoard.end(), row.begin(), row.end());
+    }
+    return 0;
+}
 
 void Main()
 {
