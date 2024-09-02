@@ -1,6 +1,7 @@
 #include <Siv3D.hpp> // Siv3D v0.6.15
 #include <string.h>
 #include <stdlib.h>
+#include <fstream>
 #include <vector>
 #include "json.hpp"
 #include "board_setting.cpp"
