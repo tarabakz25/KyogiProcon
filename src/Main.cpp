@@ -8,6 +8,7 @@
 #include "setting.hpp"
 //using namespace nlohman;
 using namespace std;
+using json = nlohmann::json;
 
 int BOARD_WIDTH;
 int BOARD_HEIGHT;
