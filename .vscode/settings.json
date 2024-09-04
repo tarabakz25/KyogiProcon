@@ -6,6 +6,8 @@
         "*.html": "html",
         "*.css": "css",
         "*.js": "javascript",
-        "tuple": "cpp"
+        "tuple": "cpp",
+        "cmath": "cpp",
+        "complex": "cpp"
     }
 }

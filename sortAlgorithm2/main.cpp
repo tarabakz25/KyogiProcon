@@ -14,34 +14,40 @@ vector<vector<vector<int>>> nukigata;
 
 void generateNukigata()
 {
-    for(int size = 1; size < 16; pow(size, 2)){
+    for(int size = 1; size < 256; size *= 2){
         vector<vector<int>> kata(size, vector<int>(size));
 
-        /* all 1 */
-        rep(i, size){
-            rep(j, size){
-                kata[i][j] = 1;
-            }
+        if(size == 1){
+            kata[0][0] = 1;
+            nukigata.push_back(kata);
         }
-        nukigata.push_back(kata);
-
-        /* 横 */
-        rep(i, size){
-            rep(j, size){
-                if(i / 2 == 0) kata[i][j] = 1;
-                else kata[i][j] = 0;
+        else{
+            /* all 1 */
+            rep(i, size){
+                rep(j, size){
+                    kata[i][j] = 1;
+                }
             }
-        }        
-        nukigata.push_back(kata);
+            nukigata.push_back(kata);
 
-        /* 縦 */
-        rep(i, size){
-            rep(j, size){
-                if(j / 2 == 0) kata[i][j] = 1;
-                else kata[i][j] = 0;
-            }
-        }        
-        nukigata.push_back(kata);
+            /* 横 */
+            rep(i, size){
+                rep(j, size){
+                    if(i % 2 == 0) kata[i][j] = 1;
+                    else kata[i][j] = 0;
+                }
+            }        
+            nukigata.push_back(kata);
+
+            /* 縦 */
+            rep(i, size){
+                rep(j, size){
+                    if(j % 2 == 0) kata[i][j] = 1;
+                    else kata[i][j] = 0;
+                }
+            }        
+            nukigata.push_back(kata);
+        }
     }
 }
 
@@ -175,7 +181,6 @@ void test()
 int main()
 {
     generateNukigata();
-    test();
 
     return 0;
 }
