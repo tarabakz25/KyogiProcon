@@ -244,25 +244,25 @@ void Board_draw(int position_x, int position_y, int side_length, vector<int> &bo
             }
         }
             for(int y =0; y<BOARD_WIDTH; y++){
-                switch(board_now.at(x + BOARD_WIDTH * y)){
+                switch(board_now.at(x * BOARD_WIDTH + y)){
                     case 0:
-                        Rect{ position_x + side_length * x, position_y + side_length * y, side_length, side_length }.draw(Palette::White);
-                        font(U"0").draw( position_x + 3 + side_length * x, position_y-1 + side_length * y, ColorF{ 0.0, 0.0, 0.0 });
+                        Rect{position_x + side_length * y, position_y + side_length * x, side_length, side_length }.draw(Palette::White);
+                        font(U"0").draw(position_x + 3 + side_length * y, position_y - 1 + side_length * x, ColorF{ 0.0, 0.0, 0.0 });
                         break;
 
                     case 1:
-                        Rect{ position_x + side_length * x, position_y + side_length * y, side_length, side_length }.draw(Palette::Pink);
-                        font(U"1").draw( position_x + 3  + side_length * x, position_y-1 + side_length * y, ColorF{ 0.0, 0.0, 0.0 });
+                        Rect{position_x + side_length * y, position_y + side_length * x, side_length, side_length }.draw(Palette::Pink);
+                        font(U"1").draw(position_x + 3 + side_length * y, position_y - 1 + side_length * x, ColorF{ 0.0, 0.0, 0.0 });
                         break;
 
                     case 2:
-                        Rect{ position_x + side_length * x, position_y + side_length * y, side_length, side_length }.draw(Palette::Khaki);
-                        font(U"2").draw( position_x + 3 + side_length * x, position_y-1 + side_length * y, ColorF{ 0.0, 0.0, 0.0 });
+                        Rect{position_x + side_length * y, position_y + side_length * x, side_length, side_length }.draw(Palette::Khaki);
+                        font(U"2").draw(position_x + 3 + side_length * y, position_y - 1 + side_length * x, ColorF{ 0.0, 0.0, 0.0 });
                         break;
 
                     case 3:
-                        Rect{ position_x + side_length * x, position_y + side_length * y, side_length, side_length }.draw(Palette::Lightblue);
-                        font(U"3").draw( position_x + 3  + side_length * x, position_y-1 + side_length * y, ColorF{ 0.0, 0.0, 0.0 });
+                        Rect{position_x + side_length * y, position_y + side_length * x, side_length, side_length }.draw(Palette::Lightblue);
+                        font(U"3").draw(position_x + 3 + side_length * y, position_y - 1 + side_length * x, ColorF{ 0.0, 0.0, 0.0 });
                         break;
                 }
             }
