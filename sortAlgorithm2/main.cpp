@@ -14,7 +14,7 @@ vector<vector<vector<int>>> nukigata;
 
 void generateNukigata()
 {
-    for(int size = 1; size <= 16; pow(size, 2)){
+    for(int size = 1; size < 16; pow(size, 2)){
         vector<vector<int>> kata(size, vector<int>(size));
 
         /* all 1 */
@@ -159,7 +159,7 @@ int Main()
 
 void test()
 {
-    rep(k, 25){
+    rep(k, nukigata.size()){
         vector<vector<int>> kata = nukigata[k];
 
         rep(i, kata.size()){
