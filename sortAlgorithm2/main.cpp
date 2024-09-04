@@ -9,31 +9,56 @@ using json = nlohmann::json;
 /* 変数の先宣言 */
 int counter = 0;
 
-/* 抜き型を作成 */
+
 vector<vector<vector<int>>> nukigata;
 
-nukigata.push_back()
+void generateNukigata()
+{
+    for(int size = 1; size <= 16; pow(size, 2)){
+        vector<vector<int>> kata(size, vector<int>(size));
 
-void katanuki(vector<vector<int>>& startB, vector<vector<int>>& goalB, int i, int j, int action)
+        /* all 1 */
+        rep(i, size){
+            rep(j, size){
+                kata[i][j] = 1;
+            }
+        }
+        nukigata.push_back(kata);
+
+        /* 横 */
+        rep(i, size){
+            rep(j, size){
+                if(i / 2 == 0) kata[i][j] = 1;
+                else kata[i][j] = 0;
+            }
+        }        
+        nukigata.push_back(kata);
+
+        /* 縦 */
+        rep(i, size){
+            rep(j, size){
+                if(j / 2 == 0) kata[i][j] = 1;
+                else kata[i][j] = 0;
+            }
+        }        
+        nukigata.push_back(kata);
+    }
+}
+
+
+
+void katanuki(vector<vector<int>>& startB, vector<vector<int>>& goalB, int i, int j, int iCount, int jCount, int action)
 {
     int temp = startB[i][j];
 
     /* up */
-    if(action == 0 && i  != goalB.size() - 1){
-        for(int k = i; k < goalB.size() - 1; k ++){
-            startB[k][j] = startB[k + 1][j];
-        }
-
-        startB[goalB.size() - 1][j] = temp;
+    if(action == 0){
+        
     }
 
     /* left */
-    if(action == 1 && j != goalB[i].size() - 1){
-        for(int k = j; k < goalB[i].size(); k ++){
-            startB[i][k] = startB[i][k + 1];
-        }
-        startB[i][goalB[i].size() - 1] = temp;
-    }
+    
+
     counter ++;
 }
 
@@ -85,7 +110,7 @@ void infoPrint(const vector<vector<int>>& startB, const vector<vector<int>>& goa
     cout << "Count: " << counter << endl;
 }
 
-int main()
+int Main()
 {
     //時間を計測
     chrono::system_clock::time_point start = chrono::system_clock::now();
@@ -108,20 +133,18 @@ int main()
         rep(i, height){
             rep(j, width){
                 if(startB[i][j] != goalB[i][j]){
-                    for(int ai = i; ai < height; ai++){
-                        for(int aj = i; aj < width; aj++){
-                            if(startB[ai][aj] == goalB[i][j]){
-                                while(startB[ai][j] == goalB[i][j]){
-                                    katanuki(startB, goalB, ai, j, 1);
-                                    infoPrint(startB, goalB, width, height);
-                                }
 
-                                while(startB[i][j] == goalB[i][j]){
-                                    katanuki(startB, goalB, i, j, 0);
-                                    infoPrint(startB, goalB, width, height);
-                                }
+                    int iCount = 0;
+                    int jCount = 0;
 
-                                break;
+                    for(int ii = i; ii < height; ii++){
+                        iCount ++;
+                        for(int jj = j; jj < width; jj++){
+                            jCount ++;
+
+                            if(startB[ii][jj] == goalB[i][j]){
+                                
+                                
                             }
                         }
                     }
@@ -129,4 +152,30 @@ int main()
             }
         }
     }
+
+
+    return 0;
+}
+
+void test()
+{
+    rep(k, 25){
+        vector<vector<int>> kata = nukigata[k];
+
+        rep(i, kata.size()){
+            rep(j, kata[i].size()){
+                cout << kata[i][j] << " ";
+            }
+            cout << endl;
+        }
+        cout << endl;
+    }
+}
+
+int main()
+{
+    generateNukigata();
+    test();
+
+    return 0;
 }
