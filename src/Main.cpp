@@ -76,8 +76,8 @@ void Main()
     TextEditState te1{ U"0,0,0" };// デフォルトのテキストを設定する
     String entered_text;
 
-    BOARD_WIDTH = 8;
-    BOARD_HEIGHT = 8;
+    BOARD_WIDTH = 6;
+    BOARD_HEIGHT = 4;
 
     vector<int> board_start (BOARD_WIDTH * BOARD_HEIGHT, 0);
 	vector<int> board_now (BOARD_WIDTH * BOARD_HEIGHT, 0);
@@ -141,12 +141,13 @@ void Main()
     board_now = board_start;
 
     //block_check
-    blockcheck_result = search_block(board_now, board_finish); //2*2ブロック探す
+    /*blockcheck_result = search_block(board_now, board_finish); //2*2ブロック探す
     for(size_t i = 0; i < blockcheck_result.size(); i++){
         cout << "\033[33m";
         cout << "p" << blockcheck_result.at(i).at(0) <<" s" << blockcheck_result.at(i).at(1) << "," <<  blockcheck_result.at(i).at(2) << ",. e" << blockcheck_result.at(i).at(3) << "," << blockcheck_result.at(i).at(4) << "が一致" << endl;
         cout << "\033[37m";
     }
+*/
 
     vector<vector<int>> size = define_size();
     vector<vector<vector<int> > > nukigata = define_nukigata(size);
@@ -178,7 +179,7 @@ void Main()
         }
         */
 
-       check(board_now, board_finish, num);
+        check(board_now, board_finish, num);
 
         sort_result = baord_sort_search(board_now, board_finish, sort_num);
         //cout << sort_result.second.first << ',' << sort_result.second.second << endl;
@@ -282,7 +283,11 @@ void Main()
             cout << "num4: " << num4 << endl;
 
             board_now = katanuki(num1, num2, num3, num4, size, nukigata, board_now, BOARD_WIDTH, BOARD_HEIGHT);
-
+            check(board_now, board_finish, num);
+            if (num == BOARD_HEIGHT * BOARD_WIDTH){
+                cout << "finish!" << endl;
+                break;
+            }
         }
 	}
 }
@@ -317,25 +322,25 @@ void Board_draw(int position_x, int position_y, int side_length, vector<int> &bo
             }
         }
             for(int y =0; y<BOARD_WIDTH; y++){
-                switch(board_now.at(x + BOARD_WIDTH * y)){
+                switch(board_now.at(x * BOARD_WIDTH + y)){
                     case 0:
-                        Rect{ position_x + side_length * x, position_y + side_length * y, side_length, side_length }.draw(Palette::White);
-                        font(U"0").draw( position_x + 3 + side_length * x, position_y-1 + side_length * y, ColorF{ 0.0, 0.0, 0.0 });
+                        Rect{position_x + side_length * y, position_y + side_length * x, side_length, side_length }.draw(Palette::White);
+                        font(U"0").draw(position_x + 3 + side_length * y, position_y - 1 + side_length * x, ColorF{ 0.0, 0.0, 0.0 });
                         break;
 
                     case 1:
-                        Rect{ position_x + side_length * x, position_y + side_length * y, side_length, side_length }.draw(Palette::Pink);
-                        font(U"1").draw( position_x + 3  + side_length * x, position_y-1 + side_length * y, ColorF{ 0.0, 0.0, 0.0 });
+                        Rect{position_x + side_length * y, position_y + side_length * x, side_length, side_length }.draw(Palette::Pink);
+                        font(U"1").draw(position_x + 3 + side_length * y, position_y - 1 + side_length * x, ColorF{ 0.0, 0.0, 0.0 });
                         break;
 
                     case 2:
-                        Rect{ position_x + side_length * x, position_y + side_length * y, side_length, side_length }.draw(Palette::Khaki);
-                        font(U"2").draw( position_x + 3 + side_length * x, position_y-1 + side_length * y, ColorF{ 0.0, 0.0, 0.0 });
+                        Rect{position_x + side_length * y, position_y + side_length * x, side_length, side_length }.draw(Palette::Khaki);
+                        font(U"2").draw(position_x + 3 + side_length * y, position_y - 1 + side_length * x, ColorF{ 0.0, 0.0, 0.0 });
                         break;
 
                     case 3:
-                        Rect{ position_x + side_length * x, position_y + side_length * y, side_length, side_length }.draw(Palette::Lightblue);
-                        font(U"3").draw( position_x + 3  + side_length * x, position_y-1 + side_length * y, ColorF{ 0.0, 0.0, 0.0 });
+                        Rect{position_x + side_length * y, position_y + side_length * x, side_length, side_length }.draw(Palette::Lightblue);
+                        font(U"3").draw(position_x + 3 + side_length * y, position_y - 1 + side_length * x, ColorF{ 0.0, 0.0, 0.0 });
                         break;
                 }
             }
@@ -425,8 +430,8 @@ pair<pair<int, int>, pair<int, int>> baord_sort_search(vector<int>& board_now, v
     bool a = 0;
     for (int i = 0; i <= BOARD_HEIGHT; i++){
         for (int j = 0; j <= BOARD_WIDTH; j++){
-            if (board_now.at(i * BOARD_HEIGHT + j) == board_finish.at(i * BOARD_HEIGHT + j)){
-                sort_check.at(i * BOARD_HEIGHT + j) = 1;
+            if (board_now.at(i * BOARD_WIDTH + j) == board_finish.at(i * BOARD_WIDTH + j)){
+                sort_check.at(i * BOARD_WIDTH + j) = 1;
                 sort_result.second = {i + 1, j + 1};
                 num++;
             }
@@ -462,7 +467,7 @@ void number_draw_now (int number, bool num, vector<int> &board_now, int side_len
     else if (num == 1){
         for (int i = 0; i < BOARD_HEIGHT; i++){
             for (int j = 0; j < BOARD_WIDTH; j++){
-                if (board_now.at(i * BOARD_HEIGHT + j) == number){
+                if (board_now.at(i * BOARD_WIDTH + j) == number){
                     if (number == 0){
                         Rect{40 + side_length * j, 135 + side_length * BOARD_HEIGHT + side_length * i, side_length, side_length}.drawFrame(0.8, 0.8, Palette::Black);
                     }
@@ -488,7 +493,7 @@ void number_draw_finish (int number, bool num, vector<int> &board_finish, int si
     else if (num == 1){
         for (int i = 0; i < BOARD_HEIGHT; i++){
             for (int j = 0; j < BOARD_WIDTH; j++){
-                if (board_finish.at(i * BOARD_HEIGHT + j) == number){
+                if (board_finish.at(i * BOARD_WIDTH + j) == number){
                     if (number == 0){
                         Rect{40 + side_length * j, 70 + side_length * i, side_length, side_length}.drawFrame(0.8, 0.8, Palette::Black);
                     }
