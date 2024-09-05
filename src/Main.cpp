@@ -220,6 +220,17 @@ void Board_draw(int position_x, int position_y, int side_length, vector<int> &bo
         if (x == 0){
             for (int j = 0; j < BOARD_WIDTH; j++){
                 if (j == 0){
+                    font(j % 10).draw(position_x + 3 + side_length * j , position_y - 1 - side_length * 2, ColorF(255, 255, 255));
+                }
+                else if (j % 10 == 0){
+                    font(j).draw(position_x + 3 + side_length * j , position_y - 1 - side_length * 3, ColorF(255, 255, 255));
+                }
+                else {
+                    font(j % 10).draw(position_x + 3 + side_length * j , position_y - 1 - side_length * 2, ColorF(255, 255, 255));
+                }
+            }
+            for (int j = 0; j < BOARD_HEIGHT; j++){
+                if (j == 0){
                     font(j % 10).draw(position_x + 3 - side_length * 2 , position_y - 1 + side_length * j, ColorF(255, 255, 255));
                 }
                 else if (j % 100 == 0){
@@ -230,16 +241,6 @@ void Board_draw(int position_x, int position_y, int side_length, vector<int> &bo
                 }
                 else {
                     font(j % 10).draw(position_x + 3 - side_length * 2 , position_y - 1 + side_length * j, ColorF(255, 255, 255));
-                }
-                if (j == 0){
-                    font(j % 10).draw(position_x + 3 + side_length * j , position_y - 1 - side_length * 2, ColorF(255, 255, 255));
-                }
-                else if (j % 10 == 0){
-                    font(j).draw(position_x + 3 + side_length * j , position_y - 1 - side_length * 3, ColorF(255, 255, 255));
-                    font(0).draw(position_x + 3 + side_length * j , position_y - 1 - side_length * 2, ColorF(255, 255, 255));
-                }
-                else {
-                    font(j % 10).draw(position_x + 3 + side_length * j , position_y - 1 - side_length * 2, ColorF(255, 255, 255));
                 }
             }
         }
