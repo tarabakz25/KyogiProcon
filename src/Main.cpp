@@ -67,6 +67,7 @@ void Main()
     float sort_persent;
     int num;
     int sort_num;
+    int time = 0;
     
     // ウィンドウを自由にサイズ変更可能に設定
     Window::SetStyle(WindowStyle::Sizable);
@@ -197,6 +198,7 @@ void Main()
         font(U"ソート一致率{}%"_fmt(sort_persent)).draw(20, Vec2{90 + side_length * BOARD_WIDTH, 170 + side_length * BOARD_HEIGHT}, ColorF{1,1,1});
         persent = ((float)num / (BOARD_HEIGHT * BOARD_WIDTH)) * 100;
         font(U"一致率{}%"_fmt(persent)).draw(20, Vec2{90 + side_length * BOARD_WIDTH, 200 + side_length * BOARD_HEIGHT}, ColorF{1,1,1});
+        font(U"{}手型抜き操作済み"_fmt(time)).draw(20, Vec2{90 + side_length * BOARD_WIDTH, 230 + side_length * BOARD_HEIGHT}, ColorF{1,1,1});
 		
         //数字キー入力で各種対応数字を強調
         if (KeyA.down()){
@@ -267,6 +269,7 @@ void Main()
         }
 
         if(KeyEnter.down()){
+            time++;
             entered_text = te1.text;
 
             te1.clear();
@@ -286,6 +289,7 @@ void Main()
             check(board_now, board_finish, num);
             if (num == BOARD_HEIGHT * BOARD_WIDTH){
                 cout << "finish!" << endl;
+                cout << time << "手" << endl;
                 break;
             }
         }
