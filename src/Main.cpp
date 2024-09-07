@@ -10,6 +10,7 @@
 #include "json.hpp"
 #include "board_setting.cpp"
 #include "json_read.cpp"
+#include "json_write.cpp"
 
 #include "setting.hpp"
 //using namespace nlohman;
@@ -37,7 +38,7 @@ void Main()
 	//Scene::SetBackground(ColorF{ 0.0, 0.0, 0.0 });
 	const int side_length = 14;
     const Font font{ FontMethod::MSDF, 12, Typeface::Bold };
-    int time = 0; //手数保持変数
+    int time = 0;
     
     // ウィンドウを自由にサイズ変更可能に設定
     Window::SetStyle(WindowStyle::Sizable);
@@ -66,11 +67,17 @@ void Main()
 	}
      */
 
-    //jsonファイルを読み込む。
-    read_json(board_start, board_finish, BOARD_WIDTH, BOARD_HEIGHT);
+    
+
+    //jsonファイル用の設定と、jsonファイルの読み込み。
+    json_read(board_start, board_finish, BOARD_WIDTH, BOARD_HEIGHT);
+
+    //書き出し用ファイルをリセット
+    json_write_reset();
 
 
     board_now = board_start;
+
 
     //block_check
     blockcheck_result = search_block(board_now, board_finish); //2*2ブロック探す
@@ -139,13 +146,14 @@ void Main()
             int num2 = Parse<int>(tokens[1]);
             int num3 = Parse<int>(tokens[2]);
 
-            cout << "num1: " << num1 << endl;
-            cout << "num2: " << num2 << endl;
-            cout << "num3: " << num3 << endl;
-            cout << "num4: " << num4 << endl;
+            cout << "num1: " << num1 << endl; //piece
+            cout << "num2: " << num2 << endl; //x
+            cout << "num3: " << num3 << endl; //y
+            cout << "num4: " << num4 << endl; //direction
 
             board_now = katanuki(num1, num2, num3, num4, size, nukigata, board_now, BOARD_WIDTH, BOARD_HEIGHT);
             cout << time << "手目" << endl;
+            json_write(time, num1, num2, num3, num4);
         } 
 	}
 }

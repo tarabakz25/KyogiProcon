@@ -40,7 +40,7 @@ int loadBoard(const json &jobj, vector<int> &startBoard, vector<int> &goalBoard)
     return 0;
 }
 
-void read_json(vector<int> &board_start, vector<int> &board_finish, int &BOARD_WIDTH, int &BOARD_HEIGHT){
+void json_read(vector<int> &board_start, vector<int> &board_finish, int &BOARD_WIDTH, int &BOARD_HEIGHT){
     std::filesystem::current_path("../"); //カレントディレクトリをソースファイルに変更。
     cout << "Current path: " << std::filesystem::current_path().c_str() << endl; //カレントディレクトリを表示;
 
