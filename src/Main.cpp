@@ -65,6 +65,7 @@ void Main()
 	//Scene::SetBackground(ColorF{ 0.0, 0.0, 0.0 });
 	const int side_length = 14;
     const Font font{ FontMethod::MSDF, 12, Typeface::Bold };
+    int time = 0; //手数保持変数
     
     // ウィンドウを自由にサイズ変更可能に設定
     Window::SetStyle(WindowStyle::Sizable);
@@ -193,6 +194,7 @@ void Main()
         }
 
         if(KeyEnter.down()){
+            time++;
             entered_text = te1.text;
 
             te1.clear();
@@ -209,8 +211,8 @@ void Main()
             cout << "num4: " << num4 << endl;
 
             board_now = katanuki(num1, num2, num3, num4, size, nukigata, board_now, BOARD_WIDTH, BOARD_HEIGHT);
-
-        }
+            cout << time << "手目" << endl;
+        } 
 	}
 }
 
