@@ -55,7 +55,7 @@ void generateNukigata()
 
 void katanuki(vector<vector<int>>& startB, vector<vector<int>>& goalB, int i, int j, int iCount, int jCount, int action)
 {
-    int temp = startB[i][j];
+    vector<vector<int>> tempB = startB;
 
     /* up */
     if(action == 0){
@@ -150,7 +150,7 @@ int Main()
 
                             if(startB[ii][jj] == goalB[i][j]){
                                 
-                                
+                                katanuki(startB, goalB, i, jj, iCount, jCount, 0);
                             }
                         }
                     }
@@ -181,6 +181,7 @@ void test()
 int main()
 {
     generateNukigata();
+    Main();
 
     return 0;
 }
