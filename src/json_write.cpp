@@ -46,7 +46,7 @@ void json_write_reset(){
     cout << file.dump(4) << endl;
 
     if (write_file.is_open()) {
-        write_file << file.dump(4); //からファイルを入れて消す。
+        write_file << file.dump(4);
         write_file.close();
         std::cout << "解答JSONを初期化しました。" << std::endl;
     }else{
