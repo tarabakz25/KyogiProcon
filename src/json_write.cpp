@@ -28,7 +28,7 @@ void json_write(int time, int num1, int num2, int num3, int num4){
     if (write_file.is_open()) {
         write_file << file.dump(4);
         write_file.close();
-        std::cout << "JSONを書き出しました。" << std::endl;
+        std::cout << "解答JSONを更新しました。" << std::endl;
     }else{
         cout << "ファイルが開けませんでした。";
     }
@@ -48,7 +48,7 @@ void json_write_reset(){
     if (write_file.is_open()) {
         write_file << file.dump(4); //からファイルを入れて消す。
         write_file.close();
-        std::cout << "JSONを書き出しました。" << std::endl;
+        std::cout << "解答JSONを初期化しました。" << std::endl;
     }else{
         cout << "ファイルが開けませんでした。";
     }

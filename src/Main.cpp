@@ -12,6 +12,8 @@
 #include "json_read.cpp"
 #include "json_write.cpp"
 
+#include "receive.cpp"
+
 #include "setting.hpp"
 //using namespace nlohman;
 using namespace std;
@@ -67,7 +69,9 @@ void Main()
 	}
      */
 
-    
+    json_path_setting();
+
+    receive_problem();
 
     //jsonファイル用の設定と、jsonファイルの読み込み。
     json_read(board_start, board_finish, BOARD_WIDTH, BOARD_HEIGHT);
