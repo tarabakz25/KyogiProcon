@@ -1,6 +1,6 @@
 {
     "C_Cpp.errorSquiggles": "enabled",
-    "editor.fontFamily": "Fira Code",
+    "editor.fontFamily": "Terminus, \"851テガキカクット\"",
     "files.associations": {
         "*.py": "python",
         "*.html": "html",
@@ -9,5 +9,7 @@
         "tuple": "cpp",
         "cmath": "cpp",
         "complex": "cpp"
-    }
+    },
+    "terminal.integrated.fontFamily": "\"Terminus\"",
+    "editor.fontSize": 17
 }

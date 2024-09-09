@@ -9,26 +9,25 @@ using json = nlohmann::json;
 /* 変数の先宣言 */
 int counter = 0;
 
+/* ぬき型たち */
+vector<int> one_nukigata[1];
+map<int, vector<vector<int>> all_nukigata;
+map<int, vector<vector<int>>> up_nukigata;
+map<int, vector<vector<int>>> left_right_nukigata;
 
-vector<vector<vector<int>>> nukigata;
-
+/* ぬき型の生成 */
 void generateNukigata()
 {
     for(int size = 1; size < 256; size *= 2){
         vector<vector<int>> kata(size, vector<int>(size));
 
-        if(size == 1){
-            kata[0][0] = 1;
-            nukigata.push_back(kata);
-        }
-        else{
             /* all 1 */
             rep(i, size){
                 rep(j, size){
                     kata[i][j] = 1;
                 }
             }
-            nukigata.push_back(kata);
+            all_nukigata[size] = kata;
 
             /* 横 */
             rep(i, size){
@@ -37,7 +36,7 @@ void generateNukigata()
                     else kata[i][j] = 0;
                 }
             }        
-            nukigata.push_back(kata);
+            left_nukigata[size] = kata;
 
             /* 縦 */
             rep(i, size){
@@ -46,26 +45,43 @@ void generateNukigata()
                     else kata[i][j] = 0;
                 }
             }        
-            nukigata.push_back(kata);
-        }
+            up_nukigata[size] = kata;
     }
 }
 
 
 
-void katanuki(vector<vector<int>>& startB, vector<vector<int>>& goalB, int i, int j, int iCount, int jCount, int action)
+void up_katanuki(vector<vector<int>>& startB, vector<vector<int>>& goalB, int i, int j, int iCount, int jCount)
 {
     vector<vector<int>> tempB = startB;
+    map<int, vector<vector<int>>> kata;
 
-    /* up */
-    if(action == 0){
+    int ii = 1;
+    while(true){
+        while(ii = iCount) ii *= 2;
+        if(iCount == 0){
+            kata[ii] = up_nukigata[ii];
+            break;
+        }
+        else {
+            kata[ii] = up_nukigata[ii];
+        }
+    }
+
+    rep(kata, kata.size()){
         
     }
 
-    /* left */
-    
+}
 
-    counter ++;
+void left_katanuki(vector<vector<int>>& startB, vector<vector<int>>& goalB, int i, int j, int iCount, int jCount)
+{
+
+}
+
+void right_katanuki(vector<vector<int>>& startB, vector<vector<int>>& goalB, int i, int j, int iCount, int jCount)
+{
+
 }
 
 vector<int> stringToVector(const string& str)
@@ -145,14 +161,17 @@ int Main()
 
                     for(int ii = i; ii < height; ii++){
                         iCount ++;
-                        for(int jj = j; jj < width; jj++){
+                        for(int jj = 0; jj < width; jj++){
                             jCount ++;
 
                             if(startB[ii][jj] == goalB[i][j]){
                                 
-                                katanuki(startB, goalB, i, jj, iCount, jCount, 0);
+                                if(j > jj){
+
+                                }
                             }
                         }
+                        jCount = 0;
                     }
                 }
             }
