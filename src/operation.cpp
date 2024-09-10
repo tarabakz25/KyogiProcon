@@ -8,11 +8,35 @@
 
 pair<int, int> operation_search(vector<int> &board_now, vector<int> &board_finish, pair<int, int> &address){
     pair<int, int> correct_address;
-    for (int i = address.second; i < BOARD_WIDTH; i++){
-        if (board_finish.at(address.second + address.first * BOARD_WIDTH) == board_now.at(i + address.first * BOARD_WIDTH)){
-            correct_address = {i, address.first};
+    //同行に目標ピースが存在するかを探す
+    for (int i = address.first; i < BOARD_WIDTH; i++){
+        if (board_finish.at(address.first + address.second * BOARD_WIDTH) == board_now.at(i + address.second * BOARD_WIDTH)){
+            correct_address = {i, address.second};
+            return (correct_address);
         }
     }
+    //同列に目標ピースが存在するかを探す
+    for (int i = address.second; i < BOARD_HEIGHT; i++){
+        if (board_finish.at(address.first + address.second * BOARD_WIDTH) == board_now.at(address.first + i * BOARD_WIDTH)){
+            correct_address = {address.first, i};
+            return (correct_address);
+        }
+    }
+    //左上から順に探す。
+    for (int i = address.second + 1; i < BOARD_HEIGHT; i++){
+        for (int j = 0; j < BOARD_WIDTH; j++){
+            //同列はすでにサーチ済みなので処理を飛ばす
+            if (j == address.first){
+                continue;
+            }
+            if (board_finish.at(address.first + address.second * BOARD_WIDTH) == board_now.at(j + i * BOARD_WIDTH)){
+                correct_address = {j, i};
+                return (correct_address);
+            }
+        }
+    }
+    //もし正しいブロックがなかったら-1を返す。→エラー表示
+    correct_address = {-1, -1};
     return (correct_address);
 }
 
@@ -41,6 +65,10 @@ void operation(int &time, vector<int> &board_now, vector<int> &board_finish, pai
     pair<int, int> correct_piece;
     while(1){
         correct_piece = operation_search(board_now, board_finish, address);
+        if (correct_piece.first == -1 && correct_piece.second == -1){
+            time = -1;
+            break;
+        }
         if (correct_piece == address){
             break;
         }

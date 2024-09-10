@@ -241,7 +241,12 @@ void Main()
             board_now = katanuki(num1, num2, num3, num4, size, nukigata, board_now, BOARD_WIDTH, BOARD_HEIGHT);
             check(board_now, board_finish, num);
         }
+        sort_result.second.first++;
         //operation(time, board_now, board_finish, sort_result.second, size, nukigata);
+        if (time < 0){
+            cout << "error" << endl;
+            break;
+        }
         
         json_write(time, num1, num2, num3, num4);
         if (num == BOARD_HEIGHT * BOARD_WIDTH){
