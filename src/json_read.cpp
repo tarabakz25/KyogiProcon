@@ -47,15 +47,16 @@ void json_path_setting(){
 
 void json_read(vector<int> &board_start, vector<int> &board_finish, int &BOARD_WIDTH, int &BOARD_HEIGHT){
     //今のところサンプルを読み込みますが、curlで読み込んだファイル(problem.json)も使えます！
+    string read_jsonpath = "./src/sample1.json";
 
     //jsonファイル存在するか確認。
-    if (!std::filesystem::exists("./src/sample1.json")) {
-        std::cerr << "File does not exist at path: ./src/sample1.json" << std::endl;
+    if (!std::filesystem::exists(read_jsonpath)) {
+        std::cerr << "File does not exist at path:" << read_jsonpath << std::endl;
         return;
     }
 
     // JSONファイルの読み込み
-    std::ifstream ifs("./src/sample1.json");
+    std::ifstream ifs(read_jsonpath);
 
     //ファイル開け成功したか
     if (!ifs.is_open()) {
@@ -68,7 +69,7 @@ void json_read(vector<int> &board_start, vector<int> &board_finish, int &BOARD_W
     // ファイル内容を読み込み成功したか
     std::string str((std::istreambuf_iterator<char>(ifs)), std::istreambuf_iterator<char>());
     if (str.empty()) {
-        std::cerr << "File is empty: ./src/sample1.json" << std::endl;
+        std::cerr << "File is empty:" << read_jsonpath << std::endl;
         return;
     }
     //std::cout << "File content: " << str << std::endl; //中身表示

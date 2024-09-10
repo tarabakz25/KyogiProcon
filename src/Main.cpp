@@ -12,7 +12,7 @@
 #include "json_read.cpp"
 #include "json_write.cpp"
 
-#include "receive.cpp"
+#include "receive_and_send.cpp"
 
 #include "setting.hpp"
 //using namespace nlohman;
@@ -71,7 +71,7 @@ void Main()
 
     json_path_setting();
 
-    receive_problem();
+    receive_problem("token1");
 
     //jsonファイル用の設定と、jsonファイルの読み込み。
     json_read(board_start, board_finish, BOARD_WIDTH, BOARD_HEIGHT);
@@ -159,6 +159,13 @@ void Main()
             cout << time << "手目" << endl;
             json_write(time, num1, num2, num3, num4);
         } 
+
+        /*
+        これで送信できます。
+        if(KeyP.down()){
+            send_problem("token1");
+        }
+        */
 	}
 }
 
