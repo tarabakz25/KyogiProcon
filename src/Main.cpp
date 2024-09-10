@@ -133,7 +133,9 @@ void Main()
         sort_result = baord_sort_search(board_now, board_finish, sort_num);
         //cout << sort_result.second.first << ',' << sort_result.second.second << endl;
         Rect{40, 135 + side_length * BOARD_HEIGHT, side_length * sort_result.first.first, side_length * sort_result.first.second}.drawFrame(0.8, 0.8, Palette::Green);
-        Rect{40, 135 + side_length * BOARD_HEIGHT + side_length * sort_result.first.second, side_length * (sort_result.second.first + 1), side_length * (sort_result.second.second - sort_result.first.second)}.drawFrame(0.8, 0.8, Palette::Green);
+        if (sort_result.second.first >= 0){
+            Rect{40, 135 + side_length * BOARD_HEIGHT + side_length * sort_result.first.second, side_length * 1}.drawFrame(0.8, 0.8, Palette::Green);
+        }
 
         //Print << te1.active; // アクティブかどうか
 		//Print << te1.text; // 入力されたテキスト (String)
@@ -384,6 +386,9 @@ pair<pair<int, int>, pair<int, int>> baord_sort_search(vector<int>& board_now, v
     //sort_result.firstでBORAD_WIDTH×(n*mますまで一致している場合のn-1行目まで)の長方形分の正誤判定を出力する
     //sort/result.secondでn行目のmますまでの一列の正誤判定を出力する
 
+    sort_result.first = {0, 0};
+    sort_result.second = {-1, 0};
+
     num = 0;    //ソートによるピースの一致個数を測る
 
     bool a = 0;
@@ -391,7 +396,7 @@ pair<pair<int, int>, pair<int, int>> baord_sort_search(vector<int>& board_now, v
         for (int j = 0; j <= BOARD_WIDTH; j++){
             if (board_now.at(i * BOARD_WIDTH + j) == board_finish.at(i * BOARD_WIDTH + j)){
                 sort_check.at(i * BOARD_WIDTH + j) = 1;
-                sort_result.second = {j, i + 1};
+                sort_result.second = {j, i};
                 num++;
             }
             else {
@@ -408,7 +413,7 @@ pair<pair<int, int>, pair<int, int>> baord_sort_search(vector<int>& board_now, v
         sort_result.first = {0, 0};
     }
     else {
-        if (sort_result.second.second <= 1){
+        if (sort_result.second.second <= 0){
             sort_result.first = {0, 0};
         }
         else {
