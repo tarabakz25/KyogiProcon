@@ -40,9 +40,13 @@ int loadBoard(const json &jobj, vector<int> &startBoard, vector<int> &goalBoard)
     return 0;
 }
 
-void read_json(vector<int> &board_start, vector<int> &board_finish, int &BOARD_WIDTH, int &BOARD_HEIGHT){
+void json_path_setting(){
     std::filesystem::current_path("../"); //カレントディレクトリをソースファイルに変更。
-    cout << "Current path: " << std::filesystem::current_path().c_str() << endl; //カレントディレクトリを表示;
+    cout << "(設定)Current path: " << std::filesystem::current_path().c_str() << endl; //カレントディレクトリを表示;
+}
+
+void json_read(vector<int> &board_start, vector<int> &board_finish, int &BOARD_WIDTH, int &BOARD_HEIGHT){
+    //今のところサンプルを読み込みますが、curlで読み込んだファイル(problem.json)も使えます！
 
     //jsonファイル存在するか確認。
     if (!std::filesystem::exists("./src/sample1.json")) {
@@ -58,7 +62,7 @@ void read_json(vector<int> &board_start, vector<int> &board_finish, int &BOARD_W
         std::cerr << "Failed to open the file!!!" << std::endl;
         return;
     } else {
-        std::cout << "File opened successfully!" << std::endl;
+        std::cout << "(状態)問題を開けました" << std::endl;
     }
 
     // ファイル内容を読み込み成功したか
@@ -70,7 +74,7 @@ void read_json(vector<int> &board_start, vector<int> &board_finish, int &BOARD_W
     //std::cout << "File content: " << str << std::endl; //中身表示
 
     json jobj = json::parse(str);
-    std::cout << "JSON parsed successfully!" << std::endl;
+    std::cout << "(状態)問題をjson化できました。" << std::endl;
 
     //初期盤面、終了盤面取得
     vector<int> startBoard, goalBoard;
@@ -83,5 +87,5 @@ void read_json(vector<int> &board_start, vector<int> &board_finish, int &BOARD_W
     //幅と高さ取得・代入。
     BOARD_WIDTH = jobj["board"]["width"].get<int>();
     BOARD_HEIGHT = jobj["board"]["height"].get<int>();
-    cout << "WIDTH"<<BOARD_WIDTH << " HWIGHT"<<BOARD_HEIGHT << endl;
+    cout << "(情報)" << "WIDTH"<<BOARD_WIDTH << " HWIGHT"<<BOARD_HEIGHT << endl;
 }
