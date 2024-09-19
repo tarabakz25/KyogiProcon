@@ -241,8 +241,14 @@ void Main()
             board_now = katanuki(num1, num2, num3, num4, size, nukigata, board_now, BOARD_WIDTH, BOARD_HEIGHT);
             check(board_now, board_finish, num);
         }
-        sort_result.second.first++;
-        //operation(time, board_now, board_finish, sort_result.second, size, nukigata);
+        if (sort_result.second.first < BOARD_WIDTH - 1){
+            sort_result.second.first++;
+        }
+        else {
+            sort_result.second.first = 0;
+            sort_result.second.second++;
+        }
+        operation(time, board_now, board_finish, sort_result.second, size, nukigata);
         if (time < 0){
             cout << "error" << endl;
             break;

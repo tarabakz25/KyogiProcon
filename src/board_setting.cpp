@@ -78,7 +78,9 @@ vector<int> katanuki(int piece_num, int x_min, int y_min, int direction, vector<
     cout << "型抜き範囲x:" << x_min << " ~ " << x_max <<endl;
     cout << "型抜き範囲y:" << y_min << " ~ " << y_max << endl;
     //cout << "抜き出したもの" << endl;
-     
+
+    //方向表示
+    cout << "型抜き方向" << direction << endl;
 
     //型抜き
     vector<int> kata_1d(256*256, 0);
