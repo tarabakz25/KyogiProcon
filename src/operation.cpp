@@ -43,7 +43,7 @@ pair<int, int> operation_search(vector<int> &board_now, vector<int> &board_finis
     return (correct_address);
 }
 
-void operation_move_line(int &time, vector<int> &board_now, vector<int> &baord_finish, pair<int, int> &address, pair<int, int> correct_piece, vector<vector<int>> &size, vector<vector<vector<int>>> nukigata){
+void operation_move_line(int &time, vector<int> &board_now, vector<int> &baord_finish, pair<int, int> &address, pair<int, int> &correct_piece, vector<vector<int>> &size, vector<vector<vector<int>>> &nukigata){
     int n;  //目的座標と目的ピースのx座標の差を読み取る
     vector<int> num = {0, address.first, address.second, 2};    //型抜き関数用(2は左抜き)
 
@@ -65,13 +65,14 @@ void operation_move_line(int &time, vector<int> &board_now, vector<int> &baord_f
         cout << time << "手目" << endl;
     }
     if (differences.at(8) == '1'){
+        num.at(0) = 0;
         board_now = katanuki(num.at(0), num.at(1), num.at(2), num.at(3), size, nukigata, board_now, BOARD_WIDTH, BOARD_HEIGHT);
         time++; //手数更新
         cout << time << "手目" << endl;
     }
 }
 
-void operation_move_line2(int &time, vector<int> &board_now, vector<int> &board_finish, pair<int, int> &address, pair<int, int> correct_piece, vector<vector<int>> &size, vector<vector<vector<int>>> nukigata){
+void operation_move_line2(int &time, vector<int> &board_now, vector<int> &board_finish, pair<int, int> &address, pair<int, int> &correct_piece, vector<vector<int>> &size, vector<vector<vector<int>>> &nukigata){
     int n;  //目的座標と目的ピースのx座標の差を読み取る
     vector<int> num = {0, 0, address.second, 3};    //型抜き関数用(3は右抜き)
 
@@ -89,22 +90,22 @@ void operation_move_line2(int &time, vector<int> &board_now, vector<int> &board_
             continue;
         }
         num.at(1) = correct_piece.first + 1; //抜き型を現在の目標ピースの位置の右隣に適応
-        board_now = katanuki(num.at(0), num.at(1), num.at(2), num.at(3), size, nukigata, board_now, BOARD_HEIGHT, BOARD_WIDTH);
+        board_now = katanuki(num.at(0), num.at(1), num.at(2), num.at(3), size, nukigata, board_now, BOARD_WIDTH, BOARD_HEIGHT);
         time++; //手数更新
         cout << time << "手目" << endl;
 
         correct_piece = operation_search(board_now, board_finish, address); //目標ピースの座標を取得し直す
     }
-
     if (differences.at(8) == '1'){
+        num.at(0) = 0;
         num.at(1) = correct_piece.first + 1; //抜き型を現在の目標ピースの位置の右隣に適応
-        board_now = katanuki(num.at(0), num.at(1), num.at(2), num.at(3), size, nukigata, board_now, BOARD_HEIGHT, BOARD_WIDTH);
+        board_now = katanuki(num.at(0), num.at(1), num.at(2), num.at(3), size, nukigata, board_now, BOARD_WIDTH, BOARD_HEIGHT);
         time++; //手数更新
         cout << time << "手目" << endl;
     }
 }
 
-void operation_move_column(int &time, vector<int> &board_now, vector<int> &baord_finish, pair<int, int> &address, pair<int, int> correct_piece, vector<vector<int>> &size, vector<vector<vector<int>>> nukigata){
+void operation_move_column(int &time, vector<int> &board_now, vector<int> &baord_finish, pair<int, int> &address, pair<int, int> &correct_piece, vector<vector<int>> &size, vector<vector<vector<int>>> &nukigata){
     int n;  //目的座標と目的ピースのy座標の差を読み取る
     vector<int> num = {0, address.first, address.second, 0};    //型抜き関数用(0は上抜き)
 
@@ -121,6 +122,12 @@ void operation_move_column(int &time, vector<int> &board_now, vector<int> &baord
         else {
             continue;
         }
+        board_now = katanuki(num.at(0), num.at(1), num.at(2), num.at(3), size, nukigata, board_now, BOARD_WIDTH, BOARD_HEIGHT);
+        time++; //手数更新
+        cout << time << "手目" << endl;
+    }
+    if (differences.at(8) == '1'){
+        num.at(0) = 0;
         board_now = katanuki(num.at(0), num.at(1), num.at(2), num.at(3), size, nukigata, board_now, BOARD_WIDTH, BOARD_HEIGHT);
         time++; //手数更新
         cout << time << "手目" << endl;
@@ -145,14 +152,20 @@ void operation(int &time, vector<int> &board_now, vector<int> &board_finish, pai
         else {
             if (address.first > correct_piece.first){
                 pair<int, int> addresses = {address.first, correct_piece.second};
-                cout << addresses.first << "," << addresses.second << 1 << endl;
+                cout << addresses.first << "," << addresses.second << ':' << 1 << endl;
                 operation_move_line2(time, board_now, board_finish, addresses, correct_piece, size, nukigata);
             }
             else {
                 pair<int, int> addresses = {address.first, correct_piece.second};
-                cout << addresses.first << "," << addresses.second << 2 << endl;
+                cout << addresses.first << "," << addresses.second << ':' << 2 << endl;
                 operation_move_line(time, board_now, board_finish, addresses, correct_piece, size, nukigata);
             }
+        }
+        for (int i = 0; i < BOARD_HEIGHT; i++){
+            for (int j = 0; j < BOARD_WIDTH; j++){
+                cout << board_now.at(i * BOARD_WIDTH + j) << " ";
+            }
+            cout << endl;
         }
     }
 }
