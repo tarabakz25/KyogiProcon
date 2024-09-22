@@ -112,14 +112,11 @@ void Main()
 	//描画開始
 	while (System::Update()){
 	 	//gui_drawing
-        font(U"START").draw(90 + side_length * BOARD_WIDTH, 15, ColorF{ 1.0, 1.0, 1.0 });
-        Board_draw(90 + side_length * BOARD_WIDTH, 70, side_length, board_start, font);
+        font(U"FINISH").draw(90 + side_length * BOARD_WIDTH, 15, ColorF{ 1.0, 1.0, 1.0 });
+        Board_draw(90 + side_length * BOARD_WIDTH, 70, side_length, board_finish, font);
 
-        font(U"NOW").draw(40, 80 + side_length * BOARD_HEIGHT, ColorF{ 1.0, 1.0, 1.0 });
-        Board_draw(40, 135 + side_length * BOARD_HEIGHT, side_length, board_now, font);
-
-        font(U"FINISH").draw(40, 15, ColorF{ 1.0, 1.0, 1.0 });
-        Board_draw(40, 70, side_length, board_finish, font);
+        font(U"NOW").draw(40, 15, ColorF{ 1.0, 1.0, 1.0 });
+        Board_draw(40, 70, side_length, board_now, font);
 
         /*
         for(size_t i = 0; i < blockcheck_result.size(); i++){
@@ -132,9 +129,9 @@ void Main()
 
         sort_result = baord_sort_search(board_now, board_finish, sort_num);
         //cout << sort_result.second.first << ',' << sort_result.second.second << endl;
-        Rect{40, 135 + side_length * BOARD_HEIGHT, side_length * sort_result.first.first, side_length * sort_result.first.second}.drawFrame(0.8, 0.8, Palette::Green);
+        Rect{40, 70, side_length * sort_result.first.first, side_length * (sort_result.first.second + 1)}.drawFrame(0.8, 0.8, Palette::Green);
         if (sort_result.second.first >= 0){
-            Rect{40, 135 + side_length * BOARD_HEIGHT + side_length * sort_result.first.second, side_length * 1}.drawFrame(0.8, 0.8, Palette::Green);
+            Rect{40, 70 + side_length * (sort_result.first.second + 1), side_length * sort_result.second.first, side_length * 1}.drawFrame(0.8, 0.8, Palette::Green);
         }
 
         //Print << te1.active; // アクティブかどうか

@@ -92,9 +92,23 @@ void operation_move_line2(int &time, vector<int> &board_now, vector<int> &board_
         num.at(1) = correct_piece.first + 1; //抜き型を現在の目標ピースの位置の右隣に適応
         board_now = katanuki(num.at(0), num.at(1), num.at(2), num.at(3), size, nukigata, board_now, BOARD_WIDTH, BOARD_HEIGHT);
         time++; //手数更新
+        int n = 2;
+        int j = i;
+        while (7 - j > 0) {
+            n *= 2;
+            j++;
+        }
+        correct_piece.first += n;
         cout << time << "手目" << endl;
-
-        correct_piece = operation_search(board_now, board_finish, address); //目標ピースの座標を取得し直す
+        for (int i = 0; i < BOARD_HEIGHT; i++){
+            for (int j = 0; j < BOARD_WIDTH; j++){
+                if (address.first == j && address.second == i){
+                    cout << "\033[33m" << board_now.at(i * BOARD_WIDTH + j) << "\033[0m" << " ";
+                }
+                else    cout << board_now.at(i * BOARD_WIDTH + j) << " ";
+            }
+            cout << endl;
+        }
     }
     if (differences.at(8) == '1'){
         num.at(0) = 0;
@@ -163,7 +177,10 @@ void operation(int &time, vector<int> &board_now, vector<int> &board_finish, pai
         }
         for (int i = 0; i < BOARD_HEIGHT; i++){
             for (int j = 0; j < BOARD_WIDTH; j++){
-                cout << board_now.at(i * BOARD_WIDTH + j) << " ";
+                if (address.first == j && address.second == i){
+                    cout << "\033[33m" << board_now.at(i * BOARD_WIDTH + j) << "\033[0m" << " ";
+                }
+                else    cout << board_now.at(i * BOARD_WIDTH + j) << " ";
             }
             cout << endl;
         }
