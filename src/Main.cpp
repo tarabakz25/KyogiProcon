@@ -48,7 +48,7 @@ void Main()
     const Font font{ FontMethod::MSDF, 12, Typeface::Bold };
     float persent;
     float sort_persent;
-    int num;
+    int number;
     int sort_num;
     int time = 0;
     
@@ -57,8 +57,8 @@ void Main()
     // ウィンドウサイズを 800x600 に設定
     Window::Resize(800, 800);
 
-    TextEditState te1{ U"0,0,0" };// デフォルトのテキストを設定する
-    String entered_text;
+    //TextEditState te1{ U"0,0,0" };// デフォルトのテキストを設定する
+    //String entered_text;
 
     vector<int> board_start (BOARD_WIDTH * BOARD_HEIGHT, 0);
 	vector<int> board_now (BOARD_WIDTH * BOARD_HEIGHT, 0);
@@ -104,10 +104,10 @@ void Main()
     //board_now = katanuki(1, 0, 0, 2, size, nukigata, board_start, BOARD_WIDTH, BOARD_HEIGHT);
     //[0:up 1:down 2:left 3:right]
 
-    bool zero = 0;
+    /*bool zero = 0;
     bool one = 0;
     bool two = 0;
-    bool three = 0;
+    bool three = 0;*/
 
 	//描画開始
 	while (System::Update()){
@@ -125,7 +125,7 @@ void Main()
         }
         */
 
-        check(board_now, board_finish, num);
+        check(board_now, board_finish, number);
 
         sort_result = baord_sort_search(board_now, board_finish, sort_num);
         //cout << sort_result.second.first << ',' << sort_result.second.second << endl;
@@ -137,18 +137,18 @@ void Main()
         //Print << te1.active; // アクティブかどうか
 		//Print << te1.text; // 入力されたテキスト (String)
 
-		SimpleGUI::TextBox(te1, Vec2{ 90 + side_length * BOARD_WIDTH, 100 + side_length * BOARD_HEIGHT});
-        font(U"フォーマット「num,x,y」で入力してください。").draw(90 + side_length * BOARD_WIDTH, 135 + side_length * BOARD_HEIGHT, ColorF{1,1,1});
-        font(U"num, x, yは変数です。").draw(90 + side_length * BOARD_WIDTH, 147 + side_length * BOARD_HEIGHT, ColorF{1,1,1});
+		//SimpleGUI::TextBox(te1, Vec2{ 90 + side_length * BOARD_WIDTH, 100 + side_length * BOARD_HEIGHT});
+        /*font(U"フォーマット「num,x,y」で入力してください。").draw(90 + side_length * BOARD_WIDTH, 135 + side_length * BOARD_HEIGHT, ColorF{1,1,1});
+        font(U"num, x, yは変数です。").draw(90 + side_length * BOARD_WIDTH, 147 + side_length * BOARD_HEIGHT, ColorF{1,1,1});*/
 
         sort_persent = ((float)sort_num / (BOARD_HEIGHT * BOARD_WIDTH)) * 100;
         font(U"ソート一致率{}%"_fmt(sort_persent)).draw(20, Vec2{90 + side_length * BOARD_WIDTH, 170 + side_length * BOARD_HEIGHT}, ColorF{1,1,1});
-        persent = ((float)num / (BOARD_HEIGHT * BOARD_WIDTH)) * 100;
+        persent = ((float)number / (BOARD_HEIGHT * BOARD_WIDTH)) * 100;
         font(U"一致率{}%"_fmt(persent)).draw(20, Vec2{90 + side_length * BOARD_WIDTH, 200 + side_length * BOARD_HEIGHT}, ColorF{1,1,1});
         font(U"{}手型抜き操作済み"_fmt(time)).draw(20, Vec2{90 + side_length * BOARD_WIDTH, 230 + side_length * BOARD_HEIGHT}, ColorF{1,1,1});
 		
         //数字キー入力で各種対応数字を強調
-        if (KeyA.down()){
+        /*if (KeyA.down()){
             if (zero == 0){
                 zero = 1;
             }
@@ -179,33 +179,30 @@ void Main()
             else if (three == 1){
                 three = 0;
             }
-        }
+        }*/
 
         if (KeyEscape.down()){
             break;
         }
 
-        if (KeyTab.pressed()){
+        /*if (KeyTab.pressed()){
             check_result_draw(board_now, board_finish, side_length);    //最終ボードと一致しているすべてのピースを表示する
-        }
+        }*/
 
         //表示関数
-        number_draw_now(0, zero, board_now, side_length);
+        /*number_draw_now(0, zero, board_now, side_length);
         number_draw_now(1, one, board_now, side_length);
         number_draw_now(2, two, board_now, side_length);
         number_draw_now(3, three, board_now, side_length);
         number_draw_finish(0, zero, board_finish, side_length);
         number_draw_finish(1, one, board_finish, side_length);
         number_draw_finish(2, two, board_finish, side_length);
-        number_draw_finish(3, three, board_finish, side_length);
+        number_draw_finish(3, three, board_finish, side_length);*/
         
-        int num1;
-        int num2;
-        int num3;
-        int num4;
+        vector<int> num(4);
 
         //矢印キー入力で型抜き方向を決定
-        if(KeyRight.down()){
+        /*if(KeyRight.down()){
             num4 = 3;
         }
         else if (KeyLeft.down()){
@@ -216,9 +213,9 @@ void Main()
         }
         else if (KeyDown.down()){
             num4 = 1;
-        }
+        }*/
 
-        if(KeyEnter.down()){
+        /*if(KeyEnter.down()){
             time++;
             entered_text = te1.text;
 
@@ -237,7 +234,7 @@ void Main()
 
             board_now = katanuki(num1, num2, num3, num4, size, nukigata, board_now, BOARD_WIDTH, BOARD_HEIGHT);
             check(board_now, board_finish, num);
-        }
+        }*/
         if (sort_result.second.first < BOARD_WIDTH - 1){
             sort_result.second.first++;
         }
@@ -245,14 +242,13 @@ void Main()
             sort_result.second.first = 0;
             sort_result.second.second++;
         }
-        operation(time, board_now, board_finish, sort_result.second, size, nukigata);
+        operation(time, board_now, board_finish, sort_result.second, size, nukigata, num);
         if (time < 0){
             cout << "error" << endl;
             break;
         }
         
-        json_write(time, num1, num2, num3, num4);
-        if (num == BOARD_HEIGHT * BOARD_WIDTH){
+        if (number == BOARD_HEIGHT * BOARD_WIDTH){
             cout << "finish!" << endl;
             cout << time << "手" << endl;
             break;
@@ -492,7 +488,6 @@ void check(vector<int> &board_now, vector<int> &board_finish, int &num){
         }
     }
 }
-
 
 void check_result_draw (vector<int> &board_now, vector<int> &board_finish, int side_length){
     for (int i = 0; i < BOARD_HEIGHT; i++){
