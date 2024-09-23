@@ -3,8 +3,8 @@
 #include <algorithm>
 #include <random>
 
-const int width = 64;
-const int height = 129;
+const int width = 128;
+const int height = 128;
 const int total_elements = width * height;
 const int num_each = total_elements / 4;
 

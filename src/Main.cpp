@@ -1,10 +1,11 @@
-#include <Siv3D.hpp> // Siv3D v0.6.15
+//#include <Siv3D.hpp> // Siv3D v0.6.15
 #include <string>
 #include <stdlib.h>
 
 #include <string> //read&write
 #include <fstream>
 #include <sstream>
+#include <filesystem>
 
 #include <vector>
 #include "json.hpp"
@@ -24,14 +25,13 @@ int BOARD_WIDTH;
 int BOARD_HEIGHT;
 
 //プロトタイプ宣言
-void Board_draw(int position_x, int position_y, int side_length, vector<int> &board_now, const Font& font);
-void comparison(int block_type, int now_x, int now_y, int end_x, int end_y, vector<int>& board_now, vector<int>& board_finish, vector<int>& blockcheck_now, vector<int>& blockcheck_end, vector<vector<int>>& blockcheck_result);
-vector<vector<int>> search_block(vector<int>& board_now, vector<int>& board_finish);
+//void Board_draw(int position_x, int position_y, int side_length, vector<int> &board_now, const Font& font);
+//void comparison(int block_type, int now_x, int now_y, int end_x, int end_y, vector<int>& board_now, vector<int>& board_finish, vector<int>& blockcheck_now, vector<int>& blockcheck_end, vector<vector<int>>& blockcheck_result);
 pair<pair<int, int>, pair<int, int>> baord_sort_search(vector<int>& board_now, vector<int>&board_finish, int &num);
-void number_draw_now (int number, bool num, vector<int> &board_now, int side_length);
-void number_draw_finish (int number, bool num, vector<int> &board_finish, int side_length);
+//void number_draw_now (int number, bool num, vector<int> &board_now, int side_length);
+//void number_draw_finish (int number, bool num, vector<int> &board_finish, int side_length);
 void check(vector<int> &board_now, vector<int> &board_finish, int &num);
-void check_result_draw (vector<int> &board_now, vector<int> &board_finish, int side_length);
+//void check_result_draw (vector<int> &board_now, vector<int> &board_finish, int side_length);
 
 vector<vector<int>> define_size();
 vector<vector<vector<int> > > define_nukigata(vector<vector<int>> size);
@@ -40,12 +40,12 @@ vector<int> katanuki(int piece_num, int x_min, int y_min, int direction, vector<
 //jsonファイル読み込み系
 // 文字列からベクトルに変換する関数(一列分を返す)
 
-void Main()
+int main()
 {
 	//gui setting
 	//Scene::SetBackground(ColorF{ 0.0, 0.0, 0.0 });
 	const int side_length = 14;
-    const Font font{ FontMethod::MSDF, 12, Typeface::Bold };
+    //const Font font{ FontMethod::MSDF, 12, Typeface::Bold };
     float persent;
     float sort_persent;
     int number;
@@ -53,9 +53,9 @@ void Main()
     int time = 0;
     
     // ウィンドウを自由にサイズ変更可能に設定
-    Window::SetStyle(WindowStyle::Sizable);
+    //Window::SetStyle(WindowStyle::Sizable);
     // ウィンドウサイズを 800x600 に設定
-    Window::Resize(800, 800);
+    //Window::Resize(800, 800);
 
     //TextEditState te1{ U"0,0,0" };// デフォルトのテキストを設定する
     //String entered_text;
@@ -110,13 +110,13 @@ void Main()
     bool three = 0;*/
 
 	//描画開始
-	while (System::Update()){
+	while (1/*System::Update()*/){
 	 	//gui_drawing
-        font(U"FINISH").draw(90 + side_length * BOARD_WIDTH, 15, ColorF{ 1.0, 1.0, 1.0 });
+        /*font(U"FINISH").draw(90 + side_length * BOARD_WIDTH, 15, ColorF{ 1.0, 1.0, 1.0 });
         Board_draw(90 + side_length * BOARD_WIDTH, 70, side_length, board_finish, font);
 
         font(U"NOW").draw(40, 15, ColorF{ 1.0, 1.0, 1.0 });
-        Board_draw(40, 70, side_length, board_now, font);
+        Board_draw(40, 70, side_length, board_now, font);*/
 
         /*
         for(size_t i = 0; i < blockcheck_result.size(); i++){
@@ -129,10 +129,10 @@ void Main()
 
         sort_result = baord_sort_search(board_now, board_finish, sort_num);
         //cout << sort_result.second.first << ',' << sort_result.second.second << endl;
-        Rect{40, 70, side_length * sort_result.first.first, side_length * (sort_result.first.second + 1)}.drawFrame(0.8, 0.8, Palette::Green);
+        /*Rect{40, 70, side_length * sort_result.first.first, side_length * (sort_result.first.second + 1)}.drawFrame(0.8, 0.8, Palette::Green);
         if (sort_result.second.first >= 0){
             Rect{40, 70 + side_length * (sort_result.first.second + 1), side_length * sort_result.second.first, side_length * 1}.drawFrame(0.8, 0.8, Palette::Green);
-        }
+        }*/
 
         //Print << te1.active; // アクティブかどうか
 		//Print << te1.text; // 入力されたテキスト (String)
@@ -141,11 +141,11 @@ void Main()
         /*font(U"フォーマット「num,x,y」で入力してください。").draw(90 + side_length * BOARD_WIDTH, 135 + side_length * BOARD_HEIGHT, ColorF{1,1,1});
         font(U"num, x, yは変数です。").draw(90 + side_length * BOARD_WIDTH, 147 + side_length * BOARD_HEIGHT, ColorF{1,1,1});*/
 
-        sort_persent = ((float)sort_num / (BOARD_HEIGHT * BOARD_WIDTH)) * 100;
+        /*sort_persent = ((float)sort_num / (BOARD_HEIGHT * BOARD_WIDTH)) * 100;
         font(U"ソート一致率{}%"_fmt(sort_persent)).draw(20, Vec2{90 + side_length * BOARD_WIDTH, 170 + side_length * BOARD_HEIGHT}, ColorF{1,1,1});
         persent = ((float)number / (BOARD_HEIGHT * BOARD_WIDTH)) * 100;
         font(U"一致率{}%"_fmt(persent)).draw(20, Vec2{90 + side_length * BOARD_WIDTH, 200 + side_length * BOARD_HEIGHT}, ColorF{1,1,1});
-        font(U"{}手型抜き操作済み"_fmt(time)).draw(20, Vec2{90 + side_length * BOARD_WIDTH, 230 + side_length * BOARD_HEIGHT}, ColorF{1,1,1});
+        font(U"{}手型抜き操作済み"_fmt(time)).draw(20, Vec2{90 + side_length * BOARD_WIDTH, 230 + side_length * BOARD_HEIGHT}, ColorF{1,1,1});*/
 		
         //数字キー入力で各種対応数字を強調
         /*if (KeyA.down()){
@@ -181,9 +181,9 @@ void Main()
             }
         }*/
 
-        if (KeyEscape.down()){
+        /*if (KeyEscape.down()){
             break;
-        }
+        }*/
 
         /*if (KeyTab.pressed()){
             check_result_draw(board_now, board_finish, side_length);    //最終ボードと一致しているすべてのピースを表示する
@@ -257,7 +257,7 @@ void Main()
 }
 
 //盤面の表示
-void Board_draw(int position_x, int position_y, int side_length, vector<int> &board_now, const Font& font){
+/*void Board_draw(int position_x, int position_y, int side_length, vector<int> &board_now, const Font& font){
     for(int x = 0; x<BOARD_HEIGHT; x++){
         if (x == 0){
             for (int j = 0; j < BOARD_WIDTH; j++){
@@ -310,10 +310,10 @@ void Board_draw(int position_x, int position_y, int side_length, vector<int> &bo
                 }
             }
         }
-}
+}*/
 
 //ブロックに分けて探す
-vector<vector<int>> search_block(vector<int>& board_now, vector<int>& board_finish){
+/*vector<vector<int>> search_block(vector<int>& board_now, vector<int>& board_finish){
     vector<int> blockcheck_now(BOARD_WIDTH * BOARD_HEIGHT, 0); 
     vector<int> blockcheck_end(BOARD_WIDTH * BOARD_HEIGHT, 0);
     vector<vector<int>> blockcheck_result;
@@ -340,11 +340,10 @@ vector<vector<int>> search_block(vector<int>& board_now, vector<int>& board_fini
     }
 
     return blockcheck_result;
-}
-
+}*/
 
 //重複チェック
-void comparison(int block_type, int now_x, int now_y, int end_x, int end_y, vector<int>& board_now, vector<int>& board_finish, vector<int>& blockcheck_now, vector<int>& blockcheck_end, vector<vector<int>>& blockcheck_result){
+/*void comparison(int block_type, int now_x, int now_y, int end_x, int end_y, vector<int>& board_now, vector<int>& board_finish, vector<int>& blockcheck_now, vector<int>& blockcheck_end, vector<vector<int>>& blockcheck_result){
     int count = 0;
     int use = 1; //干渉していたら不採用、最初は採用にする。
 
@@ -382,7 +381,7 @@ void comparison(int block_type, int now_x, int now_y, int end_x, int end_y, vect
     }
     
     
-}
+}*/
 
 pair<pair<int, int>, pair<int, int>> baord_sort_search(vector<int>& board_now, vector<int>&board_finish, int &num){
     vector<int> sort_check(BOARD_HEIGHT * BOARD_WIDTH);
@@ -428,7 +427,7 @@ pair<pair<int, int>, pair<int, int>> baord_sort_search(vector<int>& board_now, v
     return sort_result;
 }
 
-void number_draw_now (int number, bool num, vector<int> &board_now, int side_length){
+/*void number_draw_now (int number, bool num, vector<int> &board_now, int side_length){
     if (num == 0){
 
     }
@@ -452,9 +451,9 @@ void number_draw_now (int number, bool num, vector<int> &board_now, int side_len
             }
         }
     }
-}
+}*/
 
-void number_draw_finish (int number, bool num, vector<int> &board_finish, int side_length){
+/*void number_draw_finish (int number, bool num, vector<int> &board_finish, int side_length){
     if (num == 0){
 
     }
@@ -478,7 +477,7 @@ void number_draw_finish (int number, bool num, vector<int> &board_finish, int si
             }
         }
     }
-}
+}*/
 
 void check(vector<int> &board_now, vector<int> &board_finish, int &num){
     num = 0;
@@ -489,7 +488,7 @@ void check(vector<int> &board_now, vector<int> &board_finish, int &num){
     }
 }
 
-void check_result_draw (vector<int> &board_now, vector<int> &board_finish, int side_length){
+/*void check_result_draw (vector<int> &board_now, vector<int> &board_finish, int side_length){
     for (int i = 0; i < BOARD_HEIGHT; i++){
         for (int j = 0; j < BOARD_WIDTH; j++){
             if (board_now.at(i * BOARD_WIDTH + j) == board_finish.at(i * BOARD_WIDTH + j)){
@@ -497,4 +496,4 @@ void check_result_draw (vector<int> &board_now, vector<int> &board_finish, int s
             }
         }
     }
-}
+}*/

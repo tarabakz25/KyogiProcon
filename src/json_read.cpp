@@ -1,5 +1,6 @@
 #include <vector>
 #include <iostream>
+#include <filesystem>
 
 #include <string> //read&write
 #include <fstream>
@@ -41,15 +42,15 @@ int loadBoard(const json &jobj, vector<int> &startBoard, vector<int> &goalBoard)
 }
 
 void json_path_setting(){
-    std::filesystem::current_path("../"); //カレントディレクトリをソースファイルに変更。
-    cout << "(設定)Current path: " << std::filesystem::current_path().c_str() << endl; //カレントディレクトリを表示;
+    filesystem::current_path("../"); //カレントディレクトリをソースファイルに変更。
+    cout << "(設定)Current path: " << filesystem::current_path().c_str() << endl; //カレントディレクトリを表示;
 }
 
 void json_read(vector<int> &board_start, vector<int> &board_finish, int &BOARD_WIDTH, int &BOARD_HEIGHT){
     //今のところサンプルを読み込みますが、curlで読み込んだファイル(problem.json)も使えます！
 
     //jsonファイル存在するか確認。
-    if (!std::filesystem::exists("./src/sample1.json")) {
+    if (!filesystem::exists("./src/sample1.json")) {
         std::cerr << "File does not exist at path: ./src/sample1.json" << std::endl;
         return;
     }
