@@ -27,7 +27,7 @@ int BOARD_HEIGHT;
 //プロトタイプ宣言
 //void Board_draw(int position_x, int position_y, int side_length, vector<int> &board_now, const Font& font);
 //void comparison(int block_type, int now_x, int now_y, int end_x, int end_y, vector<int>& board_now, vector<int>& board_finish, vector<int>& blockcheck_now, vector<int>& blockcheck_end, vector<vector<int>>& blockcheck_result);
-pair<pair<int, int>, pair<int, int>> baord_sort_search(vector<int>& board_now, vector<int>&board_finish, pair<pair<int, int>, pair<int, int>> &sort_result); //ところp
+void board_sort_search(vector<int>& board_now, vector<int>&board_finish, pair<pair<int, int>, pair<int, int>> &sort_result); //ところp
 //void number_draw_now (int number, bool num, vector<int> &board_now, int side_length);
 //void number_draw_finish (int number, bool num, vector<int> &board_finish, int side_length);
 void check(vector<int> &board_now, vector<int> &board_finish, int &num);    //ところp
@@ -130,7 +130,12 @@ int main()
 
         check(board_now, board_finish, number);
 
-        sort_result = baord_sort_search(board_now, board_finish, sort_result);
+        board_sort_search(board_now, board_finish, sort_result);
+        if (sort_result.second.second >= BOARD_HEIGHT){
+            cout << "finish!" << endl;
+            cout << time << "手" << endl;
+            break;
+        }
         //cout << sort_result.second.first << ',' << sort_result.second.second << endl;
         /*Rect{40, 70, side_length * sort_result.first.first, side_length * (sort_result.first.second + 1)}.drawFrame(0.8, 0.8, Palette::Green);
         if (sort_result.second.first >= 0){
@@ -246,14 +251,15 @@ int main()
             sort_result.second.second++;
         }
         operation(time, board_now, board_finish, sort_result.second, size, nukigata, num);
+        if (sort_result.second.first != 0){
+            sort_result.second.first--;
+        }
+        else if (sort_result.second.second > 0){
+            sort_result.second.first = BOARD_WIDTH - 1;
+            sort_result.second.second--;
+        }
         if (time < 0){
             cout << "error" << endl;
-            break;
-        }
-        
-        if (number == BOARD_HEIGHT * BOARD_WIDTH){
-            cout << "finish!" << endl;
-            cout << time << "手" << endl;
             break;
         }
 	}
@@ -386,8 +392,7 @@ int main()
     
 }*/
 
-pair<pair<int, int>, pair<int, int>> baord_sort_search(vector<int>& board_now, vector<int>&board_finish, pair<pair<int, int>, pair<int, int>> &sort_result){
-    vector<int> sort_check(BOARD_HEIGHT * BOARD_WIDTH);
+void board_sort_search(vector<int>& board_now, vector<int>&board_finish, pair<pair<int, int>, pair<int, int>> &sort_result){
     //sort_result.firstでBORAD_WIDTH×(n*mますまで一致している場合のn-1行目まで)の長方形分の正誤判定を出力する
     //sort/result.secondでn行目のmますまでの一列の正誤判定を出力する
     if (sort_result.second.first == -1){
@@ -395,14 +400,13 @@ pair<pair<int, int>, pair<int, int>> baord_sort_search(vector<int>& board_now, v
     }
 
     bool a = 0;
-    for (int i = sort_result.second.second; i <= BOARD_HEIGHT; i++){
-        for (int j = sort_result.second.first; j <= BOARD_WIDTH; j++){
+    for (int i = sort_result.second.second; i < BOARD_HEIGHT; i++){
+        for (int j = 0; j < BOARD_WIDTH; j++){
             if (board_now.at(i * BOARD_WIDTH + j) == board_finish.at(i * BOARD_WIDTH + j)){
-                sort_check.at(i * BOARD_WIDTH + j) = 1;
                 sort_result.second = {j, i};
             }
             else {
-                if (j == 0){
+                if (i == 0 && j == 0){
                     sort_result.second.first = -1;
                 }
                 a = 1;
@@ -425,8 +429,6 @@ pair<pair<int, int>, pair<int, int>> baord_sort_search(vector<int>& board_now, v
             sort_result.first = {BOARD_WIDTH, sort_result.second.second - 1};
         }
     }
-
-    return sort_result;
 }
 
 /*void number_draw_now (int number, bool num, vector<int> &board_now, int side_length){

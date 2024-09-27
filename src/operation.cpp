@@ -158,9 +158,15 @@ void operation_move_column(int &time, vector<int> &board_now, vector<int> &board
 void operation(int &time, vector<int> &board_now, vector<int> &board_finish, pair<int, int> &address, vector<vector<int>> &size, vector<vector<vector<int>>> &nukigata, vector<int> &num){
     pair<int, int> correct_piece;
     while(1){
+        /*cout << address.first << "," << address.second << endl;
+        cout << correct_piece.first << "," << correct_piece.second << endl; //目標ピースの座標を表示
+        for (int i = 0; i < BOARD_HEIGHT; i++){
+            for (int j = 0; j < BOARD_WIDTH; j++){
+                cout << board_now.at(i * BOARD_WIDTH + j);
+            }
+            cout << endl;
+        }*/
         correct_piece = operation_search(board_now, board_finish, address);
-        //cout << address.first << "," << address.second << endl;
-        //cout << correct_piece.first << "," << correct_piece.second << endl; //目標ピースの座標を表示
         if (correct_piece == address){
             break;
         }
@@ -192,4 +198,5 @@ void operation(int &time, vector<int> &board_now, vector<int> &board_finish, pai
             cout << endl;
         }*/
     }
+    cout << "end" << endl;
 }
