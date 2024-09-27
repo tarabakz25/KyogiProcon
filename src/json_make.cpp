@@ -2,6 +2,12 @@
 #include <vector>
 #include <algorithm>
 #include <random>
+#include <fstream>
+#include <sstream>
+#include "json.hpp"
+
+using namespace std;
+using ordered_json = nlohmann::ordered_json;  // ordered_jsonを使う
 
 const int width = 128;
 const int height = 128;
@@ -14,7 +20,6 @@ std::mt19937 g(rd());
 
 // 配列を生成し、シャッフルする関数
 std::vector<std::vector<int>> generateShuffledArray() {
-    // 0, 1, 2, 3を均等に含む配列を作成
     std::vector<int> elements;
     elements.reserve(total_elements);
 
@@ -25,10 +30,8 @@ std::vector<std::vector<int>> generateShuffledArray() {
         elements.push_back(3);
     }
 
-    // 配列をシャッフル
     std::shuffle(elements.begin(), elements.end(), g);
 
-    // 二次元配列に変換
     std::vector<std::vector<int>> array(height, std::vector<int>(width));
     for (int i = 0; i < height; ++i) {
         for (int j = 0; j < width; ++j) {
@@ -39,18 +42,17 @@ std::vector<std::vector<int>> generateShuffledArray() {
     return array;
 }
 
-void printAsJson(const std::vector<std::vector<int>>& array, const std::string& name) {
-    std::cout << "\"" << name << "\": [\n";
-    for (size_t i = 0; i < array.size(); ++i) {
-        std::cout << '"';
-        for (size_t j = 0; j < array[i].size(); ++j) {
-            std::cout << array[i][j];
+// 2D配列を1行ずつ文字列に変換する関数
+std::vector<std::string> convertArrayToStringLines(const std::vector<std::vector<int>>& array) {
+    std::vector<std::string> lines;
+    for (const auto& row : array) {
+        std::string line;
+        for (int value : row) {
+            line += std::to_string(value);  // 各値を文字列に変換し、連結
         }
-        std::cout << '"';
-        if (i < array.size() - 1) std::cout << ",";
-        std::cout << "\n";
+        lines.push_back(line);  // 1行を文字列としてベクターに追加
     }
-    std::cout << "]" << std::endl;
+    return lines;
 }
 
 int main() {
@@ -58,16 +60,25 @@ int main() {
     std::vector<std::vector<int>> start = generateShuffledArray();
     std::vector<std::vector<int>> goal = generateShuffledArray();
 
-    // JSON形式で出力
-    std::cout << "{\n";
-    std::cout << "  \"board\": {\n";
-    std::cout << "    \"width\": " << width << ",\n";
-    std::cout << "    \"height\": " << height << ",\n";
-    printAsJson(start, "start");
-    std::cout << ",\n";
-    printAsJson(goal, "goal");
-    std::cout << "\n  }\n";
-    std::cout << "}\n";
+    ofstream write_file("/Users/itougakuto/siv3d_v0.6.15_macOS/examples/empty/src/sample1.json");
+    if (!write_file.is_open()) {
+        cerr << "ファイルを開けませんでした。" << endl;
+        return 1;
+    }
+
+    // startとgoalの2D配列を文字列ベクターに変換
+    std::vector<std::string> start_lines = convertArrayToStringLines(start);
+    std::vector<std::string> goal_lines = convertArrayToStringLines(goal);
+
+    // ordered_jsonを使って順序を保持
+    ordered_json file;
+    file["board"]["width"] = width;
+    file["board"]["height"] = height;
+    file["board"]["start"] = start_lines;
+    file["board"]["goal"] = goal_lines;
+
+    write_file << file.dump(4);  // インデントをつけてJSON書き込み
+    write_file.close();
 
     return 0;
 }
