@@ -27,10 +27,10 @@ int BOARD_HEIGHT;
 //プロトタイプ宣言
 //void Board_draw(int position_x, int position_y, int side_length, vector<int> &board_now, const Font& font);
 //void comparison(int block_type, int now_x, int now_y, int end_x, int end_y, vector<int>& board_now, vector<int>& board_finish, vector<int>& blockcheck_now, vector<int>& blockcheck_end, vector<vector<int>>& blockcheck_result);
-pair<pair<int, int>, pair<int, int>> baord_sort_search(vector<int>& board_now, vector<int>&board_finish, int &num);
+pair<pair<int, int>, pair<int, int>> baord_sort_search(vector<int>& board_now, vector<int>&board_finish, pair<pair<int, int>, pair<int, int>> &sort_result); //ところp
 //void number_draw_now (int number, bool num, vector<int> &board_now, int side_length);
 //void number_draw_finish (int number, bool num, vector<int> &board_finish, int side_length);
-void check(vector<int> &board_now, vector<int> &board_finish, int &num);
+void check(vector<int> &board_now, vector<int> &board_finish, int &num);    //ところp
 //void check_result_draw (vector<int> &board_now, vector<int> &board_finish, int side_length);
 
 vector<vector<int>> define_size();
@@ -44,7 +44,7 @@ int main()
 {
 	//gui setting
 	//Scene::SetBackground(ColorF{ 0.0, 0.0, 0.0 });
-	const int side_length = 14;
+	//const int side_length = 14;
     //const Font font{ FontMethod::MSDF, 12, Typeface::Bold };
     float persent;
     float sort_persent;
@@ -65,6 +65,9 @@ int main()
     vector<int> board_finish (BOARD_WIDTH * BOARD_HEIGHT, 0);
     vector<vector<int>> blockcheck_result;
     pair<pair<int, int>, pair<int, int>> sort_result;
+
+    sort_result.first = {0, 0};
+    sort_result.second = {-1, 0};
 
 	//board_setting(random)
 	/*for(int i = 0; i < BOARD_HEIGHT; i++){
@@ -127,7 +130,7 @@ int main()
 
         check(board_now, board_finish, number);
 
-        sort_result = baord_sort_search(board_now, board_finish, sort_num);
+        sort_result = baord_sort_search(board_now, board_finish, sort_result);
         //cout << sort_result.second.first << ',' << sort_result.second.second << endl;
         /*Rect{40, 70, side_length * sort_result.first.first, side_length * (sort_result.first.second + 1)}.drawFrame(0.8, 0.8, Palette::Green);
         if (sort_result.second.first >= 0){
@@ -383,26 +386,25 @@ int main()
     
 }*/
 
-pair<pair<int, int>, pair<int, int>> baord_sort_search(vector<int>& board_now, vector<int>&board_finish, int &num){
+pair<pair<int, int>, pair<int, int>> baord_sort_search(vector<int>& board_now, vector<int>&board_finish, pair<pair<int, int>, pair<int, int>> &sort_result){
     vector<int> sort_check(BOARD_HEIGHT * BOARD_WIDTH);
-    pair<pair<int, int>, pair<int, int>> sort_result;
     //sort_result.firstでBORAD_WIDTH×(n*mますまで一致している場合のn-1行目まで)の長方形分の正誤判定を出力する
     //sort/result.secondでn行目のmますまでの一列の正誤判定を出力する
-
-    sort_result.first = {0, 0};
-    sort_result.second = {-1, 0};
-
-    num = 0;    //ソートによるピースの一致個数を測る
+    if (sort_result.second.first == -1){
+        sort_result.second.first = 0;
+    }
 
     bool a = 0;
-    for (int i = 0; i <= BOARD_HEIGHT; i++){
-        for (int j = 0; j <= BOARD_WIDTH; j++){
+    for (int i = sort_result.second.second; i <= BOARD_HEIGHT; i++){
+        for (int j = sort_result.second.first; j <= BOARD_WIDTH; j++){
             if (board_now.at(i * BOARD_WIDTH + j) == board_finish.at(i * BOARD_WIDTH + j)){
                 sort_check.at(i * BOARD_WIDTH + j) = 1;
                 sort_result.second = {j, i};
-                num++;
             }
             else {
+                if (j == 0){
+                    sort_result.second.first = -1;
+                }
                 a = 1;
                 break;
             }
