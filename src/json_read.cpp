@@ -1,73 +1,92 @@
-#include <iostream>
 #include <vector>
-#include <algorithm>
-#include <random>
+#include <iostream>
+#include <filesystem>
 
-const int width = 128;
-const int height = 128;
-const int total_elements = width * height;
-const int num_each = total_elements / 4;
+#include <string> //read&write
+#include <fstream>
+#include <sstream>
+#include <vector>
 
-// 乱数エンジンの初期化
-std::random_device rd;
-std::mt19937 g(rd());
+#include "json.hpp"
 
-// 配列を生成し、シャッフルする関数
-std::vector<std::vector<int>> generateShuffledArray() {
-    // 0, 1, 2, 3を均等に含む配列を作成
-    std::vector<int> elements;
-    elements.reserve(total_elements);
+using namespace std;
+using json = nlohmann::json;
 
-    for (int i = 0; i < num_each; ++i) {
-        elements.push_back(0);
-        elements.push_back(1);
-        elements.push_back(2);
-        elements.push_back(3);
+//jsonファイル読み込み系
+// 文字列からベクトルに変換する関数(一列分を返す)
+vector<int> stringToVector(const string &str)
+{
+    vector<int> row;
+    for (char c : str)
+    {
+        row.push_back(c - '0'); // 文字を整数に変換
     }
-
-    // 配列をシャッフル
-    std::shuffle(elements.begin(), elements.end(), g);
-
-    // 二次元配列に変換
-    std::vector<std::vector<int>> array(height, std::vector<int>(width));
-    for (int i = 0; i < height; ++i) {
-        for (int j = 0; j < width; ++j) {
-            array[i][j] = elements[i * width + j];
-        }
-    }
-
-    return array;
+    return row;
 }
 
-void printAsJson(const std::vector<std::vector<int>>& array, const std::string& name) {
-    std::cout << "\"" << name << "\": [\n";
-    for (size_t i = 0; i < array.size(); ++i) {
-        std::cout << '"';
-        for (size_t j = 0; j < array[i].size(); ++j) {
-            std::cout << array[i][j];
-        }
-        std::cout << '"';
-        if (i < array.size() - 1) std::cout << ",";
-        std::cout << "\n";
+// JSONからボードを読み込む関数
+int loadBoard(const json &jobj, vector<int> &startBoard, vector<int> &goalBoard)
+{
+    for (const auto &line : jobj["board"]["start"])
+    {
+        vector<int> row = stringToVector(line.get<string>()); //一列分をrowに格納
+        startBoard.insert(startBoard.end(), row.begin(), row.end()); //.insert()で一次元に変換。
     }
-    std::cout << "]" << std::endl;
-}
 
-int main() {
-    // startとgoalの配列を生成
-    std::vector<std::vector<int>> start = generateShuffledArray();
-    std::vector<std::vector<int>> goal = generateShuffledArray();
-
-    // JSON形式で出力
-    std::cout << "{\n";
-    std::cout << "  \"board\": {\n";
-    std::cout << "    \"width\": " << width << ",\n";
-    std::cout << "    \"height\": " << height << ",\n";
-    printAsJson(start, "start");
-    std::cout << ",\n";
-    printAsJson(goal, "goal");
-    std::cout << "\n  }\n";
-    std::cout << "}\n";
-
+    for (const auto &line : jobj["board"]["goal"])
+    {
+        vector<int> row = stringToVector(line.get<string>());
+        goalBoard.insert(goalBoard.end(), row.begin(), row.end());
+    }
     return 0;
+}
+
+void json_path_setting(){
+    filesystem::current_path("../"); //カレントディレクトリをソースファイルに変更。
+    cout << "(設定)Current path: " << filesystem::current_path().c_str() << endl; //カレントディレクトリを表示;
+}
+
+void json_read(vector<int> &board_start, vector<int> &board_finish, int &BOARD_WIDTH, int &BOARD_HEIGHT){
+    //今のところサンプルを読み込みますが、curlで読み込んだファイル(problem.json)も使えます！
+
+    //jsonファイル存在するか確認。
+    if (!filesystem::exists("/Users/itougakuto/siv3d_v0.6.15_macOS/examples/empty/src/sample1.json")) {
+        std::cerr << "File does not exist at path: ./src/sample1.json" << std::endl;
+        return;
+    }
+
+    // JSONファイルの読み込み
+    std::ifstream ifs("/Users/itougakuto/siv3d_v0.6.15_macOS/examples/empty/src/sample1.json");
+
+    //ファイル開け成功したか
+    if (!ifs.is_open()) {
+        std::cerr << "Failed to open the file!!!" << std::endl;
+        return;
+    } else {
+        std::cout << "(状態)問題を開けました" << std::endl;
+    }
+
+    // ファイル内容を読み込み成功したか
+    std::string str((std::istreambuf_iterator<char>(ifs)), std::istreambuf_iterator<char>());
+    if (str.empty()) {
+        std::cerr << "File is empty: ./src/sample1.json" << std::endl;
+        return;
+    }
+    //std::cout << "File content: " << str << std::endl; //中身表示
+
+    json jobj = json::parse(str);
+    std::cout << "(状態)問題をjson化できました。" << std::endl;
+
+    //初期盤面、終了盤面取得
+    vector<int> startBoard, goalBoard;
+    loadBoard(jobj, startBoard, goalBoard); 
+
+    //各配列・変数に代入。
+    board_start = startBoard;
+    board_finish = goalBoard;
+
+    //幅と高さ取得・代入。
+    BOARD_WIDTH = jobj["board"]["width"].get<int>();
+    BOARD_HEIGHT = jobj["board"]["height"].get<int>();
+    cout << "(情報)" << "WIDTH"<<BOARD_WIDTH << " HWIGHT"<<BOARD_HEIGHT << endl;
 }
