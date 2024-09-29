@@ -1,6 +1,7 @@
 //#include <Siv3D.hpp> // Siv3D v0.6.15
 #include <string>
 #include <stdlib.h>
+#include <chrono>
 
 #include <string> //read&write
 #include <fstream>
@@ -42,6 +43,7 @@ vector<int> katanuki(int piece_num, int x_min, int y_min, int direction, vector<
 
 int main()
 {
+    auto now = std::chrono::high_resolution_clock::now();
 	//gui setting
 	//Scene::SetBackground(ColorF{ 0.0, 0.0, 0.0 });
 	//const int side_length = 14;
@@ -114,6 +116,12 @@ int main()
 
 	//描画開始
 	while (1/*System::Update()*/){
+        double timer = 293000; //五分ピッタリです
+        auto end = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<double, std::milli> elapsed = end - now;
+        if (elapsed.count() > timer){
+            break;
+        }
 	 	//gui_drawing
         /*font(U"FINISH").draw(90 + side_length * BOARD_WIDTH, 15, ColorF{ 1.0, 1.0, 1.0 });
         Board_draw(90 + side_length * BOARD_WIDTH, 70, side_length, board_finish, font);
