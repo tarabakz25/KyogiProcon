@@ -50,13 +50,13 @@ void json_read(vector<int> &board_start, vector<int> &board_finish, int &BOARD_W
     //今のところサンプルを読み込みますが、curlで読み込んだファイル(problem.json)も使えます！
 
     //jsonファイル存在するか確認。
-    if (!filesystem::exists("/Users/itougakuto/siv3d_v0.6.15_macOS/examples/empty/src/sample1.json")) {
+    if (!filesystem::exists("/Users/itougakuto/siv3d_v0.6.15_macOS/examples/empty/src/daibutu.json")) {
         std::cerr << "File does not exist at path: ./src/sample1.json" << std::endl;
         return;
     }
 
     // JSONファイルの読み込み
-    std::ifstream ifs("/Users/itougakuto/siv3d_v0.6.15_macOS/examples/empty/src/sample1.json");
+    std::ifstream ifs("/Users/itougakuto/siv3d_v0.6.15_macOS/examples/empty/src/daibutu.json");
 
     //ファイル開け成功したか
     if (!ifs.is_open()) {

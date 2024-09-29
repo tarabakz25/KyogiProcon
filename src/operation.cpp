@@ -198,5 +198,4 @@ void operation(int &time, vector<int> &board_now, vector<int> &board_finish, pai
             cout << endl;
         }*/
     }
-    cout << "end" << endl;
 }
