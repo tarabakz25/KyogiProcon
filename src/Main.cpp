@@ -116,10 +116,11 @@ int main()
 
 	//描画開始
 	while (1/*System::Update()*/){
-        double timer = 293000; //五分ピッタリです
+        double timer = 293000; //五分ピッタリ==293000
         auto end = std::chrono::high_resolution_clock::now();
         std::chrono::duration<double, std::milli> elapsed = end - now;
         if (elapsed.count() > timer){
+            //サーバー送信用プログラムを入れておきたい。
             break;
         }
 	 	//gui_drawing
