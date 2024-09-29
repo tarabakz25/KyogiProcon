@@ -45,6 +45,11 @@ pair<int, int> operation_search(vector<int> &board_now, vector<int> &board_finis
 }
 
 void operation_move_line(int &time, vector<int> &board_now, vector<int> &baord_finish, pair<int, int> &address, pair<int, int> &correct_piece, vector<vector<int>> &size, vector<vector<vector<int>>> &nukigata, vector<int> &num){
+    if (address.first == 0){
+        num = {22, correct_piece.first - 256, address.second, 2};
+        board_now = katanuki(num.at(0), num.at(1), num.at(2), num.at(3), size, nukigata, board_now, BOARD_WIDTH, BOARD_HEIGHT);
+        return;
+    }
     int n;  //目的座標と目的ピースのx座標の差を読み取る
     num = {0, address.first, address.second, 2};    //型抜き関数用(2は左抜き)
 
@@ -76,6 +81,11 @@ void operation_move_line(int &time, vector<int> &board_now, vector<int> &baord_f
 }
 
 void operation_move_line2(int &time, vector<int> &board_now, vector<int> &board_finish, pair<int, int> &address, pair<int, int> &correct_piece, vector<vector<int>> &size, vector<vector<vector<int>>> &nukigata, vector<int> &num){
+    if (address.first == BOARD_WIDTH - 1){
+        num = {22, correct_piece.first + 1, address.second, 3};
+        board_now = katanuki(num.at(0), num.at(1), num.at(2), num.at(3), size, nukigata, board_now, BOARD_WIDTH, BOARD_HEIGHT);
+        return;
+    }
     int n;  //目的座標と目的ピースのx座標の差を読み取る
     num = {0, 0, address.second, 3};    //型抜き関数用(3は右抜き)
 
@@ -158,15 +168,9 @@ void operation_move_column(int &time, vector<int> &board_now, vector<int> &board
 void operation(int &time, vector<int> &board_now, vector<int> &board_finish, pair<int, int> &address, vector<vector<int>> &size, vector<vector<vector<int>>> &nukigata, vector<int> &num){
     pair<int, int> correct_piece;
     while(1){
-        /*cout << address.first << "," << address.second << endl;
-        cout << correct_piece.first << "," << correct_piece.second << endl; //目標ピースの座標を表示
-        for (int i = 0; i < BOARD_HEIGHT; i++){
-            for (int j = 0; j < BOARD_WIDTH; j++){
-                cout << board_now.at(i * BOARD_WIDTH + j);
-            }
-            cout << endl;
-        }*/
         correct_piece = operation_search(board_now, board_finish, address);
+        //cout << address.first << "," << address.second << endl;
+        //cout << correct_piece.first << "," << correct_piece.second << endl; //目標ピースの座標を表示
         if (correct_piece == address){
             break;
         }
