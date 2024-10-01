@@ -40,22 +40,23 @@ for i in range(x_div * y_div * 10):
 img_rnd = cv2.resize(img_rnd_small, (w, h), interpolation=cv2.INTER_AREA) #元のサイズに拡大
 
 #出力ファイル名生成
-json_name = pathlib.PurePath(jpeg_name).stem + '.json'
+json_name = 'sample1.json'
  
 #jsonファイル出力       
 file = open(json_name, 'w')
 
-file.write('"board": {\n')
-file.write('"width": ')
+file.write('{\n')
+file.write('    "board": {\n')
+file.write('        "width": ')
 file.write(str(x_div))
 file.write(',\n')
-file.write('"hight": ')
+file.write('        "height": ')
 file.write(str(y_div))
 file.write(',\n')
 
-file.write('"start": [\n')
+file.write('        "start": [\n')
 for y in range(y_div):
-    file.write('"')
+    file.write('            "')
     for x in range(x_div):
         file.write(str(int(img_rnd_small[y][x]  / 64)))
         #file.write('x')
@@ -64,12 +65,12 @@ for y in range(y_div):
         file.write(',')
     file.write('\n')
 
-file.write('],\n')
+file.write('        ],\n')
 
 
-file.write('"goal": [\n')
+file.write('        "goal": [\n')
 for y in range(y_div):
-    file.write('"')
+    file.write('            "')
     for x in range(x_div):
         file.write(str(int(img_small[y][x] / 64)))
         #print(int(img_small[y][x] / 64), ' ', end='')
@@ -79,8 +80,9 @@ for y in range(y_div):
     file.write('\n')
     #print('')
 
-file.write(']\n')
-file.write('},\n')
+file.write('        ]\n')
+file.write('    }\n')
+file.write('}')
 
 file.close()
 
