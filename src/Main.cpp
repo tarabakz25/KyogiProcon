@@ -100,6 +100,9 @@ void Main()
 
     vector<vector<int>> size = define_size();
     vector<vector<vector<int> > > nukigata = define_nukigata(size);
+    nukigata = addnukigata(nukigata);
+
+    printNukigata(nukigata); //一般抜き型を表示
 
     //board_now = katanuki(1, 0, 0, 2, size, nukigata, board_start, BOARD_WIDTH, BOARD_HEIGHT);
     //[0:up 1:down 2:left 3:right]

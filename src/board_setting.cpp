@@ -1,7 +1,16 @@
 #include <vector>
 #include <iostream>
 #include "setting.hpp"
+
+#include <string> //read&write
+#include <fstream>
+#include <sstream>
+
+#include "json.hpp"
+
+
 using namespace std;
+using json = nlohmann::json;
 
 vector<vector<int>> define_size(){
     //返却値宣言
@@ -56,6 +65,56 @@ vector<vector<vector<int>>>  define_nukigata(vector<vector<int>> size){
     }
 
     return (nukigata);
+}
+
+vector<vector<vector<int>>>  addnukigata(vector<vector<vector<int>>> nukigata){
+
+    string read_jsonpath = "./src/problem.json";
+
+    // JSONファイルの読み込み
+    std::ifstream ifs(read_jsonpath);
+
+    std::string str((std::istreambuf_iterator<char>(ifs)), std::istreambuf_iterator<char>());
+
+    json data;
+    try {
+        data = json::parse(str);
+    } catch (json::parse_error& e) {
+        cout << "一般抜き型抜き型データを取得できませんでした。 " << e.what() << endl;
+        return nukigata; // パースエラー時はそのままnukigataを返す
+    }
+
+    const auto& patterns = data["general"]["patterns"];
+
+
+    for (const auto &pattern : patterns) { //jsonの要素回くり返す。
+        int p = pattern.value("p", -1);  // パターンの番号
+        int width = pattern.value("width", 0);  // 幅
+        int height = pattern.value("height", 0);  // 高さ
+
+        if (p < 0) {
+            cerr << "Invalid pattern number: " << p << endl;
+            continue; // 無効なパターン番号はスキップ
+        }
+
+        // cellsフィールドから抜き型を作成
+        vector<vector<int>> new_pattern(height, vector<int>(width, 0));
+        const auto& cells = pattern["cells"];
+        for (int i = 0; i < height; i++) {
+            const string &line = cells[i];
+            for (int j = 0; j < width; j++) {
+                new_pattern[i][j] = (line[j] == '1') ? 1 : 0;
+            }
+        }
+
+        // 作成した抜き型をnukigataに追加
+        if (p >= nukigata.size()) {
+            nukigata.resize(p + 1, vector<vector<int>>(256, vector<int>(256, 0))); // 必要に応じてサイズを拡張
+        }
+        nukigata[p] = new_pattern;  // 既存のnukigataリストに追加
+    }
+
+    return nukigata;
 }
 
 vector<int> katanuki(int piece_num, int x_min, int y_min, int direction, vector<vector<int>>& size, vector<vector<vector<int>>>& nukigata, vector<int> board, int BOARD_WIDTH, int BOARD_HEIGHT){
@@ -188,4 +247,18 @@ vector<int> katanuki(int piece_num, int x_min, int y_min, int direction, vector<
     }
 
     return board;
+}
+
+// nukigataの内容を見やすく出力する関数
+void printNukigata(vector<vector<vector<int>>>& nukigata) {
+    for (size_t i = 25; i < nukigata.size(); i++) {
+        cout << "Pattern " << i << ":\n";
+        for (const auto& row : nukigata[i]) {
+            for (const auto& cell : row) {
+                cout << cell << " ";
+            }
+            cout << "\n";
+        }
+        cout << "------------------------\n"; // パターンの区切り
+    }
 }
