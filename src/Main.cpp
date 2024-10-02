@@ -253,19 +253,48 @@ int main()
             check(board_now, board_finish, num);
         }*/
         if (sort_result.second.first < BOARD_WIDTH - 1){
-            sort_result.second.first++;
+            if (sort_result.second.second % 2 == 0){
+                if (sort_result.second.second != BOARD_HEIGHT + 1) sort_result.second.second++;
+                else sort_result.second.first++;
+            }
+            else {
+                sort_result.second.first++;
+                sort_result.second.second--;
+            }
         }
         else {
-            sort_result.second.first = 0;
-            sort_result.second.second++;
+            if (sort_result.second.second % 2 == 0){
+                sort_result.second.second++;
+            }
+            else {
+                sort_result.second.first = 0;
+                sort_result.second.second++;
+            }
         }
         operation(time, board_now, board_finish, sort_result.second, size, nukigata, num);
-        if (sort_result.second.first != 0){
-            sort_result.second.first--;
+        if (sort_result.second.first == 0){
+            if (sort_result.second.second % 2 == 1){
+                sort_result.second.second--;
+            }
+            else if (sort_result.second.first == 0 && sort_result.second.second == 0){
+                
+            }
+            else {
+                sort_result.second.first = BOARD_WIDTH - 1;
+                sort_result.second.second--;
+            }
         }
-        else if (sort_result.second.second > 0){
-            sort_result.second.first = BOARD_WIDTH - 1;
-            sort_result.second.second--;
+        else {
+            if (sort_result.second.second % 2 == 1){
+                sort_result.second.second--;
+            }
+            else {
+                if (sort_result.second.second == BOARD_HEIGHT - 1){
+
+                }
+                else sort_result.second.second++;
+                sort_result.second.first--;
+            }
         }
         if (time < 0){
             cout << "error" << endl;
@@ -409,10 +438,17 @@ void board_sort_search(vector<int>& board_now, vector<int>&board_finish, pair<pa
     }
 
     bool a = 0;
-    for (int i = sort_result.second.second; i < BOARD_HEIGHT; i++){
+    //2マスずつ見ていく
+    for (int i = sort_result.second.second; i < BOARD_HEIGHT; i += 2){
         for (int j = 0; j < BOARD_WIDTH; j++){
             if (board_now.at(i * BOARD_WIDTH + j) == board_finish.at(i * BOARD_WIDTH + j)){
                 sort_result.second = {j, i};
+                if (board_now.at((i + 1) * BOARD_WIDTH + j) == board_finish.at((i + 1) * BOARD_WIDTH + j)){
+                    sort_result.second = {j, i + 1};
+                }
+                else {
+                    return;
+                }
             }
             else {
                 if (i == 0 && j == 0){
