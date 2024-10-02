@@ -44,7 +44,7 @@ void Main()
 {
 	//gui setting
 	//Scene::SetBackground(ColorF{ 0.0, 0.0, 0.0 });
-	const int side_length = 14;
+	const int side_length = 5;
     const Font font{ FontMethod::MSDF, 12, Typeface::Bold };
     float persent;
     float sort_persent;
@@ -112,11 +112,11 @@ void Main()
 	//描画開始
 	while (System::Update()){
 	 	//gui_drawing
-        font(U"FINISH").draw(90 + side_length * BOARD_WIDTH, 15, ColorF{ 1.0, 1.0, 1.0 });
-        Board_draw(90 + side_length * BOARD_WIDTH, 70, side_length, board_finish, font);
+        //font(U"FINISH").draw(90 + side_length * BOARD_WIDTH, 15, ColorF{ 1.0, 1.0, 1.0 });
+        //Board_draw(90 + side_length * BOARD_WIDTH, 70, side_length, board_finish, font);
 
-        font(U"NOW").draw(40, 15, ColorF{ 1.0, 1.0, 1.0 });
-        Board_draw(40, 70, side_length, board_now, font);
+        //font(U"NOW").draw(40, 15, ColorF{ 1.0, 1.0, 1.0 });
+        Board_draw(40, 40, side_length, board_now, font);
 
         /*
         for(size_t i = 0; i < blockcheck_result.size(); i++){
@@ -129,10 +129,10 @@ void Main()
 
         sort_result = baord_sort_search(board_now, board_finish, sort_num);
         //cout << sort_result.second.first << ',' << sort_result.second.second << endl;
-        Rect{40, 70, side_length * sort_result.first.first, side_length * (sort_result.first.second + 1)}.drawFrame(0.8, 0.8, Palette::Green);
+        /*Rect{40, 70, side_length * sort_result.first.first, side_length * (sort_result.first.second + 1)}.drawFrame(0.8, 0.8, Palette::Green);
         if (sort_result.second.first >= 0){
             Rect{40, 70 + side_length * (sort_result.first.second + 1), side_length * sort_result.second.first, side_length * 1}.drawFrame(0.8, 0.8, Palette::Green);
-        }
+        }*/
 
         //Print << te1.active; // アクティブかどうか
 		//Print << te1.text; // 入力されたテキスト (String)
@@ -260,7 +260,7 @@ void Main()
 void Board_draw(int position_x, int position_y, int side_length, vector<int> &board_now, const Font& font){
     for(int x = 0; x<BOARD_HEIGHT; x++){
         if (x == 0){
-            for (int j = 0; j < BOARD_WIDTH; j++){
+            /*for (int j = 0; j < BOARD_WIDTH; j++){
                 if (j == 0){
                     font(j % 10).draw(position_x + 3 + side_length * j , position_y - 1 - side_length * 2, ColorF(255, 255, 255));
                 }
@@ -270,8 +270,8 @@ void Board_draw(int position_x, int position_y, int side_length, vector<int> &bo
                 else {
                     font(j % 10).draw(position_x + 3 + side_length * j , position_y - 1 - side_length * 2, ColorF(255, 255, 255));
                 }
-            }
-            for (int j = 0; j < BOARD_HEIGHT; j++){
+            }*/
+            /*for (int j = 0; j < BOARD_HEIGHT; j++){
                 if (j == 0){
                     font(j % 10).draw(position_x + 3 - side_length * 2 , position_y - 1 + side_length * j, ColorF(255, 255, 255));
                 }
@@ -284,28 +284,28 @@ void Board_draw(int position_x, int position_y, int side_length, vector<int> &bo
                 else {
                     font(j % 10).draw(position_x + 3 - side_length * 2 , position_y - 1 + side_length * j, ColorF(255, 255, 255));
                 }
-            }
+            }*/
         }
             for(int y =0; y<BOARD_WIDTH; y++){
                 switch(board_now.at(x * BOARD_WIDTH + y)){
                     case 0:
                         Rect{position_x + side_length * y, position_y + side_length * x, side_length, side_length }.draw(Palette::White);
-                        font(U"0").draw(position_x + 3 + side_length * y, position_y - 1 + side_length * x, ColorF{ 0.0, 0.0, 0.0 });
+                        //font(U"0").draw(position_x + 3 + side_length * y, position_y - 1 + side_length * x, ColorF{ 0.0, 0.0, 0.0 });
                         break;
 
                     case 1:
-                        Rect{position_x + side_length * y, position_y + side_length * x, side_length, side_length }.draw(Palette::Pink);
-                        font(U"1").draw(position_x + 3 + side_length * y, position_y - 1 + side_length * x, ColorF{ 0.0, 0.0, 0.0 });
+                        Rect{position_x + side_length * y, position_y + side_length * x, side_length, side_length }.draw(Color(140, 140, 140));
+                        //font(U"1").draw(position_x + 3 + side_length * y, position_y - 1 + side_length * x, ColorF{ 0.0, 0.0, 0.0 });
                         break;
 
                     case 2:
-                        Rect{position_x + side_length * y, position_y + side_length * x, side_length, side_length }.draw(Palette::Khaki);
-                        font(U"2").draw(position_x + 3 + side_length * y, position_y - 1 + side_length * x, ColorF{ 0.0, 0.0, 0.0 });
+                        Rect{position_x + side_length * y, position_y + side_length * x, side_length, side_length }.draw(Color(100, 100, 100));
+                        //font(U"2").draw(position_x + 3 + side_length * y, position_y - 1 + side_length * x, ColorF{ 0.0, 0.0, 0.0 });
                         break;
 
                     case 3:
-                        Rect{position_x + side_length * y, position_y + side_length * x, side_length, side_length }.draw(Palette::Lightblue);
-                        font(U"3").draw(position_x + 3 + side_length * y, position_y - 1 + side_length * x, ColorF{ 0.0, 0.0, 0.0 });
+                        Rect{position_x + side_length * y, position_y + side_length * x, side_length, side_length }.draw(Color(60, 60, 60));
+                        //font(U"3").draw(position_x + 3 + side_length * y, position_y - 1 + side_length * x, ColorF{ 0.0, 0.0, 0.0 });
                         break;
                 }
             }
