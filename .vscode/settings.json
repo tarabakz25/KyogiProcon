@@ -1,6 +1,6 @@
 {
     "C_Cpp.errorSquiggles": "enabled",
-    "editor.fontFamily": "Terminus, \"851テガキカクット\"",
+    "editor.fontFamily": "Terminess Nerd Font",
     "files.associations": {
         "*.py": "python",
         "*.html": "html",
@@ -11,5 +11,11 @@
         "complex": "cpp"
     },
     "terminal.integrated.fontFamily": "\"Terminus\"",
-    "editor.fontSize": 17
+    "editor.fontSize": 15.5,
+    
+    "vim.useCtrlKeys": true,
+    "vim.handleKeys": {
+          "<C-n>": false,
+          "<C-p>": false
+        }
 }
