@@ -29,6 +29,13 @@ void json_write(int time, int num1, int num2, int num3, int num4){
         write_file << file.dump(4);
         write_file.close();
         std::cout << "解答JSONを更新しました。" << std::endl;
+        /*
+        これで送信できます。
+        if(KeyP.down()){
+            send_problem("token1");
+        }
+        */
+        
     }else{
         cout << "ファイルが開けませんでした。";
     }

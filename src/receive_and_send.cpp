@@ -73,12 +73,9 @@ void receive_problem(string token){
         curl_slist_free_all(headers);
 
     }
-
-    
-
-
 }
 
+    
 void send_problem(string token){
     CURL* curl;
     CURLcode res; //リクエスト結果

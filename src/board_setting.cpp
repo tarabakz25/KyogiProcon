@@ -5,9 +5,9 @@
 #include <string> //read&write
 #include <fstream>
 #include <sstream>
-#include <vector>
 
 #include "json.hpp"
+
 
 using namespace std;
 using json = nlohmann::json;
@@ -128,16 +128,18 @@ vector<int> katanuki(int piece_num, int x_min, int y_min, int direction, vector<
         cout << endl;
     }  */
 
-    cout  << "抜き型No." <<  piece_num << "を適用" << endl;
+    //cout  << "抜き型No." <<  piece_num << "を適用" << endl;
     int x_max = x_min + size.at(piece_num).at(0) - 1;
     int y_max = y_min + size.at(piece_num).at(1) - 1;
     
     
     //範囲表示。
-    cout << "型抜き範囲x:" << x_min << " ~ " << x_max <<endl;
-    cout << "型抜き範囲y:" << y_min << " ~ " << y_max << endl;
+    //cout << "型抜き範囲x:" << x_min << " ~ " << x_max <<endl;
+    //cout << "型抜き範囲y:" << y_min << " ~ " << y_max << endl;
     //cout << "抜き出したもの" << endl;
-     
+
+    //方向表示
+    //cout << "型抜き方向" << direction << endl;
 
     //型抜き
     vector<int> kata_1d(256*256, 0);
@@ -247,9 +249,8 @@ vector<int> katanuki(int piece_num, int x_min, int y_min, int direction, vector<
     return board;
 }
 
-
 // nukigataの内容を見やすく出力する関数
-void printNukigata(const vector<vector<vector<int>>>& nukigata) {
+void printNukigata(vector<vector<vector<int>>>& nukigata) {
     for (size_t i = 25; i < nukigata.size(); i++) {
         cout << "Pattern " << i << ":\n";
         for (const auto& row : nukigata[i]) {
