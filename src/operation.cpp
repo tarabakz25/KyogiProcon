@@ -7,11 +7,11 @@
 
 #include "setting.hpp"
 
-pair<int, int> operation_search_1(vector<int> &board_now, vector<int> &board_finish, pair<int, int> &address){
+pair<int, int> operation_search_1(map<int, int> &board_now, map<int, int> &board_finish, pair<int, int> &address){
     pair<int, int> correct_address;
     //同行に目標ピースが存在するかを探す
     for (int i = address.first; i < BOARD_WIDTH; i++){
-        if (board_finish.at(address.first + address.second * BOARD_WIDTH) == board_now.at(i + address.second * BOARD_WIDTH)){
+        if (board_finish[address.first + address.second * BOARD_WIDTH] == board_now[i + address.second * BOARD_WIDTH]){
             correct_address = {i, address.second};
             //cout << "同行" << endl;
             return (correct_address);
@@ -19,7 +19,7 @@ pair<int, int> operation_search_1(vector<int> &board_now, vector<int> &board_fin
     }
     //同列に目標ピースが存在するかを探す
     for (int i = address.second; i < BOARD_HEIGHT; i++){
-        if (board_finish.at(address.first + address.second * BOARD_WIDTH) == board_now.at(address.first + i * BOARD_WIDTH)){
+        if (board_finish[address.first + address.second * BOARD_WIDTH] == board_now[address.first + i * BOARD_WIDTH]){
             correct_address = {address.first, i};
             //cout << "同列" << endl;
             return (correct_address);
@@ -32,7 +32,7 @@ pair<int, int> operation_search_1(vector<int> &board_now, vector<int> &board_fin
             if (j == address.first){
                 continue;
             }
-            if (board_finish.at(address.first + address.second * BOARD_WIDTH) == board_now.at(j + i * BOARD_WIDTH)){
+            if (board_finish[address.first + address.second * BOARD_WIDTH] == board_now[j + i * BOARD_WIDTH]){
                 correct_address = {j, i};
                 //cout << "その他" << endl;
                 return (correct_address);
@@ -44,20 +44,20 @@ pair<int, int> operation_search_1(vector<int> &board_now, vector<int> &board_fin
     return (correct_address);
 }
 
-pair<int, int> operation_search_2(vector<int> &board_now, vector<int> &board_finish, pair<int, int> &address){
+pair<int, int> operation_search_2(map<int, int> &board_now, map<int, int> &board_finish, pair<int, int> &address){
     pair<int, int> correct_address;
     //同行に目標ピースが存在するかを探す
     for (int i = address.first; i < BOARD_WIDTH; i++){
-        if (board_finish.at(address.first + address.second * BOARD_WIDTH) == board_now.at(i + address.second * BOARD_WIDTH)){
+        if (board_finish[address.first + address.second * BOARD_WIDTH] == board_now[i + address.second * BOARD_WIDTH]){
             correct_address = {i, address.second};
-            if (board_finish.at(address.first + (address.second + 1) * BOARD_WIDTH) == board_now.at(i + (address.second + 1) * BOARD_WIDTH)){
+            if (board_finish[address.first + (address.second + 1) * BOARD_WIDTH] == board_now[i + (address.second + 1) * BOARD_WIDTH]){
                 return (correct_address);
             }
             //cout << "同行" << endl;
         }
-        if (board_finish.at(address.first + address.second * BOARD_WIDTH) == board_now.at(i + (address.second + 1) * BOARD_WIDTH)){
+        if (board_finish[address.first + address.second * BOARD_WIDTH] == board_now[i + (address.second + 1) * BOARD_WIDTH]){
             correct_address = {i, address.second + 1};
-            if (board_finish.at(address.first + (address.second + 1) * BOARD_WIDTH) == board_now.at(i + (address.second + 2) * BOARD_WIDTH)){
+            if (board_finish[address.first + (address.second + 1) * BOARD_WIDTH] == board_now[i + (address.second + 2) * BOARD_WIDTH]){
                 return (correct_address);
             }
             //cout << "同行" << endl;
@@ -65,9 +65,9 @@ pair<int, int> operation_search_2(vector<int> &board_now, vector<int> &board_fin
     }
     //同列に目標ピースが存在するかを探す
     for (int i = address.second; i < BOARD_HEIGHT; i++){
-        if (board_finish.at(address.first + address.second * BOARD_WIDTH) == board_now.at(address.first + i * BOARD_WIDTH)){
+        if (board_finish[address.first + address.second * BOARD_WIDTH] == board_now[address.first + i * BOARD_WIDTH]){
             correct_address = {address.first, i};
-            if (board_finish.at(address.first + (address.second + 1) * BOARD_WIDTH) == board_now.at(address.first + (i + 1) * BOARD_WIDTH)){
+            if (board_finish[address.first + (address.second + 1) * BOARD_WIDTH] == board_now[address.first + (i + 1) * BOARD_WIDTH]){
                 return (correct_address);
             }
             //cout << "同列" << endl;
@@ -80,9 +80,9 @@ pair<int, int> operation_search_2(vector<int> &board_now, vector<int> &board_fin
             if (j == address.first){
                 continue;
             }
-            if (board_finish.at(address.first + address.second * BOARD_WIDTH) == board_now.at(j + i * BOARD_WIDTH)){
+            if (board_finish[address.first + address.second * BOARD_WIDTH] == board_now[j + i * BOARD_WIDTH]){
                 correct_address = {j, i};
-                if (board_finish.at(address.first + (address.second + 1) * BOARD_WIDTH) == board_now.at(j + (i + 1) * BOARD_WIDTH)){
+                if (board_finish[address.first + (address.second + 1) * BOARD_WIDTH] == board_now[j + (i + 1) * BOARD_WIDTH]){
                     return (correct_address);
                 }
                 else continue;
@@ -95,7 +95,7 @@ pair<int, int> operation_search_2(vector<int> &board_now, vector<int> &board_fin
     return (correct_address);
 }
 
-void operation_move_line(int &time, vector<int> &board_now, vector<int> &baord_finish, pair<int, int> &address, pair<int, int> &correct_piece, vector<vector<int>> &size, vector<vector<vector<int>>> &nukigata, vector<int> &num){
+void operation_move_line(int &time, map<int, int> &board_now, map<int, int> &baord_finish, pair<int, int> &address, pair<int, int> &correct_piece, vector<vector<int>> &size, vector<vector<vector<int>>> &nukigata, vector<int> &num){
     if (address.first == 0){
         num = {22, correct_piece.first - 256, address.second, 2};
         board_now = katanuki(num.at(0), num.at(1), num.at(2), num.at(3), size, nukigata, board_now, BOARD_WIDTH, BOARD_HEIGHT);
@@ -131,7 +131,7 @@ void operation_move_line(int &time, vector<int> &board_now, vector<int> &baord_f
     }
 }
 
-void operation_move_line_fromleft(int &time, vector<int> &board_now, vector<int> &board_finish, pair<int, int> &address, pair<int, int> &correct_piece, vector<vector<int>> &size, vector<vector<vector<int>>> &nukigata, vector<int> &num){
+void operation_move_line_fromleft(int &time, map<int, int> &board_now, map<int, int> &board_finish, pair<int, int> &address, pair<int, int> &correct_piece, vector<vector<int>> &size, vector<vector<vector<int>>> &nukigata, vector<int> &num){
     if (address.first == BOARD_WIDTH - 1){
         num = {22, correct_piece.first + 1, address.second, 3};
         board_now = katanuki(num.at(0), num.at(1), num.at(2), num.at(3), size, nukigata, board_now, BOARD_WIDTH, BOARD_HEIGHT);
@@ -185,7 +185,7 @@ void operation_move_line_fromleft(int &time, vector<int> &board_now, vector<int>
     }
 }
 
-void operation_move_column(int &time, vector<int> &board_now, vector<int> &board_finish, pair<int, int> &address, pair<int, int> &correct_piece, vector<vector<int>> &size, vector<vector<vector<int>>> &nukigata, vector<int> &num){
+void operation_move_column(int &time, map<int, int> &board_now, map<int, int> &board_finish, pair<int, int> &address, pair<int, int> &correct_piece, vector<vector<int>> &size, vector<vector<vector<int>>> &nukigata, vector<int> &num){
     int n;  //目的座標と目的ピースのy座標の差を読み取る
     num = {0, address.first, address.second, 0};    //型抜き関数用(0は上抜き)
 
@@ -217,7 +217,7 @@ void operation_move_column(int &time, vector<int> &board_now, vector<int> &board
 }
 
 //2マス同時に揃える
-void operation_move_column2(int &time, vector<int> &board_now, vector<int> &board_finish, pair<int, int> &address, pair<int, int> &correct_piece, vector<vector<int>> &size, vector<vector<vector<int>>> &nukigata, vector<int> &num){
+void operation_move_column2(int &time, map<int, int> &board_now, map<int, int> &board_finish, pair<int, int> &address, pair<int, int> &correct_piece, vector<vector<int>> &size, vector<vector<vector<int>>> &nukigata, vector<int> &num){
     int n;  //目的座標と目的ピースのy座標の差を読み取る
     num = {0, address.first, address.second, 0};    //型抜き関数用(0は上抜き)
 
@@ -248,7 +248,7 @@ void operation_move_column2(int &time, vector<int> &board_now, vector<int> &boar
     }
 }
 
-void operation(int &time, vector<int> &board_now, vector<int> &board_finish, pair<int, int> &address, vector<vector<int>> &size, vector<vector<vector<int>>> &nukigata, vector<int> &num){
+void operation(int &time, map<int, int> &board_now, map<int, int> &board_finish, pair<int, int> &address, vector<vector<int>> &size, vector<vector<vector<int>>> &nukigata, vector<int> &num){
     pair<int, int> correct_piece = {-1, -1};
     int high = 0;
     if (address.second % 2 == 0){
