@@ -16,7 +16,7 @@
 #include "json_write.cpp"
 #include "operation.cpp"
 
-#include "receive.cpp"
+#include "receive_and_send.cpp"
 
 #include "setting.hpp"
 //using namespace nlohman;
