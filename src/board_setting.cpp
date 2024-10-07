@@ -1,5 +1,6 @@
 #include <vector>
 #include <iostream>
+#include <map>
 #include "setting.hpp"
 using namespace std;
 
@@ -58,7 +59,7 @@ vector<vector<vector<int>>>  define_nukigata(vector<vector<int>> size){
     return (nukigata);
 }
 
-vector<int> katanuki(int piece_num, int x_min, int y_min, int direction, vector<vector<int>>& size, vector<vector<vector<int>>>& nukigata, vector<int> board, int BOARD_WIDTH, int BOARD_HEIGHT){
+map<int, int> katanuki(int piece_num, int x_min, int y_min, int direction, vector<vector<int>>& size, vector<vector<vector<int>>>& nukigata, map<int, int> board, int BOARD_WIDTH, int BOARD_HEIGHT){
     
     //cout << MOVE << "手目" << endl;
 
@@ -83,7 +84,7 @@ vector<int> katanuki(int piece_num, int x_min, int y_min, int direction, vector<
     //cout << "型抜き方向" << direction << endl;
 
     //型抜き
-    vector<int> kata_1d(256*256, 0);
+    map<int, int> kata_1d;
     int kata_1d_in = 0;
     for(int i=0; i < size.at(piece_num).at(0); i++){
         for(int j=0; j < size.at(piece_num).at(1); j++){ 
@@ -91,9 +92,9 @@ vector<int> katanuki(int piece_num, int x_min, int y_min, int direction, vector<
 
             }else{
                 if(nukigata.at(piece_num).at(i).at(j) == 1){
-                    kata_1d.at(kata_1d_in) = board.at((y_min+i) * BOARD_WIDTH + (x_min + j)); //一次元配列に格納
+                    kata_1d[kata_1d_in] = board[(y_min+i) * BOARD_WIDTH + (x_min + j)]; //一次元配列に格納
                     
-                    board.at((y_min+i) * BOARD_WIDTH + (x_min + j)) = 9; //抜かれた部分は9にする
+                    board[(y_min+i) * BOARD_WIDTH + (x_min + j)] = 9; //抜かれた部分は9にする
     
                     //cout << "[" << kata_1d.at(kata_1d_in)  << "]" ; 
                     kata_1d_in++;
@@ -111,9 +112,9 @@ vector<int> katanuki(int piece_num, int x_min, int y_min, int direction, vector<
         for(int i=0; i<BOARD_HEIGHT; i++){
             for(int j=0; j<BOARD_WIDTH; j++){
                 if(i != 0){
-                    if(board.at(i * BOARD_WIDTH + j) != 9 && board.at((i-1)* BOARD_WIDTH +j) == 9){
-                        board.at((i-1)* BOARD_WIDTH + j) = board.at(i*BOARD_WIDTH + j);
-                        board.at(i*BOARD_WIDTH + j) = 9;
+                    if(board[i * BOARD_WIDTH + j] != 9 && board[(i-1)* BOARD_WIDTH +j] == 9){
+                        board[(i-1)* BOARD_WIDTH + j] = board[i*BOARD_WIDTH + j];
+                        board[i*BOARD_WIDTH + j] = 9;
                         i -=1;
                         j -=1;
                     }
@@ -128,9 +129,9 @@ vector<int> katanuki(int piece_num, int x_min, int y_min, int direction, vector<
         for(int i=BOARD_HEIGHT-1; i>-1; i--){
             for(int j=0; j<BOARD_WIDTH; j++){
                 if(i != BOARD_HEIGHT-1){
-                    if(board.at(i* BOARD_WIDTH + j) != 9 && board.at((i+1)*BOARD_WIDTH + j) == 9){
-                        board.at((i+1)*BOARD_WIDTH +j) = board.at(i*BOARD_WIDTH +j);
-                        board.at(i*BOARD_WIDTH +j) = 9;
+                    if(board[i* BOARD_WIDTH + j] != 9 && board[(i+1)*BOARD_WIDTH + j] == 9){
+                        board[(i+1)*BOARD_WIDTH +j] = board[i*BOARD_WIDTH +j];
+                        board[i*BOARD_WIDTH +j] = 9;
                         i +=1;
                         j -=1;
                     }
@@ -145,9 +146,9 @@ vector<int> katanuki(int piece_num, int x_min, int y_min, int direction, vector<
         for(int j=0; j<BOARD_WIDTH; j++){
             for(int i=0; i<BOARD_HEIGHT; i++){
                 if(j != 0){
-                    if(board.at(i* BOARD_WIDTH +j) != 9 && board.at(i*BOARD_WIDTH +(j-1)) == 9){
-                        board.at(i*BOARD_WIDTH +(j-1)) = board.at(i*BOARD_WIDTH + j);
-                        board.at(i*BOARD_WIDTH + j) = 9;
+                    if(board[i* BOARD_WIDTH +j] != 9 && board[i*BOARD_WIDTH +(j-1)] == 9){
+                        board[i*BOARD_WIDTH +(j-1)] = board[i*BOARD_WIDTH + j];
+                        board[i*BOARD_WIDTH + j] = 9;
                         i -=1;
                         j -=1;   
                     }                   
@@ -161,9 +162,9 @@ vector<int> katanuki(int piece_num, int x_min, int y_min, int direction, vector<
         for(int j=BOARD_WIDTH-1; j>-1; j--){
             for(int i=0; i<BOARD_HEIGHT; i++){
                 if(j != BOARD_WIDTH-1){
-                    if(board.at(i*BOARD_WIDTH +j) != 9 && board.at(i*BOARD_WIDTH + (j+1)) == 9){
-                        board.at(i*BOARD_WIDTH + (j+1)) = board.at(i*BOARD_WIDTH +j);
-                        board.at(i*BOARD_WIDTH +j) = 9;
+                    if(board[i*BOARD_WIDTH +j] != 9 && board[i*BOARD_WIDTH + (j+1)] == 9){
+                        board[i*BOARD_WIDTH + (j+1)] = board[i*BOARD_WIDTH +j];
+                        board[i*BOARD_WIDTH +j] = 9;
                         i -=1;
                         j +=1;   
                     }                   
@@ -179,8 +180,8 @@ vector<int> katanuki(int piece_num, int x_min, int y_min, int direction, vector<
     int fill_num = 0;
     for(int i=0; i<BOARD_HEIGHT; i++){
         for(int j=0; j<BOARD_WIDTH; j++){
-            if(board.at(i* BOARD_WIDTH +j) == 9){
-                board.at(i* BOARD_WIDTH + j) = kata_1d.at(fill_num);
+            if(board[i* BOARD_WIDTH +j] == 9){
+                board[i* BOARD_WIDTH + j] = kata_1d[fill_num];
                 fill_num++;
 
             }

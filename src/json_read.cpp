@@ -14,29 +14,38 @@ using json = nlohmann::json;
 
 //jsonファイル読み込み系
 // 文字列からベクトルに変換する関数(一列分を返す)
-vector<int> stringToVector(const string &str)
+map<int, int> stringToMap(const string &str)
 {
-    vector<int> row;
+    int i = 0;
+    map<int, int> row;
     for (char c : str)
     {
-        row.push_back(c - '0'); // 文字を整数に変換
+        row[i] = c - '0'; // 文字を整数に変換
+        i++;
     }
     return row;
 }
 
 // JSONからボードを読み込む関数
-int loadBoard(const json &jobj, vector<int> &startBoard, vector<int> &goalBoard)
+int loadBoard(const json &jobj, map<int, int> &startBoard, map<int, int> &goalBoard)
 {
+    int i = 0;
     for (const auto &line : jobj["board"]["start"])
     {
-        vector<int> row = stringToVector(line.get<string>()); //一列分をrowに格納
-        startBoard.insert(startBoard.end(), row.begin(), row.end()); //.insert()で一次元に変換。
+        map<int, int> row = stringToMap(line.get<string>()); //一列分をrowに格納
+        for (int j = 0; j < row.size(); j++){
+            startBoard[i * row.size() + j] = row[j];
+        }
+        i++;
     }
 
     for (const auto &line : jobj["board"]["goal"])
     {
-        vector<int> row = stringToVector(line.get<string>());
-        goalBoard.insert(goalBoard.end(), row.begin(), row.end());
+        map<int, int> row = stringToMap(line.get<string>()); //一列分をrowに格納
+        for (int j = 0; j < row.size(); j++){
+            startBoard[i * row.size() + j] = row[j];
+        }
+        i++;
     }
     return 0;
 }
@@ -46,7 +55,7 @@ void json_path_setting(){
     cout << "(設定)Current path: " << filesystem::current_path().c_str() << endl; //カレントディレクトリを表示;
 }
 
-void json_read(vector<int> &board_start, vector<int> &board_finish, int &BOARD_WIDTH, int &BOARD_HEIGHT){
+void json_read(map<int, int> &board_start, map<int, int> &board_finish, int &BOARD_WIDTH, int &BOARD_HEIGHT){
     //今のところサンプルを読み込みますが、curlで読み込んだファイル(problem.json)も使えます！
 
     //jsonファイル存在するか確認。
@@ -78,7 +87,7 @@ void json_read(vector<int> &board_start, vector<int> &board_finish, int &BOARD_W
     std::cout << "(状態)問題をjson化できました。" << std::endl;
 
     //初期盤面、終了盤面取得
-    vector<int> startBoard, goalBoard;
+    map<int, int> startBoard, goalBoard;
     loadBoard(jobj, startBoard, goalBoard); 
 
     //各配列・変数に代入。
