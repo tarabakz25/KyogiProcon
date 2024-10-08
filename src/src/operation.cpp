@@ -6,11 +6,11 @@
 
 #include "setting.hpp"
 
-pair<int, int> operation_search(vector<int> &board_now, vector<int> &board_finish, pair<int, int> &address){
+pair<int, int> operation_search(map<int, int> &board_now, map<int, int> &board_finish, pair<int, int> &address){
     pair<int, int> correct_address;
     //同行に目標ピースが存在するかを探す
     for (int i = address.first; i < BOARD_WIDTH; i++){
-        if (board_finish.at(address.first + address.second * BOARD_WIDTH) == board_now.at(i + address.second * BOARD_WIDTH)){
+        if (board_finish[address.first + address.second * BOARD_WIDTH] == board_now[i + address.second * BOARD_WIDTH]){
             correct_address = {i, address.second};
             //cout << "同行" << endl;
             return (correct_address);
@@ -18,7 +18,7 @@ pair<int, int> operation_search(vector<int> &board_now, vector<int> &board_finis
     }
     //同列に目標ピースが存在するかを探す
     for (int i = address.second; i < BOARD_HEIGHT; i++){
-        if (board_finish.at(address.first + address.second * BOARD_WIDTH) == board_now.at(address.first + i * BOARD_WIDTH)){
+        if (board_finish[address.first + address.second * BOARD_WIDTH] == board_now[address.first + i * BOARD_WIDTH]){
             correct_address = {address.first, i};
             //cout << "同列" << endl;
             return (correct_address);
@@ -31,7 +31,7 @@ pair<int, int> operation_search(vector<int> &board_now, vector<int> &board_finis
             if (j == address.first){
                 continue;
             }
-            if (board_finish.at(address.first + address.second * BOARD_WIDTH) == board_now.at(j + i * BOARD_WIDTH)){
+            if (board_finish[address.first + address.second * BOARD_WIDTH] == board_now[j + i * BOARD_WIDTH]){
                 correct_address = {j, i};
                 //cout << "その他" << endl;
                 return (correct_address);
@@ -43,7 +43,7 @@ pair<int, int> operation_search(vector<int> &board_now, vector<int> &board_finis
     return (correct_address);
 }
 
-void operation_move_line(int &time, vector<int> &board_now, vector<int> &baord_finish, pair<int, int> &address, pair<int, int> &correct_piece, vector<vector<int>> &size, vector<vector<vector<int>>> &nukigata, vector<int> &num){
+void operation_move_line(int &time, map<int, int> &board_now, map<int, int> &baord_finish, pair<int, int> &address, pair<int, int> &correct_piece, vector<vector<int>> &size, vector<vector<vector<int>>> &nukigata, vector<int> &num){
     int n;  //目的座標と目的ピースのx座標の差を読み取る
     num = {0, address.first, address.second, 2};    //型抜き関数用(2は左抜き)
 
@@ -74,7 +74,7 @@ void operation_move_line(int &time, vector<int> &board_now, vector<int> &baord_f
     }
 }
 
-void operation_move_line2(int &time, vector<int> &board_now, vector<int> &board_finish, pair<int, int> &address, pair<int, int> &correct_piece, vector<vector<int>> &size, vector<vector<vector<int>>> &nukigata, vector<int> &num){
+void operation_move_line2(int &time, map<int, int> &board_now, map<int, int> &board_finish, pair<int, int> &address, pair<int, int> &correct_piece, vector<vector<int>> &size, vector<vector<vector<int>>> &nukigata, vector<int> &num){
     int n;  //目的座標と目的ピースのx座標の差を読み取る
     num = {0, 0, address.second, 3};    //型抜き関数用(3は右抜き)
 
@@ -123,7 +123,7 @@ void operation_move_line2(int &time, vector<int> &board_now, vector<int> &board_
     }
 }
 
-void operation_move_column(int &time, vector<int> &board_now, vector<int> &board_finish, pair<int, int> &address, pair<int, int> &correct_piece, vector<vector<int>> &size, vector<vector<vector<int>>> &nukigata, vector<int> &num){
+void operation_move_column(int &time, map<int, int> &board_now, map<int, int> &board_finish, pair<int, int> &address, pair<int, int> &correct_piece, vector<vector<int>> &size, vector<vector<vector<int>>> &nukigata, vector<int> &num){
     int n;  //目的座標と目的ピースのy座標の差を読み取る
     num = {0, address.first, address.second, 0};    //型抜き関数用(0は上抜き)
 
@@ -154,8 +154,9 @@ void operation_move_column(int &time, vector<int> &board_now, vector<int> &board
     }
 }
 
-void operation(int &time, vector<int> &board_now, vector<int> &board_finish, pair<int, int> &address, vector<vector<int>> &size, vector<vector<vector<int>>> &nukigata, vector<int> &num){
+void operation(int &time, map<int, int> &board_now, map<int, int> &board_finish, pair<int, int> &address, vector<vector<int>> &size, vector<vector<vector<int>>> &nukigata, vector<int> &num){
     pair<int, int> correct_piece;
+    cout << "operation" << endl;
     while(1){
         correct_piece = operation_search(board_now, board_finish, address);
         //cout << address.first << "," << address.second << endl;

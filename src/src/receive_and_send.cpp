@@ -57,7 +57,7 @@ void receive_problem(string token){
             //jsonファイルとして書き込む
             ordered_json problem = ordered_json::parse(readBuffer);
 
-            ofstream write_file("./src/problem.json");
+            ofstream write_file("./src/sample1.json");
             if (write_file.is_open()) {
                 write_file << problem.dump(4); //からファイルを入れて消す。
                 write_file.close();
@@ -73,6 +73,7 @@ void receive_problem(string token){
         curl_slist_free_all(headers);
 
     }
+}
 
     
 void send_problem(string token){
@@ -132,8 +133,4 @@ void send_problem(string token){
         curl_slist_free_all(headers);
 
     }
-
-    
-
-
 }

@@ -13,7 +13,7 @@
 #include "json_write.cpp"
 #include "operation.cpp"
 
-#include "receive.cpp"
+#include "receive_and_send.cpp"
 
 #include "setting.hpp"
 //using namespace nlohman;
@@ -24,18 +24,18 @@ int BOARD_WIDTH;
 int BOARD_HEIGHT;
 
 //プロトタイプ宣言
-void Board_draw(int position_x, int position_y, int side_length, vector<int> &board_now, const Font& font);
-void comparison(int block_type, int now_x, int now_y, int end_x, int end_y, vector<int>& board_now, vector<int>& board_finish, vector<int>& blockcheck_now, vector<int>& blockcheck_end, vector<vector<int>>& blockcheck_result);
-vector<vector<int>> search_block(vector<int>& board_now, vector<int>& board_finish);
-pair<pair<int, int>, pair<int, int>> baord_sort_search(vector<int>& board_now, vector<int>&board_finish, int &num);
-void number_draw_now (int number, bool num, vector<int> &board_now, int side_length);
-void number_draw_finish (int number, bool num, vector<int> &board_finish, int side_length);
-void check(vector<int> &board_now, vector<int> &board_finish, int &num);
-void check_result_draw (vector<int> &board_now, vector<int> &board_finish, int side_length);
+void Board_draw(int position_x, int position_y, int side_length, map<int, int> &board_now, const Font& font);
+void comparison(int block_type, int now_x, int now_y, int end_x, int end_y, map<int, int>& board_now, map<int, int>& board_finish, map<int, int>& blockcheck_now, map<int, int>& blockcheck_end, vector<vector<int>>& blockcheck_result);
+vector<vector<int>> search_block(map<int, int>& board_now, map<int, int>& board_finish);
+pair<pair<int, int>, pair<int, int>> baord_sort_search(map<int, int>& board_now, map<int, int>&board_finish, int &num);
+void number_draw_now (int number, bool num, map<int, int> &board_now, int side_length);
+void number_draw_finish (int number, bool num, map<int, int> &board_finish, int side_length);
+void check(map<int, int> &board_now, map<int, int> &board_finish, int &num);
+void check_result_draw (map<int, int> &board_now, map<int, int> &board_finish, int side_length);
 
 vector<vector<int>> define_size();
 vector<vector<vector<int> > > define_nukigata(vector<vector<int>> size);
-vector<int> katanuki(int piece_num, int x_min, int y_min, int direction, vector<vector<int>>& size, vector<vector<vector<int>>>& nukigata, vector<int> board, int BOARD_WIDTH, int BOARD_HEIGHT);
+map<int, int> katanuki(int piece_num, int x_min, int y_min, int direction, vector<vector<int>>& size, vector<vector<vector<int>>>& nukigata, map<int, int> board, int BOARD_WIDTH, int BOARD_HEIGHT);
 
 //jsonファイル読み込み系
 // 文字列からベクトルに変換する関数(一列分を返す)
@@ -48,7 +48,7 @@ void Main()
     const Font font{ FontMethod::MSDF, 12, Typeface::Bold };
     float persent;
     float sort_persent;
-    int number;
+    int number = 0;
     int sort_num;
     int time = 0;
     
@@ -60,9 +60,9 @@ void Main()
     //TextEditState te1{ U"0,0,0" };// デフォルトのテキストを設定する
     //String entered_text;
 
-    vector<int> board_start (BOARD_WIDTH * BOARD_HEIGHT, 0);
-	vector<int> board_now (BOARD_WIDTH * BOARD_HEIGHT, 0);
-    vector<int> board_finish (BOARD_WIDTH * BOARD_HEIGHT, 0);
+    map<int, int> board_start;
+	map<int, int> board_now;
+    map<int, int> board_finish;
     vector<vector<int>> blockcheck_result;
     pair<pair<int, int>, pair<int, int>> sort_result;
 
@@ -88,6 +88,20 @@ void Main()
     json_write_reset();
 
     board_now = board_start;
+
+    for (int i = 0; i < BOARD_HEIGHT; i++){
+        for (int j = 0; j < BOARD_WIDTH; j++){
+            cout << board_now[i * BOARD_WIDTH + j];
+        }
+        cout << endl;
+    }
+    cout << endl;
+    for (int i = 0; i < BOARD_HEIGHT; i++){
+        for (int j = 0; j < BOARD_WIDTH; j++){
+            cout << board_finish[i * BOARD_WIDTH + j];
+        }
+        cout << endl;
+    }
 
     //block_check
     /*blockcheck_result = search_block(board_now, board_finish); //2*2ブロック探す
@@ -127,8 +141,9 @@ void Main()
             Rect{ 90 + side_length * BOARD_WIDTH +  side_length * blockcheck_result.at(i).at(3), 70 + side_length * blockcheck_result.at(i).at(4), side_length*blockcheck_result.at(i).at(0), side_length*blockcheck_result.at(i).at(0) }.drawFrame(0.8, 0.8, Palette::Red);
         }
         */
-
+        cout << number << endl;
         check(board_now, board_finish, number);
+        cout << number << endl;
 
         sort_result = baord_sort_search(board_now, board_finish, sort_num);
         //cout << sort_result.second.first << ',' << sort_result.second.second << endl;
@@ -250,7 +265,7 @@ void Main()
             cout << "error" << endl;
             break;
         }
-        
+        cout << number << endl;
         if (number == BOARD_HEIGHT * BOARD_WIDTH){
             cout << "finish!" << endl;
             cout << time << "手" << endl;
@@ -260,7 +275,7 @@ void Main()
 }
 
 //盤面の表示
-void Board_draw(int position_x, int position_y, int side_length, vector<int> &board_now, const Font& font){
+void Board_draw(int position_x, int position_y, int side_length, map<int, int> &board_now, const Font& font){
     for(int x = 0; x<BOARD_HEIGHT; x++){
         if (x == 0){
             /*for (int j = 0; j < BOARD_WIDTH; j++){
@@ -290,7 +305,7 @@ void Board_draw(int position_x, int position_y, int side_length, vector<int> &bo
             }*/
         }
             for(int y =0; y<BOARD_WIDTH; y++){
-                switch(board_now.at(x * BOARD_WIDTH + y)){
+                switch(board_now[x * BOARD_WIDTH + y]){
                     case 0:
                         Rect{position_x + side_length * y, position_y + side_length * x, side_length, side_length }.draw(Palette::White);
                         //font(U"0").draw(position_x + 3 + side_length * y, position_y - 1 + side_length * x, ColorF{ 0.0, 0.0, 0.0 });
@@ -316,16 +331,16 @@ void Board_draw(int position_x, int position_y, int side_length, vector<int> &bo
 }
 
 //ブロックに分けて探す
-vector<vector<int>> search_block(vector<int>& board_now, vector<int>& board_finish){
-    vector<int> blockcheck_now(BOARD_WIDTH * BOARD_HEIGHT, 0); 
-    vector<int> blockcheck_end(BOARD_WIDTH * BOARD_HEIGHT, 0);
+vector<vector<int>> search_block(map<int, int>& board_now, map<int, int>& board_finish){
+    map<int, int> blockcheck_now; 
+    map<int, int> blockcheck_end;
     vector<vector<int>> blockcheck_result;
     int block_type;
 
     //重複チェック用配列の初期化
     for(int i = 0; i<BOARD_HEIGHT; i++){
         for(int j = 0; j<BOARD_WIDTH; j++){
-            blockcheck_now.at(j+ BOARD_WIDTH* i) = 0;
+            blockcheck_now[j+ BOARD_WIDTH* i] = 0;
             //blockcheck_now.at(i).at(j) = 0;
         }
     }
@@ -347,21 +362,21 @@ vector<vector<int>> search_block(vector<int>& board_now, vector<int>& board_fini
 
 
 //重複チェック
-void comparison(int block_type, int now_x, int now_y, int end_x, int end_y, vector<int>& board_now, vector<int>& board_finish, vector<int>& blockcheck_now, vector<int>& blockcheck_end, vector<vector<int>>& blockcheck_result){
+void comparison(int block_type, int now_x, int now_y, int end_x, int end_y, map<int, int>& board_now, map<int, int>& board_finish, map<int, int>& blockcheck_now, map<int, int>& blockcheck_end, vector<vector<int>>& blockcheck_result){
     int count = 0;
     int use = 1; //干渉していたら不採用、最初は採用にする。
 
     for(int i=0; i<block_type; i++){
         for(int j=0; j<block_type; j++){
-            if(blockcheck_now.at(now_x+j + BOARD_WIDTH*(now_y+i)) == 1){
+            if(blockcheck_now[now_x+j + BOARD_WIDTH*(now_y+i)] == 1){
                 use = 0; //はじめ　他のブロックに干渉していたらふさいよう
                 break;
             }
-            if(blockcheck_end.at(end_x+j + BOARD_WIDTH*(end_y+i)) == 1){
+            if(blockcheck_end[end_x+j + BOARD_WIDTH*(end_y+i)] == 1){
                 use = 0; //おわり　他のブロックに干渉していたらふさいよう
                 break;
             }
-            if(board_now.at(now_x+j + BOARD_WIDTH*(now_y+i)) == board_finish.at(end_x+j + BOARD_WIDTH*(end_y+i))){
+            if(board_now[now_x+j + BOARD_WIDTH*(now_y+i)] == board_finish[end_x+j + BOARD_WIDTH*(end_y+i)]){
                 count++;
             }
         }
@@ -373,8 +388,8 @@ void comparison(int block_type, int now_x, int now_y, int end_x, int end_y, vect
             //ブロックを作った場所を埋めておく
             for(int i=0; i<block_type; i++){
                 for(int j=0; j<block_type; j++){
-                    blockcheck_now.at(now_x+j + BOARD_WIDTH*(now_y+i)) = 1;
-                    blockcheck_end.at(end_x+j + BOARD_WIDTH*(end_y+i)) = 1;
+                    blockcheck_now[now_x+j + BOARD_WIDTH*(now_y+i)] = 1;
+                    blockcheck_end[end_x+j + BOARD_WIDTH*(end_y+i)] = 1;
                 }
             }
             
@@ -387,8 +402,7 @@ void comparison(int block_type, int now_x, int now_y, int end_x, int end_y, vect
     
 }
 
-pair<pair<int, int>, pair<int, int>> baord_sort_search(vector<int>& board_now, vector<int>&board_finish, int &num){
-    vector<int> sort_check(BOARD_HEIGHT * BOARD_WIDTH);
+pair<pair<int, int>, pair<int, int>> baord_sort_search(map<int, int>& board_now, map<int, int>&board_finish, int &num){
     pair<pair<int, int>, pair<int, int>> sort_result;
     //sort_result.firstでBORAD_WIDTH×(n*mますまで一致している場合のn-1行目まで)の長方形分の正誤判定を出力する
     //sort/result.secondでn行目のmますまでの一列の正誤判定を出力する
@@ -401,8 +415,7 @@ pair<pair<int, int>, pair<int, int>> baord_sort_search(vector<int>& board_now, v
     bool a = 0;
     for (int i = 0; i <= BOARD_HEIGHT; i++){
         for (int j = 0; j <= BOARD_WIDTH; j++){
-            if (board_now.at(i * BOARD_WIDTH + j) == board_finish.at(i * BOARD_WIDTH + j)){
-                sort_check.at(i * BOARD_WIDTH + j) = 1;
+            if (board_now[i * BOARD_WIDTH + j] == board_finish[i * BOARD_WIDTH + j]){
                 sort_result.second = {j, i};
                 num++;
             }
@@ -431,14 +444,14 @@ pair<pair<int, int>, pair<int, int>> baord_sort_search(vector<int>& board_now, v
     return sort_result;
 }
 
-void number_draw_now (int number, bool num, vector<int> &board_now, int side_length){
+void number_draw_now (int number, bool num, map<int, int> &board_now, int side_length){
     if (num == 0){
 
     }
     else if (num == 1){
         for (int i = 0; i < BOARD_HEIGHT; i++){
             for (int j = 0; j < BOARD_WIDTH; j++){
-                if (board_now.at(i * BOARD_WIDTH + j) == number){
+                if (board_now[i * BOARD_WIDTH + j] == number){
                     if (number == 0){
                         Rect{40 + side_length * j, 135 + side_length * BOARD_HEIGHT + side_length * i, side_length, side_length}.drawFrame(0.8, 0.8, Palette::Black);
                     }
@@ -457,14 +470,14 @@ void number_draw_now (int number, bool num, vector<int> &board_now, int side_len
     }
 }
 
-void number_draw_finish (int number, bool num, vector<int> &board_finish, int side_length){
+void number_draw_finish (int number, bool num, map<int, int> &board_finish, int side_length){
     if (num == 0){
 
     }
     else if (num == 1){
         for (int i = 0; i < BOARD_HEIGHT; i++){
             for (int j = 0; j < BOARD_WIDTH; j++){
-                if (board_finish.at(i * BOARD_WIDTH + j) == number){
+                if (board_finish[i * BOARD_WIDTH + j] == number){
                     if (number == 0){
                         Rect{40 + side_length * j, 70 + side_length * i, side_length, side_length}.drawFrame(0.8, 0.8, Palette::Black);
                     }
@@ -483,19 +496,19 @@ void number_draw_finish (int number, bool num, vector<int> &board_finish, int si
     }
 }
 
-void check(vector<int> &board_now, vector<int> &board_finish, int &num){
+void check(map<int, int> &board_now, map<int, int> &board_finish, int &num){
     num = 0;
     for (int i = 0; i < BOARD_HEIGHT * BOARD_WIDTH; i++){
-        if (board_now.at(i) == board_finish.at(i)){
+        if (board_now[i] == board_finish[i]){
             num++;
         }
     }
 }
 
-void check_result_draw (vector<int> &board_now, vector<int> &board_finish, int side_length){
+void check_result_draw (map<int, int> &board_now, map<int, int> &board_finish, int side_length){
     for (int i = 0; i < BOARD_HEIGHT; i++){
         for (int j = 0; j < BOARD_WIDTH; j++){
-            if (board_now.at(i * BOARD_WIDTH + j) == board_finish.at(i * BOARD_WIDTH + j)){
+            if (board_now[i * BOARD_WIDTH + j] == board_finish[i * BOARD_WIDTH + j]){
                 Rect{40 + side_length * j, 135 + side_length * BOARD_HEIGHT + side_length * i, side_length, side_length}.drawFrame(0.8, 0.8, Palette::Purple);
             }
         }
