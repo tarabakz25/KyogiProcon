@@ -8,7 +8,7 @@ typedef long long ll;
 #define rep2(i, a, n) for (ll i = a; i < n; i++)
 
 #define DEBUG
-#define PRINTING
+//#define PRINTING
 
 using namespace std;
 using vec = vector<vector<int>>; //vectorを省略してみやすく
@@ -89,10 +89,9 @@ void scorePrint(const vec &sB, const vec &gB, chrono::system_clock::time_point s
     //this_thread::sleep_for(chrono::milliseconds(100)); // デバッグのためタイマー制御
 }
 
-void katanuki(vec &sB, vec &gB, int i, int j, int diff, int direction)
-{
+void katanuki(vec &sB, vec &gB, int i, int j, int diff, int direction) {
     vector<int> use_nukigata_size;
-    
+
     for(int size : number){
         if(size <= diff){
             use_nukigata_size.push_back(size);
@@ -101,68 +100,112 @@ void katanuki(vec &sB, vec &gB, int i, int j, int diff, int direction)
     }
 
     for(int n : use_nukigata_size){
-        vec unplug_num(HEIGHT, vector<int>(WIDTH, -1));//抜き出す数字
-        vec push_num(HEIGHT, vector<int>(WIDTH, -1));//寄せる数字
+        vec unplug_num(n, vector<int>()); // We will resize each row individually
+        vec push_num; // Only used for upward movement
 
-        // 右の場合
-        if(direction == 3){
-            unsigned width_diff = j - n;
+        if(direction == 3){ // Right
             rep(di, n){
-                if(i + di >= HEIGHT) break;
-                else{
-                    copy(sB[i + di].begin() + j + 1, sB[i + di].begin() + j + n + 1, unplug_num[di].begin());
-                    sB[i + di].erase(sB[i + di].begin() + j + 1, sB[i + di].begin() + j + n + 1);
-                }
+                int current_row = i + di;
+                if(current_row >= HEIGHT) break;
+
+                int start_idx = j + 1;
+                int end_idx = min(j + n + 1, WIDTH);
+                int num_elements = end_idx - start_idx;
+
+                // Ensure num_elements does not exceed unplug_num[di].size()
+                unplug_num[di].resize(num_elements);
+
+                copy(sB[current_row].begin() + start_idx, sB[current_row].begin() + end_idx, unplug_num[di].begin());
+                sB[current_row].erase(sB[current_row].begin() + start_idx, sB[current_row].begin() + end_idx);
             }
             rep(di, n){
-                if(i + di >= HEIGHT) break;
-                else sB[i + di].insert(sB[i + di].begin(), unplug_num[di].begin(), unplug_num[di].begin() + n);
+                int current_row = i + di;
+                if(current_row >= HEIGHT) break;
+
+                sB[current_row].insert(sB[current_row].begin(), unplug_num[di].begin(), unplug_num[di].end());
             }
         }
-        // 左の場合
-        else if(direction == 2){
+        else if(direction == 2){ // Left
             rep(di, n){
-                if(i + di >= HEIGHT) break;
-                else{
-                    copy(sB[i + di].begin() + j, sB[i + di].begin() + j + n, unplug_num[di].begin());
-                    sB[i + di].erase(sB[i + di].begin() + j, sB[i + di].begin() + j + n);
-                }
+                int current_row = i + di;
+                if(current_row >= HEIGHT) break;
+
+                int start_idx = j;
+                int end_idx = min(j + n, WIDTH);
+                int num_elements = end_idx - start_idx;
+
+                unplug_num[di].resize(num_elements);
+
+                copy(sB[current_row].begin() + start_idx, sB[current_row].begin() + end_idx, unplug_num[di].begin());
+                sB[current_row].erase(sB[current_row].begin() + start_idx, sB[current_row].begin() + end_idx);
             }
             rep(di, n){
-                if(i + di >= HEIGHT) break;
-                else sB[i + di].insert(sB[i + di].end(), unplug_num[di].begin(), unplug_num[di].begin() + n);
+                int current_row = i + di;
+                if(current_row >= HEIGHT) break;
+
+                sB[current_row].insert(sB[current_row].end(), unplug_num[di].begin(), unplug_num[di].end());
             }
         }
-        // 上の場合
-        else{
-            unsigned height_diff = HEIGHT - i - n;
+        else{ // Upward
+            int height_diff = HEIGHT - (i + n);
+            if(height_diff < 0) height_diff = 0;
 
+            unplug_num.resize(n);
             rep(di, n){
-                if(j + n >= WIDTH) copy(sB[i + di].begin() + j, sB[i + di].end(), unplug_num[di].begin());
-                else copy(sB[i + di].begin() + j, sB[i + di].begin() + j + n, unplug_num[di].begin());
+                int current_row = i + di;
+                if(current_row >= HEIGHT) break;
+
+                int start_idx = j;
+                int end_idx = min(j + n, WIDTH);
+                int num_elements = end_idx - start_idx;
+
+                unplug_num[di].resize(num_elements);
+
+                copy(sB[current_row].begin() + start_idx, sB[current_row].begin() + end_idx, unplug_num[di].begin());
             }
+
+            push_num.resize(height_diff);
             rep(di, height_diff){
-                if(j + n >= WIDTH) copy(sB[i + n + di].begin() + j, sB[i  + n + di].end(), push_num[di].begin());
-                else copy(sB[i + n + di].begin() + j, sB[i+ n + di].begin() + j + n, push_num[di].begin());
+                int current_row = i + n + di;
+                if(current_row >= HEIGHT) break;
+
+                int start_idx = j;
+                int end_idx = min(j + n, WIDTH);
+                int num_elements = end_idx - start_idx;
+
+                push_num[di].resize(num_elements);
+
+                copy(sB[current_row].begin() + start_idx, sB[current_row].begin() + end_idx, push_num[di].begin());
             }
+
+            // Shift the numbers upwards
             rep(di, height_diff){
-                if(push_num[di][0] == -1) break;
-                rep(dj, n){
-                    if(push_num[di][dj] == -1) break;
-                    else sB[i + di][j + dj] = push_num[di][dj];
+                int dest_row = i + di;
+                if(dest_row >= HEIGHT) break;
+
+                rep(dj, push_num[di].size()){
+                    int current_col = j + dj;
+                    if(current_col >= WIDTH) continue;
+                    sB[dest_row][current_col] = push_num[di][dj];
                 }
             }
+
+            // Place the unplugged numbers at the bottom
             rep(di, n){
-                rep(dj, n){
-                    if(unplug_num[di][dj] == -1) break;
-                    else sB[i + height_diff + di][j + dj] = unplug_num[di][dj];
+                int dest_row = i + height_diff + di;
+                if(dest_row >= HEIGHT) break;
+
+                rep(dj, unplug_num[di].size()){
+                    int current_col = j + dj;
+                    if(current_col >= WIDTH) continue;
+                    sB[dest_row][current_col] = unplug_num[di][dj];
                 }
-                if(unplug_num[di][0] == -1) break;
             }
         }
         counter++;
+        updated = true;
 
-        // JSONに保存
+        // Save to JSON
         json answer;
         answer["p"] = 3 * (n - 2) + 1;
         answer["x"] = j;
@@ -224,7 +267,7 @@ void Main()
     start = chrono::system_clock::now();
 
     // Json読み込み
-    ifstream ifs("sample1.json");
+    ifstream ifs("daibutu.json");
     string str((istreambuf_iterator<char>(ifs)), istreambuf_iterator<char>());
     json J = json::parse(str);
     vec sB, gB;
