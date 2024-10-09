@@ -1,5 +1,6 @@
 #include <vector>
 #include <iostream>
+#include <filesystem>
 
 #include <string> //read&write
 #include <fstream>
@@ -28,22 +29,24 @@ map<int, int> stringToMap(const string &str)
 // JSONからボードを読み込む関数
 int loadBoard(const json &jobj, map<int, int> &startBoard, map<int, int> &goalBoard)
 {
+    int i = 0;
     for (const auto &line : jobj["board"]["start"])
     {
-        int i = 0;
         map<int, int> row = stringToMap(line.get<string>()); //一列分をrowに格納
         for (int j = 0; j < BOARD_WIDTH; j++){
             startBoard[j + i * BOARD_WIDTH] = row[j]; //.insert()で一次元に変換。
         }
+        i++;
     }
 
+    i = 0;
     for (const auto &line : jobj["board"]["goal"])
     {
-        int i = 0;
         map<int, int> row = stringToMap(line.get<string>()); //一列分をrowに格納
         for (int j = 0; j < BOARD_WIDTH; j++){
             goalBoard[j + i * BOARD_WIDTH] = row[j]; //.insert()で一次元に変換。
         }
+        i++;
     }
     return 0;
 }
@@ -84,6 +87,11 @@ void json_read(map<int, int> &board_start, map<int, int> &board_finish, int &BOA
     json jobj = json::parse(str);
     std::cout << "(状態)問題をjson化できました。" << std::endl;
 
+    //幅と高さ取得・代入。
+    BOARD_WIDTH = jobj["board"]["width"].get<int>();
+    BOARD_HEIGHT = jobj["board"]["height"].get<int>();
+    cout << "(情報)" << "WIDTH"<<BOARD_WIDTH << " HEIGHT"<<BOARD_HEIGHT << endl;
+
     //初期盤面、終了盤面取得
     map<int, int> startBoard, goalBoard;
     loadBoard(jobj, startBoard, goalBoard); 
@@ -92,8 +100,5 @@ void json_read(map<int, int> &board_start, map<int, int> &board_finish, int &BOA
     board_start = startBoard;
     board_finish = goalBoard;
 
-    //幅と高さ取得・代入。
-    BOARD_WIDTH = jobj["board"]["width"].get<int>();
-    BOARD_HEIGHT = jobj["board"]["height"].get<int>();
-    cout << "(情報)" << "WIDTH"<<BOARD_WIDTH << " HWIGHT"<<BOARD_HEIGHT << endl;
+    
 }
