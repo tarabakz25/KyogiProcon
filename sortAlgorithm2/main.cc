@@ -1,15 +1,17 @@
 #include <bits/stdc++.h>
+#include <chrono>
+#include <thread>
 #include "json.hpp"
 typedef long long ll;
-
 #define rep(i, n) for (ll i = 0; i < n; i++)
 #define nrep(i, n) for (ll i = n; i >= 0; i--)
 #define rep2(i, a, n) for (ll i = a; i < n; i++)
 
-// #define DEBUG
+#define DEBUG
 #define PRINTING
 
 using namespace std;
+using vec = vector<vector<int>>; //vectorを省略してみやすく
 using json = nlohmann::json;
 
 /* 変数の先宣言 */
@@ -19,284 +21,160 @@ int HEIGHT, WIDTH;
 int use_samplefile = 1;
 chrono::system_clock::time_point start, end;
 bool updated = false; // ボードが更新されたかを確認するフラグ
-vector<int> number{1, 2, 4, 8, 16, 32, 64, 128, 256};
+vector<int> number{256, 128, 64, 32, 16, 8, 4, 2, 1};
+vector<int> gene_only{1, 2, 4, 8, 16, 32, 64, 128, 256};
 
 /* 回答用構造体 */
 struct Answer{
-    int move_num;
-    int kata_num;
+    int n;
+    int p;
     int x;
     int y;
-    int direction;
+    int s;
 };
 json answers = json::array();
 
 /* ぬき型たち */
-map<int, vector<vector<int>>> all1_nukigata;
+map<int, vec> all1_nukigata;
 
 /* ぬき型の生成 */
 void generateNukigata()
 {
-    ll i, j;
-    for (int size = 1; size <= 256; size *= 2)
-    {
-        vector<vector<int>> kata(size, vector<int>(size));
+    for(int size : gene_only){
+        vec kata(size, vector<int>(size, 1));
 
-        rep(i, size)
-        {
-            rep(j, size)
-            {
-                kata[i][j] = 1;
-            }
-        }
         all1_nukigata[size] = kata;
     }
 }
-
 // 一致率計算
-double calculateMatchRate(const vector<vector<int>> &startBoard, const vector<vector<int>> &goalBoard)
+double calculateMatchRate(const vec &sB, const vec &gB)
 {
     int totalElements = 0;
     int matchCount = 0;
-    rep(i, startBoard.size())
-    {
-        rep(j, startBoard[i].size())
-        {
-            if (startBoard[i][j] == goalBoard[i][j]) matchCount++;
+    rep(di, HEIGHT){
+        rep(dj, WIDTH){
+            if (sB[di][dj] == gB[di][dj]) matchCount++;
             totalElements++;
         }
     }
     return (double)matchCount / totalElements * 100.0;
 }
 
-void scorePrint(const vector<vector<int>> &startB, const vector<vector<int>> &goalB, chrono::system_clock::time_point start, chrono::system_clock::time_point end)
+void scorePrint(const vec &sB, const vec &gB, chrono::system_clock::time_point start, chrono::system_clock::time_point end, int i, int j, int diff, int direction)
 {
     system("clear");
 
 #ifdef PRINTING
     // 型の表示
-    rep(i, HEIGHT){
-        rep(j, WIDTH){
-            if (startB[i][j] == goalB[i][j]) cout << "\033[31m" << startB[i][j] << "\033[m";
-            else cout << startB[i][j];
+    rep(di, HEIGHT){
+        rep(dj, WIDTH){
+            #ifndef DEBUG
+            if (sB[di][dj] == gB[di][dj]) cout << "\033[31m" << sB[di][dj] << "\033[m";
+            else cout << sB[di][dj];
+            #endif
+            #ifdef DEBUG
+            cout << sB[di][dj];
+            #endif
             cout << " ";
         }
         cout << endl;
     }
-    cout << endl; 
 #endif
 
     // 一致率, 手数
     end = chrono::system_clock::now();
-    double time = static_cast<double>(chrono::duration_cast<chrono::microseconds>(end - start).count() / 1000.0);
-    double score = calculateMatchRate(startB, goalB);
-    cout << "Match Rate: " << score << "%" << " " << "Count: " << counter << " " << "time: " << time << endl;
+    double time = static_cast<double>(chrono::duration_cast<chrono::milliseconds>(end - start).count() / 1000.0);
+    double score = calculateMatchRate(sB, gB);
+    cout << "MatchRate:" << (int)score << "%" << " " << "Count:" << counter << " " << "time:" << time << "s" << " now:(" << i << ", " << j << ")" << endl;
+    //this_thread::sleep_for(chrono::milliseconds(100)); // デバッグのためタイマー制御
 }
 
-void up(vector<vector<int>> &startB, vector<vector<int>> &goalB, int i, int j, int iCount, int jCount)
+void katanuki(vec &sB, vec &gB, int i, int j, int diff, int direction)
 {
-    vector<int> use_kata_size;
-    int total_size = iCount;
-
-    // 抜き型サイズの決定
-    for (int i = number.size() - 1; i >= 0; i--) {
-        int n = number[i];
-        while (total_size >= n) {
-            use_kata_size.push_back(n);
-            total_size -= n;
+    vector<int> use_nukigata_size;
+    
+    for(int size : number){
+        if(size <= diff){
+            use_nukigata_size.push_back(size);
+            diff -= size;
         }
     }
-    if (total_size > 0) {
-        use_kata_size.push_back(total_size);
-    }
 
-    for (int n : use_kata_size){
-        // 終点からの距離
-        unsigned int height_diff = HEIGHT - n - i;
-        unsigned int width_diff = WIDTH - n - j;
+    for(int n : use_nukigata_size){
+        vec unplug_num(HEIGHT, vector<int>(WIDTH, -1));//抜き出す数字
+        vec push_num(HEIGHT, vector<int>(WIDTH, -1));//寄せる数字
 
-        vector<vector<int>> unplug_num(n, vector<int>(n)); // 押し出した数字
-        vector<vector<int>> push_num(height_diff, vector<int>(n)); // 寄せる数字
-
-        for(int ii = 0; ii < n; ii++){
-            for(int jj = 0; jj < n; jj++){
-                if(jj <= WIDTH) unplug_num[ii][jj] = startB[i + ii][j + jj];
-                else break;
+        // 右の場合
+        if(direction == 3){
+            unsigned width_diff = j - n;
+            rep(di, n){
+                if(i + di >= HEIGHT) break;
+                else{
+                    copy(sB[i + di].begin() + j + 1, sB[i + di].begin() + j + n + 1, unplug_num[di].begin());
+                    sB[i + di].erase(sB[i + di].begin() + j + 1, sB[i + di].begin() + j + n + 1);
+                }
+            }
+            rep(di, n){
+                if(i + di >= HEIGHT) break;
+                else sB[i + di].insert(sB[i + di].begin(), unplug_num[di].begin(), unplug_num[di].begin() + n);
             }
         }
-        for(int ii = 0; ii < height_diff; ii++){
-            for(int jj = 0; jj < n; jj++){
-                push_num[ii][jj] = startB[i + n + ii][jj + n + j];
+        // 左の場合
+        else if(direction == 2){
+            rep(di, n){
+                if(i + di >= HEIGHT) break;
+                else{
+                    copy(sB[i + di].begin() + j, sB[i + di].begin() + j + n, unplug_num[di].begin());
+                    sB[i + di].erase(sB[i + di].begin() + j, sB[i + di].begin() + j + n);
+                }
+            }
+            rep(di, n){
+                if(i + di >= HEIGHT) break;
+                else sB[i + di].insert(sB[i + di].end(), unplug_num[di].begin(), unplug_num[di].begin() + n);
             }
         }
-        // 上にシフト
-        for(int ii = 0; ii < height_diff; ii++){
-            for(int jj = 0; jj < push_num[0].size(); jj++){
-                startB[i + ii][j + jj] = push_num[ii][jj];
+        // 上の場合
+        else{
+            unsigned height_diff = HEIGHT - i - n;
+
+            rep(di, n){
+                if(j + n >= WIDTH) copy(sB[i + di].begin() + j, sB[i + di].end(), unplug_num[di].begin());
+                else copy(sB[i + di].begin() + j, sB[i + di].begin() + j + n, unplug_num[di].begin());
             }
-        }
-        for(int ii = 0; ii < n; ii++){
-            for(int jj = 0; jj < unplug_num[0].size(); jj++){
-                startB[i + n + ii][j + n + jj] = unplug_num[ii][jj];
+            rep(di, height_diff){
+                if(j + n >= WIDTH) copy(sB[i + n + di].begin() + j, sB[i  + n + di].end(), push_num[di].begin());
+                else copy(sB[i + n + di].begin() + j, sB[i+ n + di].begin() + j + n, push_num[di].begin());
             }
-        }
-        counter++;
-        
-        // JSONに保存
-        json answer;
-        answer["move_number"] = counter;
-        answer["kata_number"] = 3 * (n - 2) + 1;
-        answer["x"] = j;
-        answer["y"] = i;
-        answer["direction"] = 0;
-
-        answers.push_back(answer);
-    }
-
-    auto end = chrono::system_clock::now();
-    scorePrint(startB, goalB, start, end);
-    if(matchRate < calculateMatchRate(startB, goalB)) updated = true;
-}
-
-
-void right(vector<vector<int>> &startB, vector<vector<int>> &goalB, int i, int j, int iCount, int jCount)
-{
-    vector<int> use_kata_size;
-    int total_size = jCount;
-
-    // 抜き型サイズの決定
-    for (int i = number.size() - 1; i >= 0; i--) {
-        int n = number[i];
-        while (total_size >= n) {
-            use_kata_size.push_back(n);
-            total_size -= n;
-        }
-    }
-    if (total_size > 0) {
-        use_kata_size.push_back(total_size);
-    }
-
-
-    for (int n : use_kata_size){
-        // 終点からの距離
-        unsigned int height_diff = HEIGHT - n;
-        unsigned int width_diff = j - n;
-
-        vector<vector<int>> unplug_num(n, vector<int>(n)); // 押し出した数字
-        vector<vector<int>> push_num(height_diff, vector<int>(width_diff)); // 寄せる数字
-
-        for(int ii = 0; ii < n; ii++){
-            if(HEIGHT < height_diff + ii) break;
-            for(int jj = 0; jj < n; jj++){
-                unplug_num[ii][jj] = startB[height_diff + ii][width_diff + jj];
+            rep(di, height_diff){
+                if(push_num[di][0] == -1) break;
+                rep(dj, n){
+                    if(push_num[di][dj] == -1) break;
+                    else sB[i + di][j + dj] = push_num[di][dj];
+                }
             }
-        }
-        for(int ii = 0; ii < height_diff; ii++){
-            for(int jj = 0; jj < width_diff; jj++){
-                push_num[ii][jj] = startB[i + ii][jj];
-            }
-        }
-        // 右にシフト
-        for(int ii = 0; ii < height_diff; ii++){
-            for(int jj = 0; jj < n; jj++){
-                startB[i + ii][n + jj] = push_num[ii][jj];
-            }
-        }
-        // 押し出した数字を後ろにシフト
-        for(int ii = 0; ii < n; ii++){
-            if(HEIGHT < height_diff + ii) break;
-            for(int jj = 0; jj < n; jj++){
-                startB[i + ii][jj] = unplug_num[ii][jj];
+            rep(di, n){
+                rep(dj, n){
+                    if(unplug_num[di][dj] == -1) break;
+                    else sB[i + height_diff + di][j + dj] = unplug_num[di][dj];
+                }
+                if(unplug_num[di][0] == -1) break;
             }
         }
         counter++;
 
         // JSONに保存
         json answer;
-        answer["move_number"] = counter;
-        answer["kata_number"] = 3 * (n - 2) + 1;
+        answer["p"] = 3 * (n - 2) + 1;
         answer["x"] = j;
         answer["y"] = i;
-        answer["direction"] = 2; 
+        answer["s"] = direction;
 
         answers.push_back(answer);
-    }
 
-    auto end = chrono::system_clock::now();
-    scorePrint(startB, goalB, start, end);
-    if(matchRate < calculateMatchRate(startB, goalB)) updated = true;
+        auto end = chrono::system_clock::now();
+        scorePrint(sB, gB, start, end, i, j, diff, direction);
+    }
 }
-
-
-void left(vector<vector<int>> &startB, vector<vector<int>> &goalB, int i, int j, int iCount, int jCount)
-{
-    vector<int> use_kata_size;
-    int total_size = jCount;
-
-    // 抜き型サイズの決定
-    for (int i = number.size() - 1; i >= 0; i--) {
-        int n = number[i];
-        while (total_size >= n) {
-            use_kata_size.push_back(n);
-            total_size -= n;
-        }
-    }
-    if (total_size > 0) {
-        use_kata_size.push_back(total_size);
-    }
-
-
-    for (int n : use_kata_size){
-        // 終点からの距離
-        unsigned int height_diff = HEIGHT - i - n;
-        unsigned int width_diff = WIDTH - j - n;
-
-        vector<vector<int>> unplug_num(n, vector<int>(n)); // 押し出した数字
-        vector<vector<int>> push_num(height_diff, vector<int>(width_diff)); // 寄せる数字
-
-        for(int ii = 0; ii < n; ii++){
-            if(HEIGHT < height_diff + ii) break;
-            for(int jj = 0; jj < n; jj++) {
-                unplug_num[ii][jj] = startB[i + ii][j + jj];
-            }
-        }
-        for(int ii = 0; ii < height_diff; ii++){
-            for(int jj = 0; jj < width_diff; jj++){
-                push_num[ii][jj] = startB[i + n + ii][j + n + jj];
-            }
-        }
-        // 左にシフト
-        for(int ii = 0; ii < height_diff; ii++){
-            for(int jj = 0; jj < width_diff; jj++){
-                startB[i + ii][j + jj] = push_num[ii][jj];
-            }
-        }
-
-        for(int ii = 0; ii < n; ii++){
-            if(HEIGHT < height_diff + ii) break;
-            for(int jj = 0; jj < n; jj++){
-                startB[i + ii][j + n + jj] = unplug_num[ii][jj];
-            }
-        }
-        counter++;
-
-        // JSONに保存
-        json answer;
-        answer["move_number"] = counter;
-        answer["kata_number"] = 3 * (n - 2) + 1;
-        answer["x"] = j;
-        answer["y"] = i;
-        answer["direction"] = 1;
-
-        answers.push_back(answer);
-    }
-
-    auto end = chrono::system_clock::now();
-    scorePrint(startB, goalB, start, end);
-    if(matchRate < calculateMatchRate(startB, goalB)) updated = true;
-}
-
-
 
 vector<int> stringToVector(const string &str)
 {
@@ -308,27 +186,27 @@ vector<int> stringToVector(const string &str)
 }
 
 // 型の読み込み
-void loadBoard(const json &j, vector<vector<int>> &startB, vector<vector<int>> &goalB)
+void loadBoard(const json &j, vec &sB, vec &gB)
 {
     for (const auto &line : j["board"]["start"])
-        startB.push_back(stringToVector(line.get<string>()));
+        sB.push_back(stringToVector(line.get<string>()));
     for (const auto &line : j["board"]["goal"])
-        goalB.push_back(stringToVector(line.get<string>()));
+        gB.push_back(stringToVector(line.get<string>()));
 }
 
 // 探索中のボードを表示。　使うことは多分ないかも
-void findingPrint(const vector<vector<int>> &startB, const vector<vector<int>> &goalB, const int i, const int j, chrono::system_clock::time_point start, chrono::system_clock::time_point end)
+void findingPrint(const vec &sB, const vec &gB, const int i, const int j, chrono::system_clock::time_point start, chrono::system_clock::time_point end)
 {
     system("clear");
 
-    rep(ii, startB.size())
+    rep(ii, sB.size())
     {
-        rep(jj, startB[0].size())
+        rep(jj, sB[0].size())
         {
             if (ii == i && jj == j)
-                cout << "\033[7m" << startB[ii][jj] << "\033[m" << " ";
+                cout << "\033[7m" << sB[ii][jj] << "\033[m" << " ";
             else
-                cout << startB[ii][jj] << " ";
+                cout << sB[ii][jj] << " ";
         }
         cout << endl;
     }
@@ -336,7 +214,7 @@ void findingPrint(const vector<vector<int>> &startB, const vector<vector<int>> &
     // 一致率, 手数
     end = chrono::system_clock::now();
     double time = static_cast<double>(chrono::duration_cast<chrono::microseconds>(end - start).count() / 1000.0);
-    double score = calculateMatchRate(startB, goalB);
+    double score = calculateMatchRate(sB, gB);
     cout << "Match Rate: " << score << "%" << " " << "Count: " << counter << " " << "time: " << time << endl;
 }
 
@@ -348,24 +226,24 @@ void Main()
     // Json読み込み
     ifstream ifs("sample1.json");
     string str((istreambuf_iterator<char>(ifs)), istreambuf_iterator<char>());
-    json j = json::parse(str);
-    vector<vector<int>> startB, goalB;
-    loadBoard(j, startB, goalB);
-    WIDTH = j["board"]["width"].get<int>();
-    HEIGHT = j["board"]["height"].get<int>();
+    json J = json::parse(str);
+    vec sB, gB;
+    loadBoard(J, sB, gB);
+    HEIGHT = sB.size(), WIDTH = gB[0].size();
 
-    double matchRate = calculateMatchRate(startB, goalB);
+    double matchRate = calculateMatchRate(sB, gB);
 
     while (matchRate < 100.0){
         rep(i, HEIGHT){
             rep(j, WIDTH){
-                if (startB[i][j] != goalB[i][j]){
+                if (sB[i][j] != gB[i][j]){
+                    int target = gB[i][j];
                     updated = false;
                     bool flag = false;
                     //縦方向
                     rep2(ii, i, HEIGHT){
-                        if(startB[ii][j] == goalB[i][j]){
-                            up(startB, goalB, i, j, ii, 0);
+                        if(sB[ii][j] == gB[i][j]){
+                            katanuki(sB, gB, i, j, ii , 0);
                             flag = true;
                             break;
                         }
@@ -373,9 +251,9 @@ void Main()
                     //横方向
                     if(!flag){
                         rep2(jj, j, WIDTH){
-                            if(startB[i][jj] == goalB[i][j]){
-                                if(i > jj) right(startB, goalB, i, j, 0, jj);
-                                else left(startB, goalB, i, j, 0, jj);
+                            if(sB[i][jj] == gB[i][j]){
+                                if(j >= jj) katanuki(sB, gB, i, j, abs(jj - j), 3);
+                                else katanuki(sB, gB, i, j, abs(jj - j), 2);
                                 flag = true;
                                 break;
                             }
@@ -383,14 +261,27 @@ void Main()
                     }
                     //両方使う場合
                     if(!flag){
-                        rep2(ii, i + 1, HEIGHT){
-                            rep2(jj, j + 1, WIDTH){
-                                if(startB[ii][jj] == goalB[i][j]){
-                                    up(startB, goalB, i, j, ii, jj);
-                                    if(j > jj) right(startB, goalB, i, j, ii, jj);
-                                    else left(startB, goalB, i, j, ii, jj);
-                                    flag = true;
-                                    break;
+                        rep2(ii, i, HEIGHT){
+                            if(ii == i){
+                                rep2(jj, j, WIDTH){
+                                    if(sB[ii][jj] == gB[i][j]){
+                                        if(j >= jj) katanuki(sB, gB, ii, jj, abs(jj - j), 3);
+                                        else katanuki(sB, gB, ii, j, abs(jj - j), 2);
+                                        katanuki(sB, gB, i, j, ii - i, 0);
+                                        flag = true;
+                                        break;
+                                    }
+                                }
+                            }
+                            else{
+                                rep(jj, WIDTH){
+                                    if(sB[ii][jj] == gB[i][j]){
+                                        if(j >= jj) katanuki(sB, gB, ii, jj, abs(jj - j), 3);
+                                        else katanuki(sB, gB, ii, j, abs(jj - j), 2);
+                                        katanuki(sB, gB, i, j, ii - i, 0);
+                                        flag = true;
+                                        break;
+                                    }
                                 }
                             }
                             if(flag) break;
@@ -399,14 +290,10 @@ void Main()
                 }
             }
         }
-        // 一致率を計算
-        matchRate = calculateMatchRate(startB, goalB);
-        // スコアを表示
-        auto end = chrono::system_clock::now();
-        scorePrint(startB, goalB, start, end);
         if (!updated) break;
+        matchRate = calculateMatchRate(sB, gB);
     }
-    cout << "\033[31m" << "FINISHED!!" << "\033[m]" << endl;
+    cout << "\033[31m" << "FINISHED!!" << "\033[m" << endl;
 }
 
 int main()
@@ -414,8 +301,14 @@ int main()
     generateNukigata();
     Main();
 
-    // 操作履歴をファイルに保存
+    // 回答JSONの作成
+    json final_answer;
+    final_answer["n"] = counter;  // 手数を保存
+    final_answer["ops"] = answers; // 操作履歴を保存
+
+    // 回答JSONをファイルに保存
     ofstream ofs("answer.json");
+    ofs << final_answer.dump(4);  // インデント付きでJSONを書き込む
 
     return 0;
 }
