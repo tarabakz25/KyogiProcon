@@ -1,6 +1,6 @@
 {
     "C_Cpp.errorSquiggles": "enabled",
-    "editor.fontFamily": "Terminess Nerd Font",
+    "editor.fontFamily": "\"Terminess Nerd Font\", \"SanariFontB002\"",
     "files.associations": {
         "*.html": "html",
         "*.py": "python",
