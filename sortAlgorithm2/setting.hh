@@ -1,2 +1,2 @@
-#define DEBUG 0
-#define PRINTING 1
+#define DEBUG 1
+#define PRINTING 0

@@ -105,7 +105,7 @@ void loadBoard(const json &j, vec &sB, vec &gB)
         gB.push_back(stringToVector(line.get<string>()));
 }
 
-// 型抜き
+// 型抜き i,jには異点の座標、targetには目標座標を送る。
 void katanuki(vec &sB, vec &gB, int i, int j, int targeti, int targetj, int direction)
 {
     vector<int> use_nukigata_size;
@@ -215,7 +215,12 @@ void katanuki(vec &sB, vec &gB, int i, int j, int targeti, int targetj, int dire
 
         // JSONに保存
         json answer;
-        answer["p"] = int(3 * (log2(n) - 1) + 1);
+        if(pow(2, log2(n)) != n){
+            cerr << "無効なサイズです。nは2の累乗でなければなりません。" << endl;
+            exit(-1); // エラーメッセージを表示してマイナスの番号を返す
+        }else{
+            answer["p"] = unsigned(3 * (log2(n) - 1) + 1);
+        }
         answer["x"] = j;
         answer["y"] = i;
         answer["s"] = direction > 3 ? direction - 2 : direction;
@@ -225,7 +230,6 @@ void katanuki(vec &sB, vec &gB, int i, int j, int targeti, int targetj, int dire
         auto end = chrono::system_clock::now();
         scorePrint(sB, gB, start, end, i, j, diff, direction);
     }
-
 }
 
 
@@ -303,7 +307,11 @@ int main()
                         //if(!flag) i = 0; j = 0;
                     }
                 }
-            }
+                if(sB[i][j] != gB[i][j]){
+                    cerr << "ERROR!: not matching" << endl;
+                    exit(-1);
+                }
+            }            
         }
 
         //更新がなければ終了
