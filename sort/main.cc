@@ -37,14 +37,16 @@ json answers = json::array();
 map<int, vec> all1_nukigata;
 
 // システムの関数
-void generateNukigata() {
+void generateNukigata() 
+{
     for (int size : gene_only) {
         vec kata(size, vector<int>(size, 1));
         all1_nukigata[size] = kata;
     }
 }
 
-double calculateMatchRate(const vec &sB, const vec &gB) {
+double calculateMatchRate(const vec &sB, const vec &gB) 
+{
     int totalElements = 0;
     int matchCount = 0;
     rep(di, HEIGHT) {
@@ -56,7 +58,8 @@ double calculateMatchRate(const vec &sB, const vec &gB) {
     return (double)matchCount / totalElements * 100.0;
 }
 
-void scorePrint(const vec &sB, const vec &gB, chrono::system_clock::time_point start, chrono::system_clock::time_point end, int i, int j, int diff, int direction) {
+void scorePrint(const vec &sB, const vec &gB, chrono::system_clock::time_point start, chrono::system_clock::time_point end, int i, int j, int diff, int direction) 
+{
 
 #if PRINTING
 
@@ -83,16 +86,18 @@ void scorePrint(const vec &sB, const vec &gB, chrono::system_clock::time_point s
     end = chrono::system_clock::now();
     double time = static_cast<double>(chrono::duration_cast<chrono::milliseconds>(end - start).count() / 1000.0);
     double score = calculateMatchRate(sB, gB);
-    cout << "MatchRate:" << (int)score << "%" << " " << "Count:" << counter << " " << "time:" << time << "s" << " now:(" << i << ", " << j << ")" << endl;
+    cout << "MatchRate:" << (int)score << "%" << " " << "Count:" << counter << " " << "time:" << (int)time << "s" << " now:(" << i << ", " << j << ")" << endl;
 }
 
-vector<int> stringToVector(const string &str) {
+vector<int> stringToVector(const string &str) 
+{
     vector<int> row;
     for (char c : str) row.push_back(c - '0');
     return row;
 }
 
-void loadBoard(const json &j, vec &sB, vec &gB) {
+void loadBoard(const json &j, vec &sB, vec &gB) 
+{
     for (const auto &line : j["board"]["start"])
         sB.push_back(stringToVector(line.get<string>()));
     for (const auto &line : j["board"]["goal"])
@@ -100,7 +105,8 @@ void loadBoard(const json &j, vec &sB, vec &gB) {
 }
 
 // 型抜き i,jには異点の座標、targetには目標座標を送る。
-void katanuki(vec &sB, vec &gB, int i, int j, int targeti, int targetj, int direction) {
+void katanuki(vec &sB, vec &gB, int i, int j, int targeti, int targetj, int direction) 
+{
     vector<int> use_nukigata_size;
 
     int diff = direction == 0 ? diff = targeti - i : direction == 2 || direction == 4 ? diff = targetj - j : diff = j - targetj;
@@ -149,8 +155,7 @@ void katanuki(vec &sB, vec &gB, int i, int j, int targeti, int targetj, int dire
         else if (direction == 5) {
             rep(di, n) {
                 int curtRow = targeti + di;
-                if (curtRow >= HEIGHT)
-                    break;
+                if (curtRow >= HEIGHT) break;
                 else {
                     copy(sB[curtRow].begin() + targetj + 1, sB[curtRow].begin() + targetj + n + 1, unplug[di].begin());
                     sB[curtRow].erase(sB[curtRow].begin() + targetj + 1, sB[curtRow].begin() + targetj + n + 1);
@@ -164,8 +169,7 @@ void katanuki(vec &sB, vec &gB, int i, int j, int targeti, int targetj, int dire
         else if (direction == 4) {
             rep(di, n) {
                 int curtRow = targeti + di;
-                if (curtRow >= HEIGHT)
-                    break;
+                if (curtRow >= HEIGHT) break;
                 else {
                     copy(sB[curtRow].begin() + j, sB[curtRow].begin() + j + n, unplug[di].begin());
                     sB[curtRow].erase(sB[curtRow].begin() + j, sB[curtRow].begin() + j + n);
@@ -180,39 +184,29 @@ void katanuki(vec &sB, vec &gB, int i, int j, int targeti, int targetj, int dire
 
             rep(di, n) {
                 int curtRow = i + di;
-                if (j + n >= WIDTH)
-                    copy(sB[curtRow].begin() + j, sB[curtRow].end(), unplug[di].begin());
-                else
-                    copy(sB[curtRow].begin() + j, sB[curtRow].begin() + j + n, unplug[di].begin());
+                if (j + n >= WIDTH) copy(sB[curtRow].begin() + j, sB[curtRow].end(), unplug[di].begin());
+                else copy(sB[curtRow].begin() + j, sB[curtRow].begin() + j + n, unplug[di].begin());
             }
             rep(di, height_diff) {
                 int curtRow = i + di;
-                if (j + n >= WIDTH)
-                    copy(sB[curtRow + n].begin() + j, sB[curtRow + n].end(), push[di].begin());
-                else
-                    copy(sB[curtRow + n].begin() + j, sB[curtRow + n].begin() + j + n, push[di].begin());
+                if (j + n >= WIDTH) copy(sB[curtRow + n].begin() + j, sB[curtRow + n].end(), push[di].begin());
+                else copy(sB[curtRow + n].begin() + j, sB[curtRow + n].begin() + j + n, push[di].begin());
             }
             rep(di, height_diff) {
                 if (push[di][0] == -1) break;
                 rep(dj, n) {
-                    if (push[di][dj] == -1)
-                        break;
-                    else
-                        sB[i + di][j + dj] = push[di][dj];
+                    if (push[di][dj] == -1) break;
+                    else sB[i + di][j + dj] = push[di][dj];
                 }
             }
             rep(di, n) {
                 if (unplug[di][0] == -1) break;
                 rep(dj, n) {
-                    if (unplug[di][dj] == -1)
-                        break;
-                    else
-                        sB[i + height_diff + di][j + dj] = unplug[di][dj];
+                    if (unplug[di][dj] == -1) break;
+                    else sB[i + height_diff + di][j + dj] = unplug[di][dj];
                 }
             }
-        }
-
-        else {
+        } else {
             cerr << "ERROR!" << endl;
         }
 
@@ -236,7 +230,8 @@ void katanuki(vec &sB, vec &gB, int i, int j, int targeti, int targetj, int dire
     }
 }
 
-int main() {
+int main() 
+{
     // 時間を計測
     start = chrono::system_clock::now();
 
@@ -280,10 +275,8 @@ int main() {
 
                             if (sB[i][dj + i] == gB[i][j]) {
                                 pair<int, int> target_idx = {i, j + dj};
-                                if (j >= dj)
-                                    katanuki(sB, gB, i, j, target_idx.first, target_idx.second, 3);
-                                else
-                                    katanuki(sB, gB, i, j, target_idx.first, target_idx.second, 2);
+                                if (j >= dj) katanuki(sB, gB, i, j, target_idx.first, target_idx.second, 3);
+                                else katanuki(sB, gB, i, j, target_idx.first, target_idx.second, 2);
                                 flag = true;
                                 break;
                             }
@@ -311,18 +304,18 @@ int main() {
                             //     }
                             // }
 
-                            for(int dj : number){
-                                rep(xj, 2){
+                            for(int dj : number) {
+                                rep(xj, 2) {
                                     if(xj == 0) dj *= -1;
                                     int currentRow = j + dj;
                                     if(currentRow >= WIDTH) break;
 
-                                    if(sB[i + di][currentRow] == gB[i][j]){
+                                    if(sB[i + di][currentRow] == gB[i][j]) {
                                         pair<int, int> target_idx = {i + di, currentRow};
-                                        if (j >= currentRow){
+                                        if (j >= currentRow) {
                                             katanuki(sB, gB, i, j, target_idx.first, target_idx.second, 5);
                                             katanuki(sB, gB, i, j, target_idx.first, target_idx.second, 0);
-                                        }else{
+                                        } else {
                                             katanuki(sB, gB, i, j, target_idx.first, target_idx.second, 4);
                                             katanuki(sB, gB, i, j, target_idx.first, target_idx.second, 0);
                                         }
@@ -352,10 +345,9 @@ int main() {
                         rep2(dj, j, WIDTH) {
                             if (sB[i][dj] == target) {
                                 pair<int, int> target_idx = {i, dj};
-                                if (j >= dj)
-                                    katanuki(sB, gB, i, j, target_idx.first, target_idx.second, 3);
-                                else
-                                    katanuki(sB, gB, i, j, target_idx.first, target_idx.second, 2);
+                                if (j >= dj) katanuki(sB, gB, i, j, target_idx.first, target_idx.second, 3);
+                                else katanuki(sB, gB, i, j, target_idx.first, target_idx.second, 2);
+                                
                                 flag = true;
                                 break;
                             }
@@ -365,22 +357,22 @@ int main() {
                     // 両方使う場合
                     if (!flag) {
                         rep2(di, i + 1, HEIGHT) {
-                            rep(dj, WIDTH) {
-                                if (sB[di][dj] == target) {
-                                    pair<int, int> target_idx = {di, dj};
+                                rep(dj, WIDTH) {
+                                    if (sB[di][dj] == target) {
+                                        pair<int, int> target_idx = {di, dj};
 
-                                    if (j >= dj) {
-                                        katanuki(sB, gB, i, j, target_idx.first, target_idx.second, 5);
-                                        katanuki(sB, gB, i, j, target_idx.first, target_idx.second, 0);
-                                    } else {
-                                        katanuki(sB, gB, i, j, target_idx.first, target_idx.second, 4);
-                                        katanuki(sB, gB, i, j, target_idx.first, target_idx.second, 0);
+                                        if (j >= dj) {
+                                            katanuki(sB, gB, i, j, target_idx.first, target_idx.second, 5);
+                                            katanuki(sB, gB, i, j, target_idx.first, target_idx.second, 0);
+                                        } else {
+                                            katanuki(sB, gB, i, j, target_idx.first, target_idx.second, 4);
+                                            katanuki(sB, gB, i, j, target_idx.first, target_idx.second, 0);
+                                        }
+
+                                        flag = true;
+                                        break;
                                     }
-
-                                    flag = true;
-                                    break;
                                 }
-                            }
                             if (flag) break;
                         }
                     }
