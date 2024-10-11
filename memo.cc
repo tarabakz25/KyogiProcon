@@ -1,17 +1,16 @@
 #include <bits/stdc++.h>
 using namespace std;
 
+vector<int> gene_only{1, 2, 4, 8, 16, 32, 64, 128, 256};
+
 int main()
 {
-    vector<vector<int>> arr{
-        {1, 2, 3},
-        {4, 5, 6},
-        {7, 8, 9}
-    };
-    for (const auto& row : arr) {
-        for (int num : row) {
-            cout << num << " ";
-        }
-        cout << endl;
+    int n;
+    cin >> n;
+
+    for(int i : gene_only){
+        cout << 3 * (log2(i) - 1) + 1 << endl;
     }
+
+    exit(0);
 }
