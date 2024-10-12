@@ -1,3 +1,7 @@
+/* 
+各々の設定はsetting.hhで行ってください。 
+*/
+
 #include <bits/stdc++.h>
 #include <chrono>
 #include <thread>
@@ -347,7 +351,7 @@ int main()
                                 pair<int, int> target_idx = {i, dj};
                                 if (j >= dj) katanuki(sB, gB, i, j, target_idx.first, target_idx.second, 3);
                                 else katanuki(sB, gB, i, j, target_idx.first, target_idx.second, 2);
-                                
+
                                 flag = true;
                                 break;
                             }
