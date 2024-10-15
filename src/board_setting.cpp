@@ -118,7 +118,7 @@ vector<vector<vector<int>>>  addnukigata(vector<vector<vector<int>>> nukigata){
 }
 
 vector<vector<int>> katanuki(int piece_num, int x_min, int y_min, int direction, vector<vector<int>>& size, vector<vector<vector<int>>>& nukigata, vector<vector<int>> board, int BOARD_WIDTH, int BOARD_HEIGHT){
-    
+    cout << "katanuki" << endl;
     //cout << MOVE << "手目" << endl;
 
     /* for(int i=0; i<size.at(piece_num).at(0); i++){
@@ -143,24 +143,23 @@ vector<vector<int>> katanuki(int piece_num, int x_min, int y_min, int direction,
 
     //型抜き
     vector<int> kata_1d;
-    int kata_1d_in = 0;
     for(int i=0; i < size.at(piece_num).at(0); i++){
         for(int j=0; j < size.at(piece_num).at(1); j++){ 
             if(y_min + i >= BOARD_HEIGHT || x_min + j >= BOARD_WIDTH || y_min + i < 0 || x_min + j < 0){             //board_sizeまで到達（board_size番目に到達したら考えない。）
 
             }else{
                 if(nukigata.at(piece_num).at(i).at(j) == 1){
-                    kata_1d.at(kata_1d_in) = board.at(x_min + j).at(y_min+i); //一次元配列に格納
+                    kata_1d.push_back(board.at(x_min + j).at(y_min+i)); //一次元配列に格納
                     
                     board.at(x_min + j).at(y_min+i) = 9; //抜かれた部分は9にする
     
                     //cout << "[" << kata_1d.at(kata_1d_in)  << "]" ; 
-                    kata_1d_in++;
                 }
             }
         }
        // cout << endl;
     }
+    cout << "katanuki" << endl;
 
    // cout << endl << "方向:";
     switch (direction)

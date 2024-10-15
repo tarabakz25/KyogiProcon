@@ -10,7 +10,6 @@
 #include "json.hpp"
 #include "board_setting.cpp"
 #include "json_read.cpp"
-#include "json_write.cpp"
 
 #include "receive_and_send.cpp"
 
@@ -23,12 +22,11 @@ int BOARD_WIDTH;
 int BOARD_HEIGHT;
 
 //プロトタイプ宣言
-void Board_draw(int position_x, int position_y, int side_length, map<int, int> &board_now, const Font& font);
-void check(map<int, int> &board_now, map<int, int> &board_finish, int &num);
+void Board_draw(int position_x, int position_y, int side_length, vector<vector<int>> &board_now, const Font& font);
+void check(vector<vector<int>> &board_now, vector<vector<int>> &board_finish, int &num);
 
 vector<vector<int>> define_size();
 vector<vector<vector<int> > > define_nukigata(vector<vector<int>> size);
-map<int, int> katanuki(int piece_num, int x_min, int y_min, int direction, vector<vector<int>>& size, vector<vector<vector<int>>>& nukigata, map<int, int> board, int BOARD_WIDTH, int BOARD_HEIGHT);
 
 //jsonファイル読み込み系
 // 文字列からベクトルに変換する関数(一列分を返す)
@@ -63,12 +61,19 @@ void Main()
     json_read(board_start, board_finish, BOARD_WIDTH, BOARD_HEIGHT);
 
     //書き出し用ファイルをリセット
-    json_write_reset();
 
     board_now = board_start;
 
-    int n; //answerの要素数
-    vector<vector<int>> num(n, (vector<int> (4)));
+    string read_jsonpath = "./src/answer.json";
+
+        // JSONファイルの読み込み
+        std::ifstream ifs(read_jsonpath);
+        if (!ifs) {
+            cout << "ファイルが開けませんでした: " << read_jsonpath << endl;
+            return;
+        }
+
+    std::string str((std::istreambuf_iterator<char>(ifs)), std::istreambuf_iterator<char>());
 
     vector<vector<int>> size = define_size();
     vector<vector<vector<int> > > nukigata = define_nukigata(size);
@@ -76,33 +81,37 @@ void Main()
 
     printNukigata(nukigata); //一般抜き型を表示
 
-    int i = 0;
-	//描画開始
-	while (System::Update()){
-        if (i == n){
-            while (1){
-                if (KeyEscape.down()){
-                    break;
-                }
+
+            json data;
+            try {
+                data = json::parse(str);
+            } catch (json::parse_error& e) {
+                cout << "解答データを取得できませんでした。 " << e.what() << endl;
             }
-            break;
-        }
-        Board_draw(40, 40, side_length, board_now, font);
 
-        check(board_now, board_finish, number);
-        
-        persent = ((float)number / (BOARD_HEIGHT * BOARD_WIDTH)) * 100;
-        font(U"一致率{}%"_fmt(persent)).draw(20, Vec2{90 + side_length * BOARD_WIDTH, 200 + side_length * BOARD_HEIGHT}, ColorF{1,1,1});
-        font(U"{}手型抜き操作済み"_fmt(time)).draw(20, Vec2{90 + side_length * BOARD_WIDTH, 230 + side_length * BOARD_HEIGHT}, ColorF{1,1,1});
+            const auto& patterns = data["ops"];
+            const auto& times = data["n"];
+            auto i = 0;
+	//描画開始
+	while (System::Update() && i < times){
+                Board_draw(40, 40, side_length, board_now, font);
+                check(board_now, board_finish, number);
 
-        if (KeyEscape.down()){
-            break;
-        }
+                persent = ((float)number / (BOARD_HEIGHT * BOARD_WIDTH)) * 100;
+                font(U"一致率{}%"_fmt(persent)).draw(20, Vec2{90 + side_length * BOARD_WIDTH, 200 + side_length * BOARD_HEIGHT}, ColorF{1,1,1});
+                font(U"{}手型抜き操作済み"_fmt(time)).draw(20, Vec2{90 + side_length * BOARD_WIDTH, 230 + side_length * BOARD_HEIGHT}, ColorF{1,1,1});
 
-        katanuki();
-        i++;
-        time++;
-	}
+                //cout << "error" << endl;
+                if (KeyEscape.down()) break;
+                int p = patterns.at(i).value("p", 0);  // パターンの番号
+                int s = patterns.at(i).value("s", 0);  // direc
+                int x = patterns.at(i).value("x", 0);  // x
+                int y = patterns.at(i).value("y", 0);  // y
+                //cout << "error" << endl;
+                board_now = katanuki(p, x, y, s, size, nukigata, board_now, BOARD_WIDTH, BOARD_HEIGHT);
+    	        time++;
+                i++;
+    }
     cout << time << endl;
 }
 
@@ -135,11 +144,13 @@ void Board_draw(int position_x, int position_y, int side_length, vector<vector<i
         }
 }
 
-void check(map<int, int> &board_now, map<int, int> &board_finish, int &num){
+void check(vector<vector<int>> &board_now, vector<vector<int>> &board_finish, int &num){
     num = 0;
-    for (int i = 0; i < BOARD_HEIGHT * BOARD_WIDTH; i++){
-        if (board_now[i] == board_finish[i]){
-            num++;
+    for (int i = 0; i < BOARD_HEIGHT; i++){
+        for (int j = 0; j < BOARD_WIDTH; j++){
+            if (board_finish.at(i).at(j) == board_now.at(i).at(j)){
+                num++;
+            }
         }
     }
 }

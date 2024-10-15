@@ -14,27 +14,25 @@ using json = nlohmann::json;
 
 //jsonファイル読み込み系
 // 文字列からベクトルに変換する関数(一列分を返す)
-map<int, int> stringToMap(const string &str)
+vector<int> stringToVector(const string &str)
 {
-    int i = 0;
-    map<int, int> row;
+    vector<int> row;
     for (char c : str)
     {
-        row[i] = c - '0'; // 文字を整数に変換
-        i++;
+        row.push_back(c - '0'); // 文字を整数に変換
     }
     return row;
 }
 
 // JSONからボードを読み込む関数
-int loadBoard(const json &jobj, map<int, int> &startBoard, map<int, int> &goalBoard)
+int loadBoard(const json &jobj, vector<vector<int>> &startBoard, vector<vector<int>> &goalBoard)
 {
     int i = 0;
     for (const auto &line : jobj["board"]["start"])
     {
-        map<int, int> row = stringToMap(line.get<string>()); //一列分をrowに格納
-        for (int j = 0; j < BOARD_WIDTH; j++){
-            startBoard[j + i * BOARD_WIDTH] = row[j]; //.insert()で一次元に変換。
+        vector<int> row = stringToVector(line.get<string>()); //一列分をrowに格納
+        for (int j = 0; j < row.size(); j++){
+            startBoard.at(i).push_back(row.at(j));
         }
         i++;
     }
@@ -42,9 +40,9 @@ int loadBoard(const json &jobj, map<int, int> &startBoard, map<int, int> &goalBo
     i = 0;
     for (const auto &line : jobj["board"]["goal"])
     {
-        map<int, int> row = stringToMap(line.get<string>()); //一列分をrowに格納
-        for (int j = 0; j < BOARD_WIDTH; j++){
-            goalBoard[j + i * BOARD_WIDTH] = row[j]; //.insert()で一次元に変換。
+        vector<int> row = stringToVector(line.get<string>());
+        for (int j = 0; j < row.size(); j++){
+            goalBoard.at(i).push_back(row.at(j));
         }
         i++;
     }
@@ -56,7 +54,7 @@ void json_path_setting(){
     cout << "(設定)Current path: " << std::filesystem::current_path().c_str() << endl; //カレントディレクトリを表示;
 }
 
-void json_read(map<int, int> &board_start, map<int, int> &board_finish, int &BOARD_WIDTH, int &BOARD_HEIGHT){
+void json_read(vector<vector<int>> &board_start, vector<vector<int>> &board_finish, int &BOARD_WIDTH, int &BOARD_HEIGHT){
     //今のところサンプルを読み込みますが、curlで読み込んだファイル(problem.json)も使えます！
 
     //jsonファイル存在するか確認。
@@ -93,7 +91,8 @@ void json_read(map<int, int> &board_start, map<int, int> &board_finish, int &BOA
     cout << "(情報)" << "WIDTH"<<BOARD_WIDTH << " HEIGHT"<<BOARD_HEIGHT << endl;
 
     //初期盤面、終了盤面取得
-    map<int, int> startBoard, goalBoard;
+    vector<vector<int>> startBoard(BOARD_HEIGHT);
+    vector<vector<int>> goalBoard(BOARD_HEIGHT);
     loadBoard(jobj, startBoard, goalBoard); 
 
     //各配列・変数に代入。
