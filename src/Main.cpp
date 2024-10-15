@@ -2,6 +2,7 @@
 #include <string>
 #include <stdlib.h>
 #include <chrono>
+#include <map>
 
 #include <string> //read&write
 #include <fstream>
@@ -15,7 +16,7 @@
 #include "json_write.cpp"
 #include "operation.cpp"
 
-#include "receive.cpp"
+#include "receive_and_send.cpp"
 
 #include "setting.hpp"
 //using namespace nlohman;
@@ -28,15 +29,15 @@ int BOARD_HEIGHT;
 //プロトタイプ宣言
 //void Board_draw(int position_x, int position_y, int side_length, vector<int> &board_now, const Font& font);
 //void comparison(int block_type, int now_x, int now_y, int end_x, int end_y, vector<int>& board_now, vector<int>& board_finish, vector<int>& blockcheck_now, vector<int>& blockcheck_end, vector<vector<int>>& blockcheck_result);
-void board_sort_search(vector<int>& board_now, vector<int>&board_finish, pair<pair<int, int>, pair<int, int>> &sort_result); //ところp
+void board_sort_search(map<int, int>& board_now, map<int, int>&board_finish, pair<pair<int, int>, pair<int, int>> &sort_result); //ところp
 //void number_draw_now (int number, bool num, vector<int> &board_now, int side_length);
 //void number_draw_finish (int number, bool num, vector<int> &board_finish, int side_length);
-void check(vector<int> &board_now, vector<int> &board_finish, int &num);    //ところp
+void check(map<int, int> &board_now, map<int, int> &board_finish, int &num);    //ところp
 //void check_result_draw (vector<int> &board_now, vector<int> &board_finish, int side_length);
 
 vector<vector<int>> define_size();
 vector<vector<vector<int> > > define_nukigata(vector<vector<int>> size);
-vector<int> katanuki(int piece_num, int x_min, int y_min, int direction, vector<vector<int>>& size, vector<vector<vector<int>>>& nukigata, vector<int> board, int BOARD_WIDTH, int BOARD_HEIGHT);
+map<int, int> katanuki(int piece_num, int x_min, int y_min, int direction, vector<vector<int>>& size, vector<vector<vector<int>>>& nukigata, map<int, int> board, int BOARD_WIDTH, int BOARD_HEIGHT);
 
 //jsonファイル読み込み系
 // 文字列からベクトルに変換する関数(一列分を返す)
@@ -62,10 +63,9 @@ int main()
     //TextEditState te1{ U"0,0,0" };// デフォルトのテキストを設定する
     //String entered_text;
 
-    vector<int> board_start (BOARD_WIDTH * BOARD_HEIGHT, 0);
-	vector<int> board_now (BOARD_WIDTH * BOARD_HEIGHT, 0);
-    vector<int> board_finish (BOARD_WIDTH * BOARD_HEIGHT, 0);
-    vector<vector<int>> blockcheck_result;
+    map<int, int> board_start;
+	map<int, int> board_now;
+    map<int, int> board_finish;
     pair<pair<int, int>, pair<int, int>> sort_result;
 
     sort_result.first = {0, 0};
@@ -253,19 +253,48 @@ int main()
             check(board_now, board_finish, num);
         }*/
         if (sort_result.second.first < BOARD_WIDTH - 1){
-            sort_result.second.first++;
+            if (sort_result.second.second % 2 == 0){
+                if (sort_result.second.second != BOARD_HEIGHT + 1) sort_result.second.second++;
+                else sort_result.second.first++;
+            }
+            else {
+                sort_result.second.first++;
+                sort_result.second.second--;
+            }
         }
         else {
-            sort_result.second.first = 0;
-            sort_result.second.second++;
+            if (sort_result.second.second % 2 == 0){
+                sort_result.second.second++;
+            }
+            else {
+                sort_result.second.first = 0;
+                sort_result.second.second++;
+            }
         }
         operation(time, board_now, board_finish, sort_result.second, size, nukigata, num);
-        if (sort_result.second.first != 0){
-            sort_result.second.first--;
+        if (sort_result.second.first == 0){
+            if (sort_result.second.second % 2 == 1){
+                sort_result.second.second--;
+            }
+            else if (sort_result.second.first == 0 && sort_result.second.second == 0){
+                
+            }
+            else {
+                sort_result.second.first = BOARD_WIDTH - 1;
+                sort_result.second.second--;
+            }
         }
-        else if (sort_result.second.second > 0){
-            sort_result.second.first = BOARD_WIDTH - 1;
-            sort_result.second.second--;
+        else {
+            if (sort_result.second.second % 2 == 1){
+                sort_result.second.second--;
+            }
+            else {
+                if (sort_result.second.second == BOARD_HEIGHT - 1){
+
+                }
+                else sort_result.second.second++;
+                sort_result.second.first--;
+            }
         }
         if (time < 0){
             cout << "error" << endl;
@@ -401,7 +430,7 @@ int main()
     
 }*/
 
-void board_sort_search(vector<int>& board_now, vector<int>&board_finish, pair<pair<int, int>, pair<int, int>> &sort_result){
+void board_sort_search(map<int, int>& board_now, map<int, int>&board_finish, pair<pair<int, int>, pair<int, int>> &sort_result){
     //sort_result.firstでBORAD_WIDTH×(n*mますまで一致している場合のn-1行目まで)の長方形分の正誤判定を出力する
     //sort/result.secondでn行目のmますまでの一列の正誤判定を出力する
     if (sort_result.second.first == -1){
@@ -409,10 +438,17 @@ void board_sort_search(vector<int>& board_now, vector<int>&board_finish, pair<pa
     }
 
     bool a = 0;
-    for (int i = sort_result.second.second; i < BOARD_HEIGHT; i++){
+    //2マスずつ見ていく
+    for (int i = sort_result.second.second; i < BOARD_HEIGHT; i += 2){
         for (int j = 0; j < BOARD_WIDTH; j++){
-            if (board_now.at(i * BOARD_WIDTH + j) == board_finish.at(i * BOARD_WIDTH + j)){
+            if (board_now[i * BOARD_WIDTH + j] == board_finish[i * BOARD_WIDTH + j]){
                 sort_result.second = {j, i};
+                if (board_now[(i + 1) * BOARD_WIDTH + j] == board_finish[(i + 1) * BOARD_WIDTH + j]){
+                    sort_result.second = {j, i + 1};
+                }
+                else {
+                    return;
+                }
             }
             else {
                 if (i == 0 && j == 0){
@@ -492,10 +528,10 @@ void board_sort_search(vector<int>& board_now, vector<int>&board_finish, pair<pa
     }
 }*/
 
-void check(vector<int> &board_now, vector<int> &board_finish, int &num){
+void check(map<int, int> &board_now, map<int, int> &board_finish, int &num){
     num = 0;
     for (int i = 0; i < BOARD_HEIGHT * BOARD_WIDTH; i++){
-        if (board_now.at(i) == board_finish.at(i)){
+        if (board_now[i] == board_finish[i]){
             num++;
         }
     }
