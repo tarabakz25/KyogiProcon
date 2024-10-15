@@ -274,6 +274,7 @@ int main()
                                 break;
                             }
                         }
+                        if(flag) break;
                     }
 
                     pivot = 0;
@@ -294,6 +295,7 @@ int main()
                                 }
                             }
                         }
+                        if(flag) break;
                     }
 
                     int pivot1 = 0;
@@ -350,7 +352,9 @@ int main()
                                         }
                                     }
                                 }
+                                if(flag) break;
                             }
+                            if(flag) break;
                         }
                     }
                     
