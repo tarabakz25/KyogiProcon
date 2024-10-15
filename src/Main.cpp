@@ -141,6 +141,7 @@ int main()
 
         board_sort_search(board_now, board_finish, sort_result);
         if (sort_result.second.second >= BOARD_HEIGHT){
+            send_problem("token1"); //サーバー送信用
             cout << "finish!" << endl;
             cout << time << "手" << endl;
             break;
