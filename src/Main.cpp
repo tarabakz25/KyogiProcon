@@ -84,7 +84,7 @@ int main()
 
     json_path_setting();
 
-    receive_problem();
+    receive_problem(a);
 
     //jsonファイル用の設定と、jsonファイルの読み込み。
     json_read(board_start, board_finish, BOARD_WIDTH, BOARD_HEIGHT);
