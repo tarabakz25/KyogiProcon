@@ -24,10 +24,6 @@
     },
     "terminal.integrated.fontFamily": "\"Terminus\"",
     "editor.fontSize": 15.5,
-    
-    "vim.useCtrlKeys": true,
-    "vim.handleKeys": {
-          "<C-n>": false,
-          "<C-p>": false
-        }
+    "editor.defaultFormatter": "xaver.clang-format",
+    "C_Cpp.clang_format_fallbackStyle": "none",
 }
