@@ -17,6 +17,7 @@ typedef long long ll;
 using namespace std;
 using vec = vector<vector<int>>;
 using json = nlohmann::json;
+using ordered_json = nlohmann::ordered_json;
 
 /* 変数の先宣言 */
 int counter = 0;       // 手数のカウント
