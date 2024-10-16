@@ -1,3 +1,3 @@
 #define DEBUG 0 //赤文字の表示
 #define PRINTING 0 // 盤面の表示
-#define SORT_FILE "problem_16x16.json" // サイズの設定
+#define SORT_FILE "problem_256x256.json" // サイズの設定

@@ -7,6 +7,7 @@
 #include <thread>
 #include "json.hpp"
 #include "setting.hh"
+#include "receive_and_send.cpp"
 
 typedef long long ll;
 #define rep(i, n) for (ll i = 0; i < n; i++)
@@ -240,6 +241,9 @@ int main()
     // 抜き型生成
     generateNukigata();
 
+    //サーバーからjsonファイルを読み込む
+    receive_problem("token1");
+
     // Json読み込み
     ifstream ifs(SORT_FILE);
     string str((istreambuf_iterator<char>(ifs)), istreambuf_iterator<char>());
@@ -288,7 +292,7 @@ int main()
                                 dj += pivot;
 
                                 if (sB[i][dj] == gB[i][j]) {
-                                    pair<int, int> target_idx = {i,  + dj};
+                                    pair<int, int> target_idx = {i, dj};
                                     katanuki(sB, gB, i, j, target_idx.first, target_idx.second, 0);
                                     flag = true;
                                     break;
@@ -422,6 +426,8 @@ int main()
     // 回答JSONをファイルに保存
     ofstream ofs("answer.json");
     ofs << final_answer.dump(4);  // インデント付きでJSONを書き込む
+
+    send_problem("token1");
 
     return 0;
 }
