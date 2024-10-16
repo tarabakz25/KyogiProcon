@@ -7,7 +7,6 @@
 #include <thread>
 #include "json.hpp"
 #include "setting.hh"
-#include "receive_and_send.cpp"
 
 typedef long long ll;
 #define rep(i, n) for (ll i = 0; i < n; i++)
@@ -111,7 +110,6 @@ void loadBoard(const json &j, vec &sB, vec &gB)
 // 型抜き i,jには異点の座標、targetには目標座標を送る。
 void katanuki(vec &sB, vec &gB, int i, int j, int targeti, int targetj, int direction) 
 {
-    json answer;                   // 保存用のJSON
     vector<int> use_nukigata_size; // 使う抜き型のサイズ
 
     int diff = direction == 0 ? diff = targeti - i : direction == 2 || direction == 4 ? diff = targetj - j : diff = j - targetj;
@@ -130,6 +128,13 @@ void katanuki(vec &sB, vec &gB, int i, int j, int targeti, int targetj, int dire
 
         // 右だけの場合
         if (direction == 3) {
+            json answer;
+            answer["x"] = j;
+            answer["y"] = i;
+            answer["s"] = direction > 3 ? direction - 2 : direction;
+            answer["p"] = unsigned(3 * (log2(n) - 1) + 1);
+            answers.push_back(answer);
+
             rep(di, n) {
                 int curtRow = i + di;
                 if (curtRow >= HEIGHT)
@@ -141,12 +146,17 @@ void katanuki(vec &sB, vec &gB, int i, int j, int targeti, int targetj, int dire
                 }
             }
 
-            answer["x"] = j;
-            answer["y"] = i;
         }
 
         // 左だけの場合
         else if (direction == 2) {
+            json answer;
+            answer["x"] = j;
+            answer["y"] = i;
+            answer["s"] = direction > 3 ? direction - 2 : direction;
+            answer["p"] = unsigned(3 * (log2(n) - 1) + 1);
+            answers.push_back(answer);
+
             rep(di, n) {
                 int curtRow = i + di;
                 if (curtRow >= HEIGHT)
@@ -157,12 +167,17 @@ void katanuki(vec &sB, vec &gB, int i, int j, int targeti, int targetj, int dire
                     sB[curtRow].insert(sB[curtRow].end(), unplug[di].begin(), unplug[di].begin() + n);
                 }
             }
-            answer["x"] = j;
-            answer["y"] = i;
         }
 
         // 直線上にないときの右
         else if (direction == 5) {
+            json answer;
+            answer["x"] = targetj + 1;
+            answer["y"] = targeti;
+            answer["s"] = direction > 3 ? direction - 2 : direction;
+            answer["p"] = unsigned(3 * (log2(n) - 1) + 1);
+            answers.push_back(answer);
+
             rep(di, n) {
                 int curtRow = targeti + di;
                 if (curtRow >= HEIGHT) break;
@@ -173,13 +188,17 @@ void katanuki(vec &sB, vec &gB, int i, int j, int targeti, int targetj, int dire
                 }
             }
             targetj += n;
-
-            answer["x"] = targetj;
-            answer["y"] = targeti;
         }
 
         // 直線上にないときの左
         else if (direction == 4) {
+            json answer;
+            answer["x"] = targetj;
+            answer["y"] = targeti;
+            answer["s"] = direction > 3 ? direction - 2 : direction;
+            answer["p"] = unsigned(3 * (log2(n) - 1) + 1);
+            answers.push_back(answer);
+
             rep(di, n) {
                 int curtRow = targeti + di;
                 if (curtRow >= HEIGHT) break;
@@ -189,13 +208,18 @@ void katanuki(vec &sB, vec &gB, int i, int j, int targeti, int targetj, int dire
                     sB[curtRow].insert(sB[curtRow].end(), unplug[di].begin(), unplug[di].begin() + n);
                 }
             }
-            answer["x"] = targetj;
-            answer["y"] = targeti;
         }
 
         // 上の場合
         else if (direction == 0) {
             unsigned height_diff = HEIGHT - i - n;
+            
+            json answer;
+            answer["x"] = j;
+            answer["y"] = i;
+            answer["s"] = direction > 3 ? direction - 2 : direction;
+            answer["p"] = unsigned(3 * (log2(n) - 1) + 1);
+            answers.push_back(answer);
 
             rep(di, n) {
                 int curtRow = i + di;
@@ -221,25 +245,12 @@ void katanuki(vec &sB, vec &gB, int i, int j, int targeti, int targetj, int dire
                     else sB[i + height_diff + di][j + dj] = unplug[di][dj];
                 }
             }
-            answer["x"] = j;
-            answer["y"] = i;
-            
         } else {
             cerr << "ERROR!" << endl;
         }
 
         counter++;
 
-        if (pow(2, log2(n)) != n) {
-            cerr << "無効なサイズです。" << endl;
-            exit(-1);
-        } else {
-            answer["p"] = unsigned(3 * (log2(n) - 1) + 1);
-        }
-
-        answer["s"] = direction > 3 ? direction - 2 : direction;
-
-        answers.push_back(answer);
         auto end = chrono::system_clock::now();
         scorePrint(sB, gB, start, end, i, j, diff, direction);
     }
@@ -252,11 +263,6 @@ int main()
     // 抜き型生成
     generateNukigata();
 
-    //サーバーからjsonファイルを読み込む
-    #if SERVER 
-        receive_problem("token1"); 
-    #endif
-
     // Json読み込み
     ifstream ifs(SORT_FILE);
     string str((istreambuf_iterator<char>(ifs)), istreambuf_iterator<char>());
@@ -265,14 +271,6 @@ int main()
     loadBoard(J, sB, gB);
     HEIGHT = sB.size(), WIDTH = gB[0].size();
     double matchRate = calculateMatchRate(sB, gB);
-
-    // while (1) {
-    //     int i = 0;
-    //     cin >> i;
-    //     if (i == 1){
-    //         break;
-    //     }
-    // }
 
 
     while (matchRate < 100.0) {
@@ -433,10 +431,6 @@ int main()
     // 回答JSONをファイルに保存
     ofstream ofs("answer.json");
     ofs << final_answer.dump(4);  // インデント付きでJSONを書き込む
-
-    #if SERVER 
-        send_problem("token1");
-    #endif
 
     return 0;
 }
