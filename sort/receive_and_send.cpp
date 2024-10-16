@@ -11,6 +11,10 @@ using namespace std;
 using json = nlohmann::json;
 using ordered_json = nlohmann::ordered_json; //順番を維持する（通常アルファベット順になるらしい）
 
+void json_path_setting(){
+    filesystem::current_path("../"); //カレントディレクトリをソースファイルに変更。
+    cout << "(設定)Current path: " << filesystem::current_path().c_str() << endl; //カレントディレクトリを表示;
+}
 
 
 //コールバック関数
@@ -53,11 +57,13 @@ void receive_problem(string token){
                 return;
             } 
 
-            
+            filesystem::current_path("./"); //カレントディレクトリをソースファイルに変更。
+            cout << "(設定)Current path: " << filesystem::current_path().c_str() << endl; //カレントディレクトリを表示;
+
             //jsonファイルとして書き込む
             ordered_json problem = ordered_json::parse(readBuffer);
 
-            ofstream write_file("./sort/problem.json");
+            ofstream write_file("./problem.json");
             if (write_file.is_open()) {
                 write_file << problem.dump(4); //からファイルを入れて消す。
                 write_file.close();
@@ -84,7 +90,7 @@ void send_problem(string token){
     CURLcode res; //リクエスト結果
     string readBuffer; //サーバーからのデータ保存
 
-    ifstream sendfile("./sort/answer.json");
+    ifstream sendfile("./answer.json");
     if (!sendfile.is_open()) {
         cerr << "送信用のファイルが開けません。" << endl;
         return;

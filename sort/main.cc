@@ -242,7 +242,9 @@ int main()
     generateNukigata();
 
     //サーバーからjsonファイルを読み込む
-    receive_problem("token1");
+    #if SEVER 
+        receive_problem("token1"); 
+    #endif
 
     // Json読み込み
     ifstream ifs(SORT_FILE);
@@ -252,6 +254,14 @@ int main()
     loadBoard(J, sB, gB);
     HEIGHT = sB.size(), WIDTH = gB[0].size();
     double matchRate = calculateMatchRate(sB, gB);
+
+    while (1) {
+        int i = 0;
+        cin >> i;
+        if (i == 1){
+            break;
+        }
+    }
 
     while (matchRate < 100.0) {
         rep(i, HEIGHT) {
@@ -427,7 +437,9 @@ int main()
     ofstream ofs("answer.json");
     ofs << final_answer.dump(4);  // インデント付きでJSONを書き込む
 
-    send_problem("token1");
+    #if SEVER 
+        send_problem("token1");
+    #endif
 
     return 0;
 }
