@@ -223,13 +223,15 @@ void katanuki(vec &sB, vec &gB, int i, int j, int targeti, int targetj, int dire
         } else {
             answer["p"] = unsigned(3 * (log2(n) - 1) + 1);
         }
-        answer["x"] = j;
-        answer["y"] = i;
+        answer["x"] = targetj;
+        answer["y"] = targeti;
         answer["s"] = direction > 3 ? direction - 2 : direction;
 
         answers.push_back(answer);
         auto end = chrono::system_clock::now();
         scorePrint(sB, gB, start, end, i, j, diff, direction);
+
+        this_thread::sleep_for(chrono::seconds(SLEEP_INTERVAL));
     }
 }
 
