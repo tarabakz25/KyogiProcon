@@ -1,3 +1,4 @@
+#include <bits/stdc++.h>
 #include <iostream>
 #include <curl/curl.h>
 
@@ -79,10 +80,6 @@ void receive_problem(string token){
         curl_slist_free_all(headers);
 
     }
-
-    
-
-
 }
 
 void send_problem(string token){
@@ -142,10 +139,6 @@ void send_problem(string token){
         curl_slist_free_all(headers);
 
     }
-
-    
-
-
 }
 
 /*

@@ -111,7 +111,8 @@ void loadBoard(const json &j, vec &sB, vec &gB)
 // 型抜き i,jには異点の座標、targetには目標座標を送る。
 void katanuki(vec &sB, vec &gB, int i, int j, int targeti, int targetj, int direction) 
 {
-    vector<int> use_nukigata_size;
+    json answer;                   // 保存用のJSON
+    vector<int> use_nukigata_size; // 使う抜き型のサイズ
 
     int diff = direction == 0 ? diff = targeti - i : direction == 2 || direction == 4 ? diff = targetj - j : diff = j - targetj;
 
@@ -139,6 +140,9 @@ void katanuki(vec &sB, vec &gB, int i, int j, int targeti, int targetj, int dire
                     sB[curtRow].insert(sB[curtRow].begin(), unplug[di].begin(), unplug[di].begin() + n);
                 }
             }
+
+            answer["x"] = j;
+            answer["y"] = i;
         }
 
         // 左だけの場合
@@ -153,6 +157,8 @@ void katanuki(vec &sB, vec &gB, int i, int j, int targeti, int targetj, int dire
                     sB[curtRow].insert(sB[curtRow].end(), unplug[di].begin(), unplug[di].begin() + n);
                 }
             }
+            answer["x"] = j;
+            answer["y"] = i;
         }
 
         // 直線上にないときの右
@@ -167,6 +173,9 @@ void katanuki(vec &sB, vec &gB, int i, int j, int targeti, int targetj, int dire
                 }
             }
             targetj += n;
+
+            answer["x"] = targetj;
+            answer["y"] = targeti;
         }
 
         // 直線上にないときの左
@@ -180,6 +189,8 @@ void katanuki(vec &sB, vec &gB, int i, int j, int targeti, int targetj, int dire
                     sB[curtRow].insert(sB[curtRow].end(), unplug[di].begin(), unplug[di].begin() + n);
                 }
             }
+            answer["x"] = targetj;
+            answer["y"] = targeti;
         }
 
         // 上の場合
@@ -210,22 +221,22 @@ void katanuki(vec &sB, vec &gB, int i, int j, int targeti, int targetj, int dire
                     else sB[i + height_diff + di][j + dj] = unplug[di][dj];
                 }
             }
+            answer["x"] = j;
+            answer["y"] = i;
+            
         } else {
             cerr << "ERROR!" << endl;
         }
 
         counter++;
 
-        // JSONに保存
-        json answer;
         if (pow(2, log2(n)) != n) {
-            cerr << "無効なサイズです。nは2の累乗でなければなりません。" << endl;
+            cerr << "無効なサイズです。" << endl;
             exit(-1);
         } else {
             answer["p"] = unsigned(3 * (log2(n) - 1) + 1);
         }
-        answer["x"] = j;
-        answer["y"] = i;
+
         answer["s"] = direction > 3 ? direction - 2 : direction;
 
         answers.push_back(answer);
@@ -242,7 +253,7 @@ int main()
     generateNukigata();
 
     //サーバーからjsonファイルを読み込む
-    #if SEVER 
+    #if SERVER 
         receive_problem("token1"); 
     #endif
 
@@ -255,13 +266,14 @@ int main()
     HEIGHT = sB.size(), WIDTH = gB[0].size();
     double matchRate = calculateMatchRate(sB, gB);
 
-    while (1) {
-        int i = 0;
-        cin >> i;
-        if (i == 1){
-            break;
-        }
-    }
+    // while (1) {
+    //     int i = 0;
+    //     cin >> i;
+    //     if (i == 1){
+    //         break;
+    //     }
+    // }
+
 
     while (matchRate < 100.0) {
         rep(i, HEIGHT) {
@@ -324,22 +336,6 @@ int main()
                                 if (di == 1) continue;
                                 else if (di >= HEIGHT || di <= pivot) break;
                                 di += pivot1;
-
-                                // for (int dj : number) {
-                                //     if(di == 1) continue;
-                                //     else if(dj >= WIDTH) break;
-
-                                //     if (sB[i + di][j + dj] == gB[i][j]) {
-                                //         pair<int, int> target_idx = {i + di, j + dj};
-                                //         if (j >= dj) {
-                                //             katanuki(sB, gB, i, j, target_idx.first, target_idx.second, 5);
-                                //             katanuki(sB, gB, i, j, target_idx.first, target_idx.second, 0);
-                                //         } else {
-                                //             katanuki(sB, gB, i, j, target_idx.first, target_idx.second, 4);
-                                //             katanuki(sB, gB, i, j, target_idx.first, target_idx.second, 0);
-                                //         }
-                                //     }
-                                // }
 
                                 rep (xj, number.size()) {
                                     pivot2 += number[xj];
@@ -426,6 +422,7 @@ int main()
         }
         matchRate = calculateMatchRate(sB, gB);
     }
+
     cout << "\033[31m" << "FINISHED!!" << "\033[m" << endl;
 
     // 回答JSONの作成
@@ -437,7 +434,7 @@ int main()
     ofstream ofs("answer.json");
     ofs << final_answer.dump(4);  // インデント付きでJSONを書き込む
 
-    #if SEVER 
+    #if SERVER 
         send_problem("token1");
     #endif
 
