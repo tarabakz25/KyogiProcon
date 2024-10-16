@@ -7,6 +7,7 @@
 #include <thread>
 #include "json.hpp"
 #include "setting.hh"
+#include "receive_and_send.cpp"
 
 typedef long long ll;
 #define rep(i, n) for (ll i = 0; i < n; i++)
@@ -171,7 +172,7 @@ void katanuki(vec &sB, vec &gB, int i, int j, int targeti, int targetj, int dire
         // 直線上にないときの左
         else if (direction == 4) {
             json answer;
-            answer["x"] = targetj;
+            answer["x"] = targetj - n;
             answer["y"] = targeti;
             answer["s"] = direction > 3 ? direction - 2 : direction;
             answer["p"] = unsigned(3 * (log2(n) - 1) + 1);
@@ -191,7 +192,7 @@ void katanuki(vec &sB, vec &gB, int i, int j, int targeti, int targetj, int dire
         // 上の場合
         else if (direction == 0) {
             unsigned height_diff = HEIGHT - i - n;
-
+            
             json answer;
             answer["x"] = j;
             answer["y"] = i;
@@ -240,6 +241,10 @@ int main()
     start = chrono::system_clock::now();
     // 抜き型生成
     generateNukigata();
+
+    #if SERVER
+        receive_problem("token1");
+    #endif
 
     // Json読み込み
     ifstream ifs(SORT_FILE);
@@ -409,6 +414,10 @@ int main()
     // 回答JSONをファイルに保存
     ofstream ofs("answer.json");
     ofs << final_answer.dump(4);  // インデント付きでJSONを書き込む
+
+    #if SERVER
+        send_problem("token1");
+    #endif
 
     return 0;
 }
