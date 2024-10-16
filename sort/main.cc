@@ -126,30 +126,8 @@ void katanuki(vec &sB, vec &gB, int i, int j, int targeti, int targetj, int dire
         vec unplug(HEIGHT, vector<int>(WIDTH, -1));  // 抜き出す数字
         vec push(HEIGHT, vector<int>(WIDTH, -1));    // 寄せる数字
 
-        // 右だけの場合
-        if (direction == 3) {
-            json answer;
-            answer["x"] = j;
-            answer["y"] = i;
-            answer["s"] = direction > 3 ? direction - 2 : direction;
-            answer["p"] = unsigned(3 * (log2(n) - 1) + 1);
-            answers.push_back(answer);
-
-            rep(di, n) {
-                int curtRow = i + di;
-                if (curtRow >= HEIGHT)
-                    break;
-                else {
-                    copy(sB[curtRow].begin() + targetj + 1, sB[curtRow].begin() + targetj + n + 1, unplug[di].begin());
-                    sB[curtRow].erase(sB[curtRow].begin() + targetj + 1, sB[curtRow].begin() + targetj + n + 1);
-                    sB[curtRow].insert(sB[curtRow].begin(), unplug[di].begin(), unplug[di].begin() + n);
-                }
-            }
-
-        }
-
         // 左だけの場合
-        else if (direction == 2) {
+        if (direction == 2) {
             json answer;
             answer["x"] = j;
             answer["y"] = i;
@@ -213,7 +191,7 @@ void katanuki(vec &sB, vec &gB, int i, int j, int targeti, int targetj, int dire
         // 上の場合
         else if (direction == 0) {
             unsigned height_diff = HEIGHT - i - n;
-            
+
             json answer;
             answer["x"] = j;
             answer["y"] = i;
