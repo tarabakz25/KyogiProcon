@@ -24,6 +24,5 @@
     },
     "terminal.integrated.fontFamily": "\"Terminus\"",
     "editor.fontSize": 15.5,
-    "editor.defaultFormatter": "xaver.clang-format",
     "C_Cpp.clang_format_fallbackStyle": "none",
 }

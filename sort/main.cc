@@ -172,7 +172,7 @@ void katanuki(vec &sB, vec &gB, int i, int j, int targeti, int targetj, int dire
         // 直線上にないときの左
         else if (direction == 4) {
             json answer;
-            answer["x"] = targetj - n;
+            answer["x"] = j;
             answer["y"] = targeti;
             answer["s"] = direction > 3 ? direction - 2 : direction;
             answer["p"] = unsigned(3 * (log2(n) - 1) + 1);

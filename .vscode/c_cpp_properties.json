@@ -4,7 +4,7 @@
             "name": "Mac",
             "includePath": [
                 "${workspaceFolder}/**",
-                "/opt/homebrew/**",
+                "/opt/homebrew/include/",
                 "/usr/bin/**"
             ],
             "defines": [],
