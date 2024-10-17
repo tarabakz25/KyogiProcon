@@ -1,12 +1,12 @@
-/* 
-各々の設定はsetting.hhで行ってください。 
+/*
+各々の設定はsetting.hhで行ってください。
 */
 
+#include "json.hpp"
+#include "setting.hh"
 #include <bits/stdc++.h>
 #include <chrono>
 #include <thread>
-#include "json.hpp"
-#include "setting.hh"
 
 typedef long long ll;
 #define rep(i, n) for (ll i = 0; i < n; i++)
@@ -19,9 +19,9 @@ using vec = vector<vector<int>>;
 using json = nlohmann::json;
 
 /* 変数の先宣言 */
-int counter = 0;       // 手数のカウント
-bool updated = false;  // ボードが更新されたかを確認するフラグ
-double matchRate;      // 一致率
+int counter = 0;      // 手数のカウント
+bool updated = false; // ボードが更新されたかを確認するフラグ
+double matchRate;     // 一致率
 int HEIGHT, WIDTH;
 chrono::system_clock::time_point start, end;
 vector<int> number{256, 128, 64, 32, 16, 8, 4, 2, 1};
@@ -40,29 +40,27 @@ json answers = json::array();
 map<int, vec> all1_nukigata;
 
 // システムの関数
-void generateNukigata() 
-{
+void generateNukigata() {
     for (int size : number) {
         vec kata(size, vector<int>(size, 1));
         all1_nukigata[size] = kata;
     }
 }
 
-double calculateMatchRate(const vec &sB, const vec &gB) 
-{
+double calculateMatchRate(const vec &sB, const vec &gB) {
     int totalElements = 0;
     int matchCount = 0;
     rep(di, HEIGHT) {
         rep(dj, WIDTH) {
-            if (sB[di][dj] == gB[di][dj]) matchCount++;
+            if (sB[di][dj] == gB[di][dj])
+                matchCount++;
             totalElements++;
         }
     }
     return (double)matchCount / totalElements * 100.0;
 }
 
-void scorePrint(const vec &sB, const vec &gB, chrono::system_clock::time_point start, chrono::system_clock::time_point end, int i, int j, int diff, int direction) 
-{
+void scorePrint(const vec &sB, const vec &gB, chrono::system_clock::time_point start, chrono::system_clock::time_point end, int i, int j, int diff, int direction) {
 
 #if PRINTING
 
@@ -71,15 +69,15 @@ void scorePrint(const vec &sB, const vec &gB, chrono::system_clock::time_point s
     // 型の表示
     rep(di, HEIGHT) {
         rep(dj, WIDTH) {
-            #if !DEBUG
-                if (sB[di][dj] == gB[di][dj])
-                    cout << "\033[31m" << sB[di][dj] << "\033[m";
-                else
-                    cout << sB[di][dj];
-            #endif
-            #if DEBUG
+#if !DEBUG
+            if (sB[di][dj] == gB[di][dj])
+                cout << "\033[31m" << sB[di][dj] << "\033[m";
+            else
                 cout << sB[di][dj];
-            #endif
+#endif
+#if DEBUG
+            cout << sB[di][dj];
+#endif
         }
         cout << endl;
     }
@@ -92,15 +90,14 @@ void scorePrint(const vec &sB, const vec &gB, chrono::system_clock::time_point s
     cout << "MatchRate:" << (int)score << "%" << " " << "Count:" << counter << " " << "time:" << (int)time << "s" << " now:(" << i << ", " << j << ")" << endl;
 }
 
-vector<int> stringToVector(const string &str) 
-{
+vector<int> stringToVector(const string &str) {
     vector<int> row;
-    for (char c : str) row.push_back(c - '0');
+    for (char c : str)
+        row.push_back(c - '0');
     return row;
 }
 
-void loadBoard(const json &j, vec &sB, vec &gB) 
-{
+void loadBoard(const json &j, vec &sB, vec &gB) {
     for (const auto &line : j["board"]["start"])
         sB.push_back(stringToVector(line.get<string>()));
     for (const auto &line : j["board"]["goal"])
@@ -108,11 +105,11 @@ void loadBoard(const json &j, vec &sB, vec &gB)
 }
 
 // 型抜き i,jには異点の座標、targetには目標座標を送る。
-void katanuki(vec &sB, vec &gB, int i, int j, int targeti, int targetj, int direction) 
-{
+void katanuki(vec &sB, vec &gB, int i, int j, int targeti, int targetj, int direction) {
     vector<int> use_nukigata_size; // 使う抜き型のサイズ
 
-    int diff = direction == 0 ? diff = targeti - i : direction == 2 || direction == 4 ? diff = targetj - j : diff = j - targetj;
+    int diff = direction == 0 ? diff = targeti - i : direction == 2 || direction == 4 ? diff = targetj - j
+                                                                                      : diff = j - targetj;
 
     for (int size : number) {
         if (size <= diff) {
@@ -120,11 +117,12 @@ void katanuki(vec &sB, vec &gB, int i, int j, int targeti, int targetj, int dire
             diff -= size;
         }
     }
-    if (diff > 0) use_nukigata_size.push_back(1);
+    if (diff > 0)
+        use_nukigata_size.push_back(1);
 
     for (int n : use_nukigata_size) {
-        vec unplug(HEIGHT, vector<int>(WIDTH, -1));  // 抜き出す数字
-        vec push(HEIGHT, vector<int>(WIDTH, -1));    // 寄せる数字
+        vec unplug(HEIGHT, vector<int>(WIDTH, -1)); // 抜き出す数字
+        vec push(HEIGHT, vector<int>(WIDTH, -1));   // 寄せる数字
 
         // 左だけの場合
         if (direction == 2) {
@@ -158,7 +156,8 @@ void katanuki(vec &sB, vec &gB, int i, int j, int targeti, int targetj, int dire
 
             rep(di, n) {
                 int curtRow = targeti + di;
-                if (curtRow >= HEIGHT) break;
+                if (curtRow >= HEIGHT)
+                    break;
                 else {
                     copy(sB[curtRow].begin() + targetj + 1, sB[curtRow].begin() + targetj + n + 1, unplug[di].begin());
                     sB[curtRow].erase(sB[curtRow].begin() + targetj + 1, sB[curtRow].begin() + targetj + n + 1);
@@ -172,14 +171,15 @@ void katanuki(vec &sB, vec &gB, int i, int j, int targeti, int targetj, int dire
         else if (direction == 4) {
             json answer;
             answer["x"] = targetj;
-            answer["y"] = targeti;
+            answer["y"] = targeti - n;
             answer["s"] = direction > 3 ? direction - 2 : direction;
             answer["p"] = unsigned(3 * (log2(n) - 1) + 1);
             answers.push_back(answer);
 
             rep(di, n) {
                 int curtRow = targeti + di;
-                if (curtRow >= HEIGHT) break;
+                if (curtRow >= HEIGHT)
+                    break;
                 else {
                     copy(sB[curtRow].begin() + j, sB[curtRow].begin() + j + n, unplug[di].begin());
                     sB[curtRow].erase(sB[curtRow].begin() + j, sB[curtRow].begin() + j + n);
@@ -201,26 +201,36 @@ void katanuki(vec &sB, vec &gB, int i, int j, int targeti, int targetj, int dire
 
             rep(di, n) {
                 int curtRow = i + di;
-                if (j + n >= WIDTH) copy(sB[curtRow].begin() + j, sB[curtRow].end(), unplug[di].begin());
-                else copy(sB[curtRow].begin() + j, sB[curtRow].begin() + j + n, unplug[di].begin());
+                if (j + n >= WIDTH)
+                    copy(sB[curtRow].begin() + j, sB[curtRow].end(), unplug[di].begin());
+                else
+                    copy(sB[curtRow].begin() + j, sB[curtRow].begin() + j + n, unplug[di].begin());
             }
             rep(di, height_diff) {
                 int curtRow = i + di;
-                if (j + n >= WIDTH) copy(sB[curtRow + n].begin() + j, sB[curtRow + n].end(), push[di].begin());
-                else copy(sB[curtRow + n].begin() + j, sB[curtRow + n].begin() + j + n, push[di].begin());
+                if (j + n >= WIDTH)
+                    copy(sB[curtRow + n].begin() + j, sB[curtRow + n].end(), push[di].begin());
+                else
+                    copy(sB[curtRow + n].begin() + j, sB[curtRow + n].begin() + j + n, push[di].begin());
             }
             rep(di, height_diff) {
-                if (push[di][0] == -1) break;
+                if (push[di][0] == -1)
+                    break;
                 rep(dj, n) {
-                    if (push[di][dj] == -1) break;
-                    else sB[i + di][j + dj] = push[di][dj];
+                    if (push[di][dj] == -1)
+                        break;
+                    else
+                        sB[i + di][j + dj] = push[di][dj];
                 }
             }
             rep(di, n) {
-                if (unplug[di][0] == -1) break;
+                if (unplug[di][0] == -1)
+                    break;
                 rep(dj, n) {
-                    if (unplug[di][dj] == -1) break;
-                    else sB[i + height_diff + di][j + dj] = unplug[di][dj];
+                    if (unplug[di][dj] == -1)
+                        break;
+                    else
+                        sB[i + height_diff + di][j + dj] = unplug[di][dj];
                 }
             }
         } else {
@@ -234,8 +244,7 @@ void katanuki(vec &sB, vec &gB, int i, int j, int targeti, int targetj, int dire
     }
 }
 
-int main() 
-{
+int main() {
     // 時間を計測
     start = chrono::system_clock::now();
     // 抜き型生成
@@ -250,7 +259,6 @@ int main()
     HEIGHT = sB.size(), WIDTH = gB[0].size();
     double matchRate = calculateMatchRate(sB, gB);
 
-
     while (matchRate < 100.0) {
         rep(i, HEIGHT) {
             rep(j, WIDTH) {
@@ -262,11 +270,12 @@ int main()
                     int pivot = 0;
 
                     /* numberの座標を探索 */
-                    rep  (xi, number.size()) {
+                    rep(xi, number.size()) {
                         pivot += number[xi];
 
                         for (int di : number) {
-                            if (di >= HEIGHT || di <= pivot) break; 
+                            if (di >= HEIGHT || di <= pivot)
+                                break;
                             di += pivot;
 
                             if (sB[di + i][j] == gB[i][j]) {
@@ -276,17 +285,19 @@ int main()
                                 break;
                             }
                         }
-                        if(flag) break;
+                        if (flag)
+                            break;
                     }
 
                     pivot = 0;
 
                     if (!flag) {
-                        rep (xi, number.size()) {
+                        rep(xi, number.size()) {
                             pivot += number[xi];
 
                             for (int dj : number) {
-                                if (dj >= WIDTH || dj <= pivot) break; 
+                                if (dj >= WIDTH || dj <= pivot)
+                                    break;
                                 dj += pivot;
 
                                 if (sB[i][dj] == gB[i][j]) {
@@ -297,33 +308,37 @@ int main()
                                 }
                             }
                         }
-                        if(flag) break;
+                        if (flag)
+                            break;
                     }
 
                     int pivot1 = 0;
                     int pivot2 = 0;
-                    
 
                     if (!flag) {
-                        rep (xi, number.size()) {
+                        rep(xi, number.size()) {
                             pivot1 += number[xi];
 
                             for (int di : number) {
-                                if (di == 1) continue;
-                                else if (di >= HEIGHT || di <= pivot) break;
+                                if (di == 1)
+                                    continue;
+                                else if (di >= HEIGHT || di <= pivot)
+                                    break;
                                 di += pivot1;
 
-                                rep (xj, number.size()) {
+                                rep(xj, number.size()) {
                                     pivot2 += number[xj];
 
-                                    for(int dj : number) {
+                                    for (int dj : number) {
                                         rep(xj, 2) {
-                                            if(xj == 0) dj *= -1;
+                                            if (xj == 0)
+                                                dj *= -1;
                                             int curtRow = j + dj;
-                                            if(curtRow >= WIDTH || dj <= pivot2) break;
+                                            if (curtRow >= WIDTH || dj <= pivot2)
+                                                break;
                                             curtRow += pivot2;
 
-                                            if(sB[i + di][curtRow] == gB[i][j]) {
+                                            if (sB[i + di][curtRow] == gB[i][j]) {
                                                 pair<int, int> target_idx = {i + di, curtRow};
                                                 if (j >= curtRow) {
                                                     katanuki(sB, gB, i, j, target_idx.first, target_idx.second, 5);
@@ -338,15 +353,16 @@ int main()
                                         }
                                     }
                                 }
-                                if(flag) break;
+                                if (flag)
+                                    break;
                             }
-                            if(flag) break;
+                            if (flag)
+                                break;
                         }
                     }
-                    
 
                     // 縦方向
-                    if(!flag) {
+                    if (!flag) {
                         rep2(di, i, HEIGHT) {
                             if (sB[di][j] == target) {
                                 pair<int, int> target_idx = {di, j};
@@ -362,8 +378,10 @@ int main()
                         rep2(dj, j, WIDTH) {
                             if (sB[i][dj] == target) {
                                 pair<int, int> target_idx = {i, dj};
-                                if (j >= dj) katanuki(sB, gB, i, j, target_idx.first, target_idx.second, 3);
-                                else katanuki(sB, gB, i, j, target_idx.first, target_idx.second, 2);
+                                if (j >= dj)
+                                    katanuki(sB, gB, i, j, target_idx.first, target_idx.second, 3);
+                                else
+                                    katanuki(sB, gB, i, j, target_idx.first, target_idx.second, 2);
 
                                 flag = true;
                                 break;
@@ -374,23 +392,24 @@ int main()
                     // 両方使う場合
                     if (!flag) {
                         rep2(di, i + 1, HEIGHT) {
-                                rep(dj, WIDTH) {
-                                    if (sB[di][dj] == target) {
-                                        pair<int, int> target_idx = {di, dj};
+                            rep(dj, WIDTH) {
+                                if (sB[di][dj] == target) {
+                                    pair<int, int> target_idx = {di, dj};
 
-                                        if (j >= dj) {
-                                            katanuki(sB, gB, i, j, target_idx.first, target_idx.second, 5);
-                                            katanuki(sB, gB, i, j, target_idx.first, target_idx.second, 0);
-                                        } else {
-                                            katanuki(sB, gB, i, j, target_idx.first, target_idx.second, 4);
-                                            katanuki(sB, gB, i, j, target_idx.first, target_idx.second, 0);
-                                        }
-
-                                        flag = true;
-                                        break;
+                                    if (j >= dj) {
+                                        katanuki(sB, gB, i, j, target_idx.first, target_idx.second, 5);
+                                        katanuki(sB, gB, i, j, target_idx.first, target_idx.second, 0);
+                                    } else {
+                                        katanuki(sB, gB, i, j, target_idx.first, target_idx.second, 4);
+                                        katanuki(sB, gB, i, j, target_idx.first, target_idx.second, 0);
                                     }
+
+                                    flag = true;
+                                    break;
                                 }
-                            if (flag) break;
+                            }
+                            if (flag)
+                                break;
                         }
                     }
                 }
@@ -403,12 +422,12 @@ int main()
 
     // 回答JSONの作成
     json final_answer;
-    final_answer["n"] = counter;    // 手数を保存
-    final_answer["ops"] = answers;  // 操作履歴を保存
+    final_answer["n"] = counter;   // 手数を保存
+    final_answer["ops"] = answers; // 操作履歴を保存
 
     // 回答JSONをファイルに保存
     ofstream ofs("answer.json");
-    ofs << final_answer.dump(4);  // インデント付きでJSONを書き込む
+    ofs << final_answer.dump(4); // インデント付きでJSONを書き込む
 
     return 0;
 }
