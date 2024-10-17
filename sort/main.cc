@@ -350,15 +350,11 @@ int main() {
                     // 両方使う場合
                     if (!flag) {
                         rep2(di, i + 1, HEIGHT) {
-                            rep(dj, WIDTH) {
-                                rep(xi, 2) {
-                                    if (xi == 0) dj *= -1;
-                                    int curtRow = j + dj;
-                                    if(curtRow >= WIDTH) continue;
-                                    if (sB[di][curtRow] == target) {
-                                        pair<int, int> target_idx = {di, curtRow};
+                                rep(dj, WIDTH) {
+                                    if (sB[di][dj] == target) {
+                                        pair<int, int> target_idx = {di, dj};
 
-                                        if (j >= curtRow) {
+                                        if (j >= dj) {
                                             katanuki(sB, gB, i, j, target_idx.first, target_idx.second, 5);
                                             katanuki(sB, gB, i, j, target_idx.first, target_idx.second, 0);
                                         } else {
@@ -370,7 +366,6 @@ int main() {
                                         break;
                                     }
                                 }
-                            }
                             if (flag) break;
                         }
                     }
