@@ -52,8 +52,7 @@ double calculateMatchRate(const vec &sB, const vec &gB) {
     int matchCount = 0;
     rep(di, HEIGHT) {
         rep(dj, WIDTH) {
-            if (sB[di][dj] == gB[di][dj])
-                matchCount++;
+            if (sB[di][dj] == gB[di][dj]) matchCount++;
             totalElements++;
         }
     }
@@ -117,8 +116,7 @@ void katanuki(vec &sB, vec &gB, int i, int j, int targeti, int targetj, int dire
             diff -= size;
         }
     }
-    if (diff > 0)
-        use_nukigata_size.push_back(1);
+    if (diff > 0) use_nukigata_size.push_back(1);
 
     for (int n : use_nukigata_size) {
         vec unplug(HEIGHT, vector<int>(WIDTH, -1)); // 抜き出す数字
@@ -214,8 +212,7 @@ void katanuki(vec &sB, vec &gB, int i, int j, int targeti, int targetj, int dire
                     copy(sB[curtRow + n].begin() + j, sB[curtRow + n].begin() + j + n, push[di].begin());
             }
             rep(di, height_diff) {
-                if (push[di][0] == -1)
-                    break;
+                if (push[di][0] == -1) break;
                 rep(dj, n) {
                     if (push[di][dj] == -1)
                         break;
@@ -224,8 +221,7 @@ void katanuki(vec &sB, vec &gB, int i, int j, int targeti, int targetj, int dire
                 }
             }
             rep(di, n) {
-                if (unplug[di][0] == -1)
-                    break;
+                if (unplug[di][0] == -1) break;
                 rep(dj, n) {
                     if (unplug[di][dj] == -1)
                         break;
@@ -271,45 +267,45 @@ int main() {
 
                     /* numberの座標を探索 */
                     rep(xi, number.size()) {
-                        pivot += number[xi];
+                        rep2(xj, xi, number.size()) {
+                            pivot = number[xi] + number[xj];
 
-                        for (int di : number) {
-                            if (di >= HEIGHT || di <= pivot)
-                                break;
-                            di += pivot;
+                            for (int di : number) {
+                                if (di >= HEIGHT || di <= pivot) break;
+                                di += pivot;
 
-                            if (sB[di + i][j] == gB[i][j]) {
-                                pair<int, int> target_idx = {i + di, j};
-                                katanuki(sB, gB, i, j, target_idx.first, target_idx.second, 0);
-                                flag = true;
-                                break;
+                                if (sB[di + i][j] == gB[i][j]) {
+                                    pair<int, int> target_idx = {i + di, j};
+                                    katanuki(sB, gB, i, j, target_idx.first, target_idx.second, 0);
+                                    flag = true;
+                                    break;
+                                }
                             }
+                            if (flag) break;
                         }
-                        if (flag)
-                            break;
+                        if (flag) break;
                     }
 
                     pivot = 0;
 
                     if (!flag) {
                         rep(xi, number.size()) {
-                            pivot += number[xi];
+                            rep2(xj, xi, number.size()) {
+                                for (int dj : number) {
+                                    if (dj >= WIDTH || dj <= pivot) break;
+                                    dj += pivot;
 
-                            for (int dj : number) {
-                                if (dj >= WIDTH || dj <= pivot)
-                                    break;
-                                dj += pivot;
-
-                                if (sB[i][dj] == gB[i][j]) {
-                                    pair<int, int> target_idx = {i, dj};
-                                    katanuki(sB, gB, i, j, target_idx.first, target_idx.second, 0);
-                                    flag = true;
-                                    break;
+                                    if (sB[i][dj] == gB[i][j]) {
+                                        pair<int, int> target_idx = {i, dj};
+                                        katanuki(sB, gB, i, j, target_idx.first, target_idx.second, 0);
+                                        flag = true;
+                                        break;
+                                    }
                                 }
+                                if (flag) break;
                             }
+                            if (flag) break;
                         }
-                        if (flag)
-                            break;
                     }
 
                     int pivot1 = 0;
@@ -317,48 +313,51 @@ int main() {
 
                     if (!flag) {
                         rep(xi, number.size()) {
-                            pivot1 += number[xi];
+                            rep2(xj, xi, number.size()) {
+                                pivot1 = number[xi] + number[xj];
 
-                            for (int di : number) {
-                                if (di == 1)
-                                    continue;
-                                else if (di >= HEIGHT || di <= pivot)
-                                    break;
-                                di += pivot1;
+                                for (int di : number) {
+                                    if (di == 1)
+                                        continue;
+                                    else if (di >= HEIGHT || di <= pivot1)
+                                        break;
+                                    di += pivot1;
 
-                                rep(xj, number.size()) {
-                                    pivot2 += number[xj];
+                                    rep(yi, number.size()) {
+                                        rep2(yj, yi, number.size()) {
+                                            pivot2 = number[yi] + number[yj];
 
-                                    for (int dj : number) {
-                                        rep(xj, 2) {
-                                            if (xj == 0)
-                                                dj *= -1;
-                                            int curtRow = j + dj;
-                                            if (curtRow >= WIDTH || dj <= pivot2)
-                                                break;
-                                            curtRow += pivot2;
+                                            for (int dj : number) {
+                                                rep(zi, 2) {
+                                                    if (zi == 0) dj += -1;
+                                                    int curtRow = j + dj;
+                                                    if (curtRow >= WIDTH || dj <= pivot2) break;
+                                                    curtRow += pivot2;
 
-                                            if (sB[i + di][curtRow] == gB[i][j]) {
-                                                pair<int, int> target_idx = {i + di, curtRow};
-                                                if (j >= curtRow) {
-                                                    katanuki(sB, gB, i, j, target_idx.first, target_idx.second, 5);
-                                                    katanuki(sB, gB, i, j, target_idx.first, target_idx.second, 0);
-                                                } else {
-                                                    katanuki(sB, gB, i, j, target_idx.first, target_idx.second, 4);
-                                                    katanuki(sB, gB, i, j, target_idx.first, target_idx.second, 0);
+                                                    if (sB[i + di][curtRow] == gB[i][j]) {
+                                                        pair<int, int> target_idx = {i + di, curtRow};
+
+                                                        if (j >= curtRow) {
+                                                            katanuki(sB, gB, i, j, target_idx.first, target_idx.second, 5);
+                                                            katanuki(sB, gB, i, j, target_idx.first, target_idx.second, 0);
+                                                        } else {
+                                                            katanuki(sB, gB, i, j, target_idx.first, target_idx.second, 4);
+                                                            katanuki(sB, gB, i, j, target_idx.first, target_idx.second, 0);
+                                                        }
+                                                        flag = true;
+                                                        break;
+                                                    }
                                                 }
-                                                flag = true;
-                                                break;
                                             }
+                                            if (flag) break;
                                         }
+                                        if (flag) break;
                                     }
                                 }
-                                if (flag)
-                                    break;
                             }
-                            if (flag)
-                                break;
+                            if (flag) break;
                         }
+                        if (flag) break;
                     }
 
                     // 縦方向
@@ -393,23 +392,26 @@ int main() {
                     if (!flag) {
                         rep2(di, i + 1, HEIGHT) {
                             rep(dj, WIDTH) {
-                                if (sB[di][dj] == target) {
-                                    pair<int, int> target_idx = {di, dj};
+                                rep(xi, 2) {
+                                    if (xi == 0) dj *= -1;
+                                    int curtRow = j + dj;
+                                    if (sB[di][curtRow] == target) {
+                                        pair<int, int> target_idx = {di, curtRow};
 
-                                    if (j >= dj) {
-                                        katanuki(sB, gB, i, j, target_idx.first, target_idx.second, 5);
-                                        katanuki(sB, gB, i, j, target_idx.first, target_idx.second, 0);
-                                    } else {
-                                        katanuki(sB, gB, i, j, target_idx.first, target_idx.second, 4);
-                                        katanuki(sB, gB, i, j, target_idx.first, target_idx.second, 0);
+                                        if (j >= dj) {
+                                            katanuki(sB, gB, i, j, target_idx.first, target_idx.second, 5);
+                                            katanuki(sB, gB, i, j, target_idx.first, target_idx.second, 0);
+                                        } else {
+                                            katanuki(sB, gB, i, j, target_idx.first, target_idx.second, 4);
+                                            katanuki(sB, gB, i, j, target_idx.first, target_idx.second, 0);
+                                        }
+
+                                        flag = true;
+                                        break;
                                     }
-
-                                    flag = true;
-                                    break;
                                 }
                             }
-                            if (flag)
-                                break;
+                            if (flag) break;
                         }
                     }
                 }

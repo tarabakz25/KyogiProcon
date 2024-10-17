@@ -1,20 +1,24 @@
-/*
-基本インデントは4マス。
-折り返しはなし
-*/
 #include <bits/stdc++.h>
+#define rep(i, n) for(long long i = 0; i < n; i++)
+#define rep1(i, a, n) for(long long i = a; i < n; i++)
+#define rep2(i, a, n, b) for(long long i = a; i < n; i += b)
+#define nrep(i, n) for(long long i = n; i > 0; i--)
+using namespace std;
+typedef long long ll;
 
-// main関数は{を下に下げる
+
+vector<int> number{256, 128, 64, 32, 16, 8, 4, 2, 1};
+
 int main()
 {
-    int a = 0;
-    int b = 1;
-
-    //if文は空白を作らないで、
-    if(a > b){
-        cout << "aa" << endl;
-        return 0;
-    }else cout << "bb" << endl; // 一列の場合はこのようにする
-
+    int pivot = 0;
+    rep(xi, number.size()){
+        rep1(xj, xi, number.size()){
+            pivot = number[xi] + number[xj];
+            
+            cout << pivot << " ";
+        }
+        cout << endl;
+    }
     return 0;
 }

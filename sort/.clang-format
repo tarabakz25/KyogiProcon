@@ -1,12 +1,10 @@
-# デフォルト設定
 BasedOnStyle: LLVM
-# インデント幅
 IndentWidth: 4
-# 言語
-Language: Cpp
-Standard: Auto
-# 1行あたりの
 ColumnLimit: 0
-# 改行コード
-UseCRLF: false
-# 個別の設定項目を以下似追加
+BraceWrapping:
+  AfterFunction: true
+  AfterControlStatement: false
+AllowShortIfStatementsOnASingleLine: true
+AllowShortFunctionsOnASingleLine: true
+AllowShortBlocksOnASingleLine: true
+UseTab: Never
