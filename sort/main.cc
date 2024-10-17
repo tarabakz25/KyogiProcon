@@ -231,7 +231,7 @@ void katanuki(vec &sB, vec &gB, int i, int j, int targeti, int targetj, int dire
         counter++;
 
         auto end = chrono::system_clock::now();
-        scorePrint(sB, gB, start, end, i, j, diff, direction);
+        //scorePrint(sB, gB, start, end, i, j, diff, direction);
     }
 }
 
@@ -404,7 +404,10 @@ int main()
         matchRate = calculateMatchRate(sB, gB);
     }
 
-    cout << "\033[31m" << "FINISHED!!" << "\033[m" << endl;
+    auto end = chrono::system_clock::now();
+    double time = static_cast<double>(chrono::duration_cast<chrono::milliseconds>(end - start).count() / 1000.0);
+
+    cout << "\033[31m" << "FINISHED!!" << "\033[m" << " count:" << counter << " time:" << time << endl;
 
     // 回答JSONの作成
     json final_answer;

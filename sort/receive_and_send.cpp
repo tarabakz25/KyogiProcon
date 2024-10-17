@@ -50,7 +50,7 @@ void receive_problem(string token){
         if(res != CURLE_OK){ //リクエスト失敗？
             cerr << "curl_easy_perform() failed: " << curl_easy_strerror(res) << endl;
         }else{
-            cout << "Response: " << readBuffer << endl;
+            //cout << "Response: " << readBuffer << endl;
 
             //アクセスタイムエラー（サーバが動いていない場合）なら飛ばす。
             if (readBuffer.find("AccessTimeError") != std::string::npos) {
