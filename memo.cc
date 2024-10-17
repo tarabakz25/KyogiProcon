@@ -13,12 +13,11 @@ int main()
 {
     int pivot = 0;
     rep(xi, number.size()){
-        rep1(xj, xi, number.size()){
+        rep1(xj, xi + 1, number.size()){
             pivot = number[xi] + number[xj];
-            
             cout << pivot << " ";
         }
         cout << endl;
     }
-    return 0;
+    return 0; 
 }

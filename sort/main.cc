@@ -302,9 +302,12 @@ int main() {
 
                             for (int dj : number) {
                                 rep(xj, 2) {
-                                    if (xj == 0) dj *= -1;
-                                    int curtRow = j + dj;
-                                    if (curtRow >= WIDTH) continue;
+                                    int curtRow;
+
+                                    if (xj == 0) curtRow = j + dj;
+                                    else curtRow = j - dj;
+                                    if (curtRow >= WIDTH || curtRow <= 0) continue;
+                                    else if(curtRow >= WIDTH && curtRow <= 0) break;
 
                                     if (sB[i + di][curtRow] == gB[i][j]) {
                                         pair<int, int> target_idx = {i + di, curtRow};
@@ -352,58 +355,60 @@ int main() {
                     }
 
                     // 両方使う場合
-                    if (!flag) {
+                    // if (!flag) {
+                    //     rep2(di, i + 1, HEIGHT) {
+                    //         rep(dj, WIDTH) {
+                    //             if (sB[di][dj] == target) {
+                    //                 pair<int, int> target_idx = {di, dj};
+
+                    //                 if (j >= dj) {
+                    //                     katanuki(sB, gB, i, j, target_idx.first, target_idx.second, 5);
+                    //                     katanuki(sB, gB, i, j, target_idx.first, target_idx.second, 0);
+                    //                 } else {
+                    //                     katanuki(sB, gB, i, j, target_idx.first, target_idx.second, 4);
+                    //                     katanuki(sB, gB, i, j, target_idx.first, target_idx.second, 0);
+                    //                 }
+
+                    //                 flag = true;
+                    //                 break;
+                    //             }
+                    //         }
+                    //         if (flag) break;
+                    //     }
+                    // }
+
+                    if(!flag){
                         rep2(di, i + 1, HEIGHT) {
-                            rep(dj, WIDTH) {
-                                if (sB[di][dj] == target) {
-                                    pair<int, int> target_idx = {di, dj};
+                            rep2(dj, j + 1, WIDTH) {
+                                int curtRow;
 
-                                    if (j >= dj) {
-                                        katanuki(sB, gB, i, j, target_idx.first, target_idx.second, 5);
-                                        katanuki(sB, gB, i, j, target_idx.first, target_idx.second, 0);
-                                    } else {
-                                        katanuki(sB, gB, i, j, target_idx.first, target_idx.second, 4);
-                                        katanuki(sB, gB, i, j, target_idx.first, target_idx.second, 0);
+                                rep(xi, 2){
+                                    if(xi == 0) curtRow = j + dj;
+                                    else curtRow = j - dj;
+
+                                    if(curtRow >= WIDTH || curtRow <= 0) continue;
+                                    else if(curtRow >= WIDTH && curtRow <= 0) break;
+
+                                    if(sB[di][curtRow] == target){
+                                        pair<int, int> target_idx = {di, curtRow};
+
+                                        if(j >= dj) {
+                                            katanuki(sB, gB, i, j, target_idx.first, target_idx.second, 5);
+                                            katanuki(sB, gB, i, j, target_idx.first, target_idx.second, 0);
+                                        } else {
+                                            katanuki(sB, gB, i, j, target_idx.first, target_idx.second, 4);
+                                            katanuki(sB, gB, i, j, target_idx.first, target_idx.second, 0);
+                                        }
+
+                                        flag = true;
+                                        break;
                                     }
-
-                                    flag = true;
-                                    break;
                                 }
+                                if (flag) break;
                             }
                             if (flag) break;
                         }
                     }
-
-                    // if(!flag) {
-                    //     rep2(di, i + 1, HEIGHT){
-                    //         rep(dj, WIDTH){
-                    //             rep(xi, 2){
-                    //                 int curtRow;
-                    //                 if(xi == 0) curtRow = j - dj;
-                    //                 else curtRow = j + dj;
-
-                    //                 if(curtRow >= WIDTH || curtRow <= 0) continue;
-
-                    //                 if(sB[di][curtRow] == target){
-                    //                     pair<int, int> target_idx = {di, dj};
-
-                    //                     if(j >= dj){
-                    //                         katanuki(sB, gB, i, j, target_idx.first, target_idx.second, 5);
-                    //                         katanuki(sB, gB, i, j, target_idx.first, target_idx.second, 0);
-                    //                     } else {
-                    //                         katanuki(sB, gB, i, j, target_idx.first, target_idx.second, 4);
-                    //                         katanuki(sB, gB, i, j, target_idx.first, target_idx.second, 0);
-                    //                     }
-
-                    //                     flag = true;
-                    //                     break;
-                    //                 }
-                    //             }
-                    //         }
-                    //         if(flag) break;
-                    //     }
-                    //     if(flag) break;
-                    // }
                 }
             }
         }
