@@ -86,7 +86,7 @@ void scorePrint(const vec &sB, const vec &gB, chrono::system_clock::time_point s
     end = chrono::system_clock::now();
     double time = static_cast<double>(chrono::duration_cast<chrono::milliseconds>(end - start).count() / 1000.0);
     double score = calculateMatchRate(sB, gB);
-    cout << "MatchRate:" << (int)score << "%" << " " << "Count:" << counter << " " << "time:" << (int)time << "s" << " now:(" << i << ", " << j << ")" << endl;
+    cout << "MatchRate:" << (int)score << "%" << " " << "Count:" << counter << " di: " << direction << " time:" << (int)time << "s" << " now:(" << i << ", " << j << ")" << endl;
 }
 
 vector<int> stringToVector(const string &str) {
@@ -107,8 +107,7 @@ void loadBoard(const json &j, vec &sB, vec &gB) {
 void katanuki(vec &sB, vec &gB, int i, int j, int targeti, int targetj, int direction) {
     vector<int> use_nukigata_size; // 使う抜き型のサイズ
 
-    int diff = direction == 0 ? diff = targeti - i : direction == 2 || direction == 4 ? diff = targetj - j
-                                                                                      : diff = j - targetj;
+    int diff = direction == 0 ? diff = targeti - i : direction == 2 || direction == 4 ? diff = targetj - j : diff = j - targetj;
 
     for (int size : number) {
         if (size <= diff) {
@@ -236,7 +235,10 @@ void katanuki(vec &sB, vec &gB, int i, int j, int targeti, int targetj, int dire
         counter++;
 
         auto end = chrono::system_clock::now();
+
+        #if ALL_BREAK
         scorePrint(sB, gB, start, end, i, j, diff, direction);
+        #endif
     }
 }
 
@@ -265,7 +267,7 @@ int main() {
 
                     /* numberの座標を探索 */
                     for (int di : number) {
-                        if(di >= HEIGHT) break; 
+                        if (di >= HEIGHT) break;
 
                         if (sB[di + i][j] == gB[i][j]) {
                             pair<int, int> target_idx = {i + di, j};
@@ -277,7 +279,7 @@ int main() {
 
                     if (!flag) {
                         for (int dj : number) {
-                            if(dj >= WIDTH) break;
+                            if (dj >= WIDTH) break;
 
                             if (sB[i][dj + i] == gB[i][j]) {
                                 pair<int, int> target_idx = {i, j + dj};
@@ -293,21 +295,23 @@ int main() {
 
                     if (!flag) {
                         for (int di : number) {
-                            if (di == 1) continue;
-                            else if(di >= HEIGHT) break;
+                            if (di == 1)
+                                continue;
+                            else if (di >= HEIGHT)
+                                break;
 
-                            for(int dj : number){
-                                rep(xj, 2){
-                                    if(xj == 0) dj *= -1;
+                            for (int dj : number) {
+                                rep(xj, 2) {
+                                    if (xj == 0) dj *= -1;
                                     int curtRow = j + dj;
-                                    if(curtRow >= WIDTH) continue;
+                                    if (curtRow >= WIDTH) continue;
 
-                                    if(sB[i + di][curtRow] == gB[i][j]){
+                                    if (sB[i + di][curtRow] == gB[i][j]) {
                                         pair<int, int> target_idx = {i + di, curtRow};
-                                        if (j >= curtRow){
+                                        if (j >= curtRow) {
                                             katanuki(sB, gB, i, j, target_idx.first, target_idx.second, 5);
                                             katanuki(sB, gB, i, j, target_idx.first, target_idx.second, 0);
-                                        }else{
+                                        } else {
                                             katanuki(sB, gB, i, j, target_idx.first, target_idx.second, 4);
                                             katanuki(sB, gB, i, j, target_idx.first, target_idx.second, 0);
                                         }
@@ -350,32 +354,67 @@ int main() {
                     // 両方使う場合
                     if (!flag) {
                         rep2(di, i + 1, HEIGHT) {
-                                rep(dj, WIDTH) {
-                                    if (sB[di][dj] == target) {
-                                        pair<int, int> target_idx = {di, dj};
+                            rep(dj, WIDTH) {
+                                if (sB[di][dj] == target) {
+                                    pair<int, int> target_idx = {di, dj};
 
-                                        if (j >= dj) {
-                                            katanuki(sB, gB, i, j, target_idx.first, target_idx.second, 5);
-                                            katanuki(sB, gB, i, j, target_idx.first, target_idx.second, 0);
-                                        } else {
-                                            katanuki(sB, gB, i, j, target_idx.first, target_idx.second, 4);
-                                            katanuki(sB, gB, i, j, target_idx.first, target_idx.second, 0);
-                                        }
-
-                                        flag = true;
-                                        break;
+                                    if (j >= dj) {
+                                        katanuki(sB, gB, i, j, target_idx.first, target_idx.second, 5);
+                                        katanuki(sB, gB, i, j, target_idx.first, target_idx.second, 0);
+                                    } else {
+                                        katanuki(sB, gB, i, j, target_idx.first, target_idx.second, 4);
+                                        katanuki(sB, gB, i, j, target_idx.first, target_idx.second, 0);
                                     }
+
+                                    flag = true;
+                                    break;
                                 }
+                            }
                             if (flag) break;
                         }
                     }
+
+                    // if(!flag) {
+                    //     rep2(di, i + 1, HEIGHT){
+                    //         rep(dj, WIDTH){
+                    //             rep(xi, 2){
+                    //                 int curtRow;
+                    //                 if(xi == 0) curtRow = j - dj;
+                    //                 else curtRow = j + dj;
+
+                    //                 if(curtRow >= WIDTH || curtRow <= 0) continue;
+
+                    //                 if(sB[di][curtRow] == target){
+                    //                     pair<int, int> target_idx = {di, dj};
+
+                    //                     if(j >= dj){
+                    //                         katanuki(sB, gB, i, j, target_idx.first, target_idx.second, 5);
+                    //                         katanuki(sB, gB, i, j, target_idx.first, target_idx.second, 0);
+                    //                     } else {
+                    //                         katanuki(sB, gB, i, j, target_idx.first, target_idx.second, 4);
+                    //                         katanuki(sB, gB, i, j, target_idx.first, target_idx.second, 0);
+                    //                     }
+
+                    //                     flag = true;
+                    //                     break;
+                    //                 }
+                    //             }
+                    //         }
+                    //         if(flag) break;
+                    //     }
+                    //     if(flag) break;
+                    // }
                 }
             }
         }
         matchRate = calculateMatchRate(sB, gB);
     }
 
-    cout << "\033[31m" << "FINISHED!!" << "\033[m" << endl;
+    chrono::system_clock::time_point end_point;
+    end_point = chrono::system_clock::now();
+    double time = static_cast<double>(chrono::duration_cast<chrono::milliseconds>(end_point - start).count() / 1000.0);
+
+    cout << "\033[31m" << "FINISHED!!" << "\033[m count:" << counter << " time:" << time << endl;
 
     // 回答JSONの作成
     json final_answer;
