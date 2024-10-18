@@ -51,8 +51,6 @@ void Main()
     TextEditState te1{ U"0,0,0" };// デフォルトのテキストを設定する
     String entered_text;
 
-    /* BOARD_WIDTH = 6;
-    BOARD_HEIGHT = 4; */
 
     vector<int> board_start (BOARD_WIDTH * BOARD_HEIGHT, 0);
 	vector<int> board_now (BOARD_WIDTH * BOARD_HEIGHT, 0);

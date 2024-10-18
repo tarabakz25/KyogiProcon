@@ -69,7 +69,7 @@ void json_read(vector<int> &board_start, vector<int> &board_finish, int &BOARD_W
     }
     //std::cout << "File content: " << str << std::endl; //中身表示
 
-    json jobj = json::parse(str);
+    ordered_json jobj = json::parse(str);
     std::cout << "(状態)問題をjson化できました。" << std::endl;
 
     //初期盤面、終了盤面取得
