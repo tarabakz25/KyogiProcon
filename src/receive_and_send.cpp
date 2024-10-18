@@ -21,6 +21,9 @@ size_t Callback(void* contents, size_t size, size_t nmemb, std::string* s) {
 
 
 void receive_problem(string token){
+    filesystem::current_path("../"); //カレントディレクトリをソースファイルに変更。
+    cout << "(設定)Current path: " << filesystem::current_path().c_str() << endl; //カレントディレクトリを表示;
+
     CURL* curl;
     CURLcode res; //リクエスト結果
     string readBuffer; //サーバーからのデータ保存
@@ -67,6 +70,7 @@ void receive_problem(string token){
                 cout << "問題ファイルが開けませんでした。";
             }
 
+
         }
 
         //リソース解放
@@ -81,7 +85,7 @@ void send_problem(string token){
     CURLcode res; //リクエスト結果
     string readBuffer; //サーバーからのデータ保存
 
-    ifstream sendfile("./answer.json");
+    ifstream sendfile("./src/export.json");
     if (!sendfile.is_open()) {
         cerr << "送信用のファイルが開けません。" << endl;
         return;

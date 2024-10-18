@@ -45,13 +45,13 @@ void json_read(vector<int> &board_start, vector<int> &board_finish, int &BOARD_W
     //今のところサンプルを読み込みますが、curlで読み込んだファイル(problem.json)も使えます！
 
     //jsonファイル存在するか確認。
-    if (!filesystem::exists("/Users/itougakuto/siv3d_v0.6.15_macOS/examples/empty/src/problem.json")) {
+    if (!filesystem::exists("./src/problem.json")) {
         std::cerr << "File does not exist at path: ./src/sample1.json" << std::endl;
         return;
     }
 
     // JSONファイルの読み込み
-    std::ifstream ifs("/Users/itougakuto/siv3d_v0.6.15_macOS/examples/empty/src/problem.json");
+    std::ifstream ifs("./src/problem.json");
 
     //ファイル開け成功したか
     if (!ifs.is_open()) {
@@ -84,4 +84,13 @@ void json_read(vector<int> &board_start, vector<int> &board_finish, int &BOARD_W
     BOARD_WIDTH = jobj["board"]["width"].get<int>();
     BOARD_HEIGHT = jobj["board"]["height"].get<int>();
     cout << "(情報)" << "WIDTH"<<BOARD_WIDTH << " HWIGHT"<<BOARD_HEIGHT << endl;
+
+    ofstream rec_file("./src/board_record.json");
+    if (rec_file.is_open()) {
+        rec_file << jobj.dump(4); //ファイルを入れる。
+        rec_file.close();
+        std::cout << "問題を読み込みました" << std::endl;
+    }else{
+        cout << "問題ファイルが開けませんでした。";
+    }
 }

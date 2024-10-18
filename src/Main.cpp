@@ -51,8 +51,8 @@ void Main()
     TextEditState te1{ U"0,0,0" };// デフォルトのテキストを設定する
     String entered_text;
 
-    BOARD_WIDTH = 6;
-    BOARD_HEIGHT = 4;
+    /* BOARD_WIDTH = 6;
+    BOARD_HEIGHT = 4; */
 
     vector<int> board_start (BOARD_WIDTH * BOARD_HEIGHT, 0);
 	vector<int> board_now (BOARD_WIDTH * BOARD_HEIGHT, 0);
@@ -225,6 +225,7 @@ void Main()
 
             board_now = katanuki(num1, num2, num3, num4, size, nukigata, board_now, BOARD_WIDTH, BOARD_HEIGHT);
             json_write(time, num1, num2, num3, num4);
+            board_record(board_now, BOARD_HEIGHT, BOARD_WIDTH);
             check(board_now, board_finish, num);
             if (num == BOARD_HEIGHT * BOARD_WIDTH){
                 cout << "finish!" << endl;
