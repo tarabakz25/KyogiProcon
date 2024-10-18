@@ -74,7 +74,6 @@ int nukigata_size_cost(int diffi, int diffj)
 
 	return cost;
 }
-
 double calculateMatchRate(const vec& sB, const vec& gB)
 {
 	int totalElements = 0;
@@ -302,10 +301,10 @@ void katanuki(vec& sB, vec& gB, int i, int j, int targeti, int targetj, int dire
 		counter++;
 
 		auto end = chrono::system_clock::now();
-        #if ALL_BREAK 
+#if ALL_BREAK
 		scorePrint(sB, gB, start, end, i, j, diff, direction);
-        #endif
-		//this_thread::sleep_for(chrono::seconds(1));
+#endif
+		// this_thread::sleep_for(chrono::seconds(1));
 	}
 }
 
@@ -326,8 +325,28 @@ int main()
 	json J = json::parse(str);
 	vec sB, gB;
 	loadBoard(J, sB, gB);
+
+	// 大きさの登録
 	HEIGHT = sB.size(), WIDTH = gB[0].size();
 	double matchRate = calculateMatchRate(sB, gB);
+
+	// 0, 1, 2, 3の座標を補完
+	vector<vector<pair<int, int>>> number_points(4);
+
+	rep(i, HEIGHT)
+	{
+		rep(j, WIDTH)
+		{
+			if (sB[i][j] == 0)
+				number_points[0].push_back(make_pair(i, j));
+			if (sB[i][j] == 1)
+				number_points[1].push_back(make_pair(i, j));
+			if (sB[i][j] == 2)
+				number_points[2].push_back(make_pair(i, j));
+			if (sB[i][j] == 3)
+				number_points[3].push_back(make_pair(i, j));
+		}
+	}
 
 	rep(i, HEIGHT)
 	{
@@ -341,41 +360,20 @@ int main()
 				vector<pair<int, pair<int, int>>> cost;
 
 				// 全探索をかける。
-				rep2(di, i, HEIGHT)
-				{
-					if (di == i) {
-						rep2(dj, j, WIDTH)
-						{
-							int now = sB[di][dj];
+				for (int xi = 0; xi < number_points[target].size(); xi++) {
+					int now = sB[number_points[target][xi].first][number_points[target][xi].second];
+                    int di = number_points[target][xi].first;
+                    int dj = number_points[target][xi].second;
 
-							if (now == target) {
-								int katanuki_cost = nukigata_size_cost(di - i, abs(dj - j));
-								cost.push_back(make_pair(katanuki_cost, make_pair(di, dj)));
+					if (now == target) {
+						int katanuki_cost = nukigata_size_cost(di - i, abs(dj - j));
+						cost.push_back(make_pair(katanuki_cost, make_pair(di, dj)));
 
-								if (katanuki_cost == 1) {
-									flag = true;
-									break;
-								}
-							}
-						}
-					} else {
-						rep(dj, WIDTH)
-						{
-							int now = sB[di][dj];
-
-							if (now == target) {
-								int katanuki_cost = nukigata_size_cost(di - i, abs(dj - j));
-								cost.push_back(make_pair(katanuki_cost, make_pair(di, dj)));
-
-								if (katanuki_cost == 1) {
-									flag = true;
-									break;
-								}
-							}
+						if (katanuki_cost == 1) {
+							flag = true;
+							break;
 						}
 					}
-					if (flag)
-						break;
 				}
 
 				sort(cost.begin(), cost.end());
