@@ -102,9 +102,9 @@ vector<int> stringToVector(const string &str)
 
 void loadBoard(const json &j, vec &sB, vec &gB) 
 {
-    for (const auto &line : j["problem"]["board"]["start"])
+    for (const auto &line : j["board"]["start"])
         sB.push_back(stringToVector(line.get<string>()));
-    for (const auto &line : j["problem"]["board"]["goal"])
+    for (const auto &line : j["board"]["goal"])
         gB.push_back(stringToVector(line.get<string>()));
 }
 
@@ -274,18 +274,13 @@ int main()
 
     #if EXP
         ifstream ex("./export.json");
-        ordered_json exp;
+        json exp;
         ex >> exp;
         int n = exp["n"].get<int>();
         cout << n << endl;
         counter = n;
         rep(i, n) {
-            json ans;
-            ans["p"] = exp["ops"]["p"].get<int>();
-            ans["x"] = exp["ops"]["x"].get<int>();
-            ans["y"] = exp["ops"]["y"].get<int>();
-            ans["s"] = exp["ops"]["s"].get<int>();
-            answers.push_back(ans);
+            answers.push_back(exp["ops"].at(i));
         }
     #endif
 
