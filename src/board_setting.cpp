@@ -59,6 +59,119 @@ vector<vector<vector<int>>>  define_nukigata(vector<vector<int>> size){
 }
 
 vector<int> katanuki(int piece_num, int x_min, int y_min, int direction, vector<vector<int>>& size, vector<vector<vector<int>>>& nukigata, vector<int> board, int BOARD_WIDTH, int BOARD_HEIGHT){
+    vector<vector<int>> unplug(BOARD_HEIGHT, vector<int>(BOARD_WIDTH, -1));  // 抜き出す数字
+    vector<vector<int>> push(BOARD_HEIGHT, vector<int>(BOARD_WIDTH, -1));    // 寄せる数字
+    
+    vector<vector<int> > board_2d(BOARD_HEIGHT, vector<int>(BOARD_WIDTH));
+    int k = 0;
+    for(int i = 0; i < BOARD_HEIGHT; i++){
+        for(int j = 0; j < BOARD_WIDTH; j++){
+            board_2d[i][j] = board.at(k);
+            k++;
+        }
+    }
+
+    vector<vector<int>> sB = board_2d;
+
+    int n = pow(2,(piece_num + 2)/3); //型抜き正方形の幅・高さ
+
+    int height_diff;
+
+    switch(direction){
+        
+        case 0:
+            height_diff = BOARD_HEIGHT - y_min - n;
+            for(int di = 0; di < n; di++){
+                int curtRow = y_min + di;
+                if (x_min + n >= BOARD_WIDTH) copy(sB[curtRow].begin() + x_min, sB[curtRow].end(), unplug[di].begin());
+                else copy(sB[curtRow].begin() + x_min, sB[curtRow].begin() + x_min + n, unplug[di].begin());
+            }
+            for(int di = 0; di < height_diff; di++){
+                int curtRow = y_min + di;
+                if (x_min + n >= BOARD_WIDTH) copy(sB[curtRow + n].begin() + x_min, sB[curtRow + n].end(), push[di].begin());
+                else copy(sB[curtRow + n].begin() + x_min, sB[curtRow + n].begin() + x_min + n, push[di].begin());
+            }
+            for(int di = 0; di < height_diff; di++){
+                if (push[di][0] == -1) break;
+                for(int dj = 0; dj < n; dj++){
+                    if (push[di][dj] == -1) break;
+                    else sB[y_min + di][x_min + dj] = push[di][dj];
+                }
+            }
+            for(int di = 0; di < n; di++){
+                if (unplug[di][0] == -1) break;
+                for(int dj = 0; dj < n; dj++){
+                    if (unplug[di][dj] == -1) break;
+                    else sB[y_min + height_diff + di][x_min + dj] = unplug[di][dj];
+                }
+            }
+            break;
+
+        case 1:
+            height_diff = y_min;
+            for(int di = 0; di < n; di++){
+                int curtRow = y_min + di;
+                if (curtRow < 0 || curtRow >= BOARD_HEIGHT) continue; // 範囲外チェック
+                if (x_min + n >= BOARD_WIDTH) copy(sB[curtRow].begin() + x_min, sB[curtRow].end(), unplug[di].begin());
+                else copy(sB[curtRow].begin() + x_min, sB[curtRow].begin() + x_min + n, unplug[di].begin());
+            }
+            for(int di = 0; di < height_diff; di++){
+                int curtRow = y_min -height_diff + di;
+                if (curtRow < 0 || curtRow >= BOARD_HEIGHT) continue; // 範囲外チェック
+                if (x_min + n >= BOARD_WIDTH) copy(sB[curtRow].begin() + x_min, sB[curtRow].end(), push[di].begin());
+                else copy(sB[curtRow].begin() + x_min, sB[curtRow].begin() + x_min + n, push[di].begin());
+            }
+            for(int di = 0; di < height_diff; di++){
+                if (push[di][0] == -1) break;
+                for(int dj = 0; dj < n; dj++){
+                    if (push[di][dj] == -1) break;
+                    else sB[y_min - height_diff + di][x_min + dj] = push[di][dj];
+                }
+            }
+            for(int di = 0; di < n; di++){
+                if (unplug[di][0] == -1) break;
+                int targetRow = y_min - n + di;
+                if (targetRow < 0 || targetRow >= BOARD_HEIGHT) continue;
+                for(int dj = 0; dj < n; dj++){
+                    if (unplug[di][dj] == -1) break;
+                    else sB[y_min - n + di][x_min + dj] = unplug[di][dj];
+                }
+            }
+            break;
+
+        case 2:
+            for(int di = 0; di < n; di++){
+                int curtRow = y_min + di;
+                if (curtRow >= BOARD_HEIGHT)
+                    break;
+                else {
+                    copy(sB[curtRow].begin() + x_min, sB[curtRow].begin() + x_min + n, unplug[di].begin());
+                    sB[curtRow].erase(sB[curtRow].begin() + x_min, sB[curtRow].begin() + x_min + n);
+                    sB[curtRow].insert(sB[curtRow].end(), unplug[di].begin(), unplug[di].begin() + n);
+                }
+            }
+            break;
+
+        case 3:
+        //使わない？
+            break;
+        
+    }
+    board_2d = sB;
+
+    k = 0;
+    for(int i = 0; i < BOARD_HEIGHT; i++){
+        for(int j = 0; j < BOARD_WIDTH; j++){
+            board.at(k) = board_2d[i][j];
+            k++;
+        }
+    }
+
+    return board;
+
+    
+
+    
     
     //cout << MOVE << "手目" << endl;
 
