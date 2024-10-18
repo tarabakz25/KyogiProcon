@@ -12,7 +12,6 @@ using json = nlohmann::json;
 using ordered_json = nlohmann::ordered_json; //順番を維持する（通常アルファベット順になるらしい）
 
 
-
 //コールバック関数
 size_t Callback(void* contents, size_t size, size_t nmemb, std::string* s) {
     size_t totalSize = size * nmemb;
@@ -45,7 +44,7 @@ void receive_problem(string token){
         if(res != CURLE_OK){ //リクエスト失敗？
             cerr << "curl_easy_perform() failed: " << curl_easy_strerror(res) << endl;
         }else{
-            cout << "Response: " << readBuffer << endl;
+            //cout << "Response: " << readBuffer << endl;
 
             //アクセスタイムエラー（サーバが動いていない場合）なら飛ばす。
             if (readBuffer.find("AccessTimeError") != std::string::npos) {
@@ -53,11 +52,13 @@ void receive_problem(string token){
                 return;
             } 
 
-            
+            filesystem::current_path("../src"); //カレントディレクトリをソースファイルに変更。
+            cout << "(設定)Current path: " << filesystem::current_path().c_str() << endl; //カレントディレクトリを表示;
+
             //jsonファイルとして書き込む
             ordered_json problem = ordered_json::parse(readBuffer);
 
-            ofstream write_file("./src/sample1.json");
+            ofstream write_file("./problem.json");
             if (write_file.is_open()) {
                 write_file << problem.dump(4); //からファイルを入れて消す。
                 write_file.close();
@@ -75,13 +76,12 @@ void receive_problem(string token){
     }
 }
 
-    
 void send_problem(string token){
     CURL* curl;
     CURLcode res; //リクエスト結果
     string readBuffer; //サーバーからのデータ保存
 
-    ifstream sendfile("./src/export.json");
+    ifstream sendfile("./answer.json");
     if (!sendfile.is_open()) {
         cerr << "送信用のファイルが開けません。" << endl;
         return;
@@ -134,3 +134,8 @@ void send_problem(string token){
 
     }
 }
+
+/*
+        これで送信できます。
+            send_problem("token1");
+*/

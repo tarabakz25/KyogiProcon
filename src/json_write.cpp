@@ -14,7 +14,7 @@ using ordered_json = nlohmann::ordered_json; //順番を維持する（通常ア
 
 
 void json_write(int time, int num1, int num2, int num3, int num4){
-    ifstream oldfile("./src/export.json");
+    ifstream oldfile("/Users/itougakuto/siv3d_v0.6.15_macOS/examples/empty/src/export.json");
     ordered_json file;
     oldfile >> file;
     oldfile.close();
@@ -23,19 +23,12 @@ void json_write(int time, int num1, int num2, int num3, int num4){
     file["ops"].push_back({{"p", num1}, {"x", num2}, {"y", num3}, {"s", num4}});
 
 
-    ofstream write_file("./src/export.json");
+    ofstream write_file("/Users/itougakuto/siv3d_v0.6.15_macOS/examples/empty/src/export.json");
 
     if (write_file.is_open()) {
         write_file << file.dump(4);
         write_file.close();
         std::cout << "解答JSONを更新しました。" << std::endl;
-        /*
-        これで送信できます。
-        if(KeyP.down()){
-            send_problem("token1");
-        }
-        */
-        
     }else{
         cout << "ファイルが開けませんでした。";
     }
@@ -44,7 +37,7 @@ void json_write(int time, int num1, int num2, int num3, int num4){
 
 
 void json_write_reset(){
-    ofstream write_file("./src/export.json");
+    ofstream write_file("/Users/itougakuto/siv3d_v0.6.15_macOS/examples/empty/src/export.json");
 
     json file;
     file["n"] = 0;
