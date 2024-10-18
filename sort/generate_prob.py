@@ -5,7 +5,6 @@ from collections import Counter
 # ボードの初期状態をランダム生成する関数（0〜3の数が指定通り）
 def generate_random_board_with_counts(width, height, counts):
     board = []
-    total_cells = width * height
     values = []
 
     # countsに基づいて0〜3の値をリストに追加
@@ -82,7 +81,7 @@ def create_problem_json(board_width, board_height, start_board, goal_board, patt
             "patterns": patterns
         }
     }
-    return json.dumps(problem, indent=2)
+    return problem
 
 # メイン関数
 def main():
@@ -101,13 +100,24 @@ def main():
     num_patterns = 5
     patterns = generate_random_patterns(num_patterns, board_width, board_height)
 
-    # JSONデータ作成
-    problem_json = create_problem_json(board_width, board_height, start_board, goal_board, patterns)
-    
+    # 問題データの生成
+    problem_data = create_problem_json(board_width, board_height, start_board, goal_board, patterns)
+
+    # 全体のJSONデータに追加する固定値部分
+    data = {
+        "teams": [
+            "token1",
+            "token2",
+            "token3"
+        ],
+        "duration": 300,
+        "problem": problem_data
+    }
+
     # ファイル名を指定して保存（例: "problem_XxY.json" 形式で保存）
     file_name = f"problem_{board_width}x{board_height}.json"
     with open(file_name, "w") as f:
-        f.write(problem_json)
+        json.dump(data, f, indent=2)
     
     print(f"ランダム生成されたJSONファイルが作成されました: {file_name}")
 

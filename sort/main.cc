@@ -102,9 +102,9 @@ vector<int> stringToVector(const string &str)
 
 void loadBoard(const json &j, vec &sB, vec &gB) 
 {
-    for (const auto &line : j["board"]["start"])
+    for (const auto &line : j["problem"]["board"]["start"])
         sB.push_back(stringToVector(line.get<string>()));
-    for (const auto &line : j["board"]["goal"])
+    for (const auto &line : j["problem"]["board"]["goal"])
         gB.push_back(stringToVector(line.get<string>()));
 }
 
