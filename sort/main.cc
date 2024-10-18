@@ -133,7 +133,12 @@ void katanuki(vec &sB, vec &gB, int i, int j, int targeti, int targetj, int dire
             answer["x"] = j;
             answer["y"] = i;
             answer["s"] = direction > 3 ? direction - 2 : direction;
-            answer["p"] = unsigned(3 * (log2(n) - 1) + 1);
+            
+            if(log2(n) != 0){
+                answer["p"] = unsigned(3 * (log2(n) - 1) + 1);
+            }else{
+                answer["p"] = 0;
+            }
             answers.push_back(answer);
 
             rep(di, n) {
@@ -154,7 +159,11 @@ void katanuki(vec &sB, vec &gB, int i, int j, int targeti, int targetj, int dire
             answer["x"] = targetj + 1;
             answer["y"] = targeti;
             answer["s"] = direction > 3 ? direction - 2 : direction;
-            answer["p"] = unsigned(3 * (log2(n) - 1) + 1);
+            if(log2(n) != 0){
+                answer["p"] = unsigned(3 * (log2(n) - 1) + 1);
+            }else{
+                answer["p"] = 0;
+            }
             answers.push_back(answer);
 
             rep(di, n) {
@@ -175,7 +184,11 @@ void katanuki(vec &sB, vec &gB, int i, int j, int targeti, int targetj, int dire
             answer["x"] = j;
             answer["y"] = targeti;
             answer["s"] = direction > 3 ? direction - 2 : direction;
-            answer["p"] = unsigned(3 * (log2(n) - 1) + 1);
+            if(log2(n) != 0){
+                answer["p"] = unsigned(3 * (log2(n) - 1) + 1);
+            }else{
+                answer["p"] = 0;
+            }
             answers.push_back(answer);
 
             rep(di, n) {
@@ -197,7 +210,11 @@ void katanuki(vec &sB, vec &gB, int i, int j, int targeti, int targetj, int dire
             answer["x"] = j;
             answer["y"] = i;
             answer["s"] = direction > 3 ? direction - 2 : direction;
-            answer["p"] = unsigned(3 * (log2(n) - 1) + 1);
+            if(log2(n) != 0){
+                answer["p"] = unsigned(3 * (log2(n) - 1) + 1);
+            }else{
+                answer["p"] = 0;
+            }
             answers.push_back(answer);
 
             rep(di, n) {
