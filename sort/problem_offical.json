@@ -1,4 +1,11 @@
 {
+    "teams":[
+        "token1",
+        "token2",
+        "token3"
+    ],
+    "durations": 300,
+    "problem": {
     "board": {
     "width": 6,
     "height": 4,
@@ -38,4 +45,5 @@
     }
     ]
     }
+}
 }

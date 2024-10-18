@@ -3,7 +3,10 @@
 */
 
 #include "json.hpp"
+#if SERVER
 #include "receive_and_send.cpp"
+#include <curl/curl.h>
+#endif
 #include "setting.hh"
 #include <bits/stdc++.h>
 #include <chrono>
@@ -47,6 +50,29 @@ void generateNukigata()
 		vec kata(size, vector<int>(size, 1));
 		all1_nukigata[size] = kata;
 	}
+}
+
+int nukigata_size_cost(int diffi, int diffj)
+{
+	int cost = 0;
+	for (int size : number) {
+		if (size <= diffi) {
+			cost++;
+			diffi -= size;
+		}
+	}
+	if (diffi > 0)
+		cost++;
+	for (int size : number) {
+		if (size <= diffj) {
+			cost++;
+			diffj -= size;
+		}
+	}
+	if (diffj > 0)
+		cost++;
+
+	return cost;
 }
 
 double calculateMatchRate(const vec& sB, const vec& gB)
@@ -276,7 +302,10 @@ void katanuki(vec& sB, vec& gB, int i, int j, int targeti, int targetj, int dire
 		counter++;
 
 		auto end = chrono::system_clock::now();
-		// scorePrint(sB, gB, start, end, i, j, diff, direction);
+        #if ALL_BREAK 
+		scorePrint(sB, gB, start, end, i, j, diff, direction);
+        #endif
+		//this_thread::sleep_for(chrono::seconds(1));
 	}
 }
 
@@ -306,161 +335,62 @@ int main()
 		{
 			if (sB[i][j] != gB[i][j]) {
 				int target = gB[i][j];
-				updated = false;
 				bool flag = false;
 
-				int pivot = 0;
+				// 評価をかけるための変数
+				vector<pair<int, pair<int, int>>> cost;
 
-				/* numberの座標を探索 */
-				rep(xi, number.size())
+				// 全探索をかける。
+				rep2(di, i, HEIGHT)
 				{
-					pivot += number[xi];
+					if (di == i) {
+						rep2(dj, j, WIDTH)
+						{
+							int now = sB[di][dj];
 
-					for (int di : number) {
-						if (di >= HEIGHT || di <= pivot)
-							break;
-						di += pivot;
+							if (now == target) {
+								int katanuki_cost = nukigata_size_cost(di - i, abs(dj - j));
+								cost.push_back(make_pair(katanuki_cost, make_pair(di, dj)));
 
-						if (sB[di + i][j] == gB[i][j]) {
-							pair<int, int> target_idx = { i + di, j };
-							katanuki(sB, gB, i, j, target_idx.first, target_idx.second, 0);
-							flag = true;
-							break;
-						}
-					}
-					if (flag)
-						break;
-				}
-
-				pivot = 0;
-
-				if (!flag) {
-					rep(xi, number.size())
-					{
-						pivot += number[xi];
-
-						for (int dj : number) {
-							if (dj >= WIDTH || dj <= pivot)
-								break;
-							dj += pivot;
-
-							if (sB[i][dj] == gB[i][j]) {
-								pair<int, int> target_idx = { i, dj };
-								katanuki(sB, gB, i, j, target_idx.first, target_idx.second, 0);
-								flag = true;
-								break;
-							}
-						}
-					}
-					if (flag)
-						break;
-				}
-
-				int pivot1 = 0;
-				int pivot2 = 0;
-
-				if (!flag) {
-					rep(xi, number.size())
-					{
-						pivot1 += number[xi];
-
-						for (int di : number) {
-							if (di == 1)
-								continue;
-							else if (di >= HEIGHT || di <= pivot)
-								break;
-							di += pivot1;
-
-							rep(xj, number.size())
-							{
-								pivot2 += number[xj];
-
-								for (int dj : number) {
-									rep(xj, 2)
-									{
-										if (xj == 0)
-											dj *= -1;
-										int curtRow = j + dj;
-										if (curtRow >= WIDTH || dj <= pivot2)
-											break;
-										curtRow += pivot2;
-
-										if (sB[i + di][curtRow] == gB[i][j]) {
-											pair<int, int> target_idx = { i + di, curtRow };
-											if (j >= curtRow) {
-												katanuki(sB, gB, i, j, target_idx.first, target_idx.second, 5);
-												katanuki(sB, gB, i, j, target_idx.first, target_idx.second, 0);
-											} else {
-												katanuki(sB, gB, i, j, target_idx.first, target_idx.second, 4);
-												katanuki(sB, gB, i, j, target_idx.first, target_idx.second, 0);
-											}
-											flag = true;
-											break;
-										}
-									}
+								if (katanuki_cost == 1) {
+									flag = true;
+									break;
 								}
 							}
-							if (flag)
-								break;
 						}
-						if (flag)
-							break;
-					}
-				}
-
-				// 縦方向
-				if (!flag) {
-					rep2(di, i, HEIGHT)
-					{
-						if (sB[di][j] == target) {
-							pair<int, int> target_idx = { di, j };
-							katanuki(sB, gB, i, j, target_idx.first, target_idx.second, 0);
-							flag = true;
-							break;
-						}
-					}
-				}
-
-				// 横方向
-				if (!flag) {
-					rep2(dj, j, WIDTH)
-					{
-						if (sB[i][dj] == target) {
-							pair<int, int> target_idx = { i, dj };
-							if (j >= dj)
-								katanuki(sB, gB, i, j, target_idx.first, target_idx.second, 3);
-							else
-								katanuki(sB, gB, i, j, target_idx.first, target_idx.second, 2);
-
-							flag = true;
-							break;
-						}
-					}
-				}
-
-				// 両方使う場合
-				if (!flag) {
-					rep2(di, i + 1, HEIGHT)
-					{
+					} else {
 						rep(dj, WIDTH)
 						{
-							if (sB[di][dj] == target) {
-								pair<int, int> target_idx = { di, dj };
+							int now = sB[di][dj];
 
-								if (j >= dj) {
-									katanuki(sB, gB, i, j, target_idx.first, target_idx.second, 5);
-									katanuki(sB, gB, i, j, target_idx.first, target_idx.second, 0);
-								} else {
-									katanuki(sB, gB, i, j, target_idx.first, target_idx.second, 4);
-									katanuki(sB, gB, i, j, target_idx.first, target_idx.second, 0);
+							if (now == target) {
+								int katanuki_cost = nukigata_size_cost(di - i, abs(dj - j));
+								cost.push_back(make_pair(katanuki_cost, make_pair(di, dj)));
+
+								if (katanuki_cost == 1) {
+									flag = true;
+									break;
 								}
-
-								flag = true;
-								break;
 							}
 						}
-						if (flag)
-							break;
+					}
+					if (flag)
+						break;
+				}
+
+				sort(cost.begin(), cost.end());
+
+				if (cost[0].second.first == i)
+					katanuki(sB, gB, i, j, 0, cost[0].second.second, 2);
+				else if (cost[0].second.second == j)
+					katanuki(sB, gB, i, j, cost[0].second.first, 0, 0);
+				else {
+					if (j >= cost[0].second.second) {
+						katanuki(sB, gB, i, j, cost[0].second.first, cost[0].second.second, 5);
+						katanuki(sB, gB, i, j, cost[0].second.first, cost[0].second.second, 0);
+					} else {
+						katanuki(sB, gB, i, j, cost[0].second.first, cost[0].second.second, 4);
+						katanuki(sB, gB, i, j, cost[0].second.first, cost[0].second.second, 0);
 					}
 				}
 			}
