@@ -259,7 +259,7 @@ int main()
     // 抜き型生成
     generateNukigata();
 
-    #if SERVER
+    #if SERVER_RECIEVE
         receive_problem("token1");
     #endif
 
@@ -272,6 +272,22 @@ int main()
     HEIGHT = sB.size(), WIDTH = gB[0].size();
     double matchRate = calculateMatchRate(sB, gB);
 
+    #if EXP
+        ifstream ex("./export.json");
+        ordered_json exp;
+        ex >> exp;
+        int n = exp["n"].get<int>();
+        cout << n << endl;
+        counter = n;
+        rep(i, n) {
+            json ans;
+            ans["p"] = exp["ops"]["p"].get<int>();
+            ans["x"] = exp["ops"]["x"].get<int>();
+            ans["y"] = exp["ops"]["y"].get<int>();
+            ans["s"] = exp["ops"]["s"].get<int>();
+            answers.push_back(ans);
+        }
+    #endif
 
     while (matchRate < 100.0) {
         rep(i, HEIGHT) {
@@ -435,7 +451,7 @@ int main()
     ofstream ofs("answer.json");
     ofs << final_answer.dump(4);  // インデント付きでJSONを書き込む
 
-    #if SERVER
+    #if SERVER_SEND
         send_problem("token1");
     #endif
 
