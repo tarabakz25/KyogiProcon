@@ -11,6 +11,7 @@
 
 using namespace std;
 using json = nlohmann::json;
+using ordered_json = nlohmann::ordered_json; //順番を維持する（通常アルファベット順になるらしい）
 
 //jsonファイル読み込み系
 // 文字列からベクトルに変換する関数(一列分を返す)
@@ -61,15 +62,9 @@ void json_read(vector<int> &board_start, vector<int> &board_finish, int &BOARD_W
         std::cout << "(状態)問題を開けました" << std::endl;
     }
 
-    // ファイル内容を読み込み成功したか
-    std::string str((std::istreambuf_iterator<char>(ifs)), std::istreambuf_iterator<char>());
-    if (str.empty()) {
-        std::cerr << "File is empty: ./src/problem.json" << std::endl;
-        return;
-    }
-    //std::cout << "File content: " << str << std::endl; //中身表示
 
-    ordered_json jobj = json::parse(str);
+    ordered_json jobj;
+    ifs >> jobj;
     std::cout << "(状態)問題をjson化できました。" << std::endl;
 
     //初期盤面、終了盤面取得
