@@ -439,7 +439,7 @@ int main()
     auto end = chrono::system_clock::now();
     double time = static_cast<double>(chrono::duration_cast<chrono::milliseconds>(end - start).count() / 1000.0);
 
-    cout << "\033[31m" << "FINISHED!!" << "\033[m" << " count:" << counter << " time:" << time << endl;
+    cout << "\033[31m" << "FINISHED!!" << "\033[m" << " count:" << counter << " time:" << time << calculateMatchRate(sB, gB) << endl;
 
     // 回答JSONの作成
     ordered_json final_answer;
@@ -448,7 +448,7 @@ int main()
 
     // 回答JSONをファイルに保存
     ofstream ofs("answer.json");
-    ofs << final_answer.dump(4);  // インデント付きでJSONを書き込む
+    ofs << final_answer.dump(4); // インデント付きでJSONを書き込む
 
     #if SERVER_SEND
         send_problem("kamiyama5eb116f8fbfc79f1a32e91d16a2c7aa661e3e0de274f40259259516c");

@@ -88,7 +88,7 @@ void send_problem(string token){
     CURLcode res; //リクエスト結果
     string readBuffer; //サーバーからのデータ保存
 
-    ifstream sendfile("./answer.json");
+    ifstream sendfile("/Users/itougakuto/KyogiProcon-self-to-auto/sort/answer.json");
     if (!sendfile.is_open()) {
         cerr << "送信用のファイルが開けません。" << endl;
         return;
