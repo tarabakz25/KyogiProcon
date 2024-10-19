@@ -71,7 +71,7 @@ void Main()
 			board_finish.at(BOARD_WIDTH * i + j) = rand() % 4;
 		}*/
 
-    receive_problem("token1");
+    receive_problem("kamiyama5eb116f8fbfc79f1a32e91d16a2c7aa661e3e0de274f40259259516c");
 
     //jsonファイル用の設定と、jsonファイルの読み込み。
     json_read(board_start, board_finish, BOARD_WIDTH, BOARD_HEIGHT);
