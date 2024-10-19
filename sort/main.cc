@@ -331,49 +331,97 @@ int main()
 	HEIGHT = sB.size(), WIDTH = gB[0].size();
 	double matchRate = calculateMatchRate(sB, gB);
 
+    int lower_left = 0;
+
 	rep(i, HEIGHT)
 	{
 		rep(j, WIDTH)
 		{
+            /* if(lower_left == 1){ //2*2で揃わなかったところをわざわざ揃える必要はなかった
+                j--; i++;
+                cout << "lower_left" << endl;
+            } */
+            
 			if (sB[i][j] != gB[i][j]) {
+                //cout << "chenge" << "i" << i << "j" << j << endl;
 				int target = gB[i][j];
 				bool flag = false;
 
 				// 評価をかけるための変数
-				vector<pair<int, pair<int, int>>> cost;
+				vector<tuple<float, int, int, pair<int, int>>> cost;
 
 				// 全探索をかける。
 				rep2(di, i, HEIGHT)
 				{
-					if (di == i) {
+					if (di == i) { //yが等しい（横にある場合）
 						rep2(dj, j, WIDTH)
 						{
 							int now = sB[di][dj];
 
 							if (now == target) {
-								int katanuki_cost = nukigata_size_cost(di - i, abs(dj - j));
-								cost.push_back(make_pair(katanuki_cost, make_pair(di, dj)));
+                                int count = 1; 
+                                if (lower_left != 1 && dj < WIDTH - 2 && di < HEIGHT - 2
+                                    && (di-i >= 2 || dj-j >=2 )){
+                                    
+                                    count = 0;
+                                    for(int l = 0; l < 2; l++){
+                                        for(int m = 0; m < 2; m++){
+                                            if(sB[di+l][dj+m] == gB[i+l][j+m]) count++;
+                                        }
+                                    }
+                                    if(count == 4){
+                                        //cout << "AAAAAAAA" << "di" << di << "dj" << dj << endl;
+                                    }
+                                }
 
-								if (katanuki_cost == 1) {
+                                int unmatch = 4 - count;
+
+								int katanuki_cost = nukigata_size_cost(di - i, abs(dj - j));
+								float hyouka = katanuki_cost + unmatch*0.2;
+								cost.push_back(make_tuple(hyouka, katanuki_cost, unmatch, make_pair(di, dj)));
+
+								/* if (katanuki_cost == 1) {
 									flag = true;
 									break;
-								}
+								} */
 							}
+                            
+                            
+
+                            
 						}
-					} else {
+					} else { //yが等しくない（横にない場合）
 						rep(dj, WIDTH)
 						{
 							int now = sB[di][dj];
 
 							if (now == target) {
-								int katanuki_cost = nukigata_size_cost(di - i, abs(dj - j));
-								cost.push_back(make_pair(katanuki_cost, make_pair(di, dj)));
+                                int count = 1; 
+                                if (lower_left != 1 && dj < WIDTH - 2 && di < HEIGHT - 2
+                                    && (di-i >= 2 || dj-j >=2 )){
+                                    count = 0;
+                                    for(int l = 0; l < 2; l++){
+                                        for(int m = 0; m < 2; m++){
+                                            if(sB[di+l][dj+m] == gB[i+l][j+m]) count++;
+                                        }
+                                    }
+                                    if(count == 4){
+                                        //cout << "AAAAAAAA" << "di" << di << "dj" << dj << endl;
+                                    }
+                                }
 
-								if (katanuki_cost == 1) {
+                                int unmatch = 4 - count;
+
+								int katanuki_cost = nukigata_size_cost(di - i, abs(dj - j));
+								float hyouka = katanuki_cost + unmatch*0.2;
+								cost.push_back(make_tuple(hyouka, katanuki_cost, unmatch, make_pair(di, dj)));
+
+								/* if (katanuki_cost == 1) {
 									flag = true;
 									break;
-								}
+								} */
 							}
+
 						}
 					}
 					if (flag)
@@ -381,20 +429,41 @@ int main()
 				}
 
 				sort(cost.begin(), cost.end());
+                //if(get<1>(cost[0]) <= 2){exit(1);}
 
-				if (cost[0].second.first == i)
-					katanuki(sB, gB, i, j, 0, cost[0].second.second, 2);
-				else if (cost[0].second.second == j)
-					katanuki(sB, gB, i, j, cost[0].second.first, 0, 0);
+                //cout  <<  "unmatch" << get<2>(cost[0]) << " di" << get<3>(cost[0]).first << " dj" << get<3>(cost[0]).second<< endl;
+
+				if (get<3>(cost[0]).first == i)
+					katanuki(sB, gB, i, j, 0, get<3>(cost[0]).second, 2); //左
+				else if (get<3>(cost[0]).second == j)
+					katanuki(sB, gB, i, j, get<3>(cost[0]).first, 0, 0); //した
 				else {
-					if (j >= cost[0].second.second) {
-						katanuki(sB, gB, i, j, cost[0].second.first, cost[0].second.second, 5);
-						katanuki(sB, gB, i, j, cost[0].second.first, cost[0].second.second, 0);
+					if (j >= get<3>(cost[0]).second) {
+						katanuki(sB, gB, i, j, get<3>(cost[0]).first, get<3>(cost[0]).second, 5);
+						katanuki(sB, gB, i, j, get<3>(cost[0]).first, get<3>(cost[0]).second, 0);
 					} else {
-						katanuki(sB, gB, i, j, cost[0].second.first, cost[0].second.second, 4);
-						katanuki(sB, gB, i, j, cost[0].second.first, cost[0].second.second, 0);
+						katanuki(sB, gB, i, j, get<3>(cost[0]).first, get<3>(cost[0]).second, 4);
+						katanuki(sB, gB, i, j, get<3>(cost[0]).first, get<3>(cost[0]).second, 0);
 					}
 				}
+
+                /* if(lower_left == 1){ //2*2で揃わなかったところをわざわざ揃える必要はなかった
+                    lower_left = 0;
+                    i--;
+                }else{
+                    if(j < WIDTH - 2 && i < HEIGHT - 2){
+                        if (sB[i+1][j] != gB[i+1][j]) {
+                            //lower_left = 1;
+                        }else{
+                            lower_left = 0;
+                        }
+                    }else{
+                        lower_left = 0;
+                    }
+                } */
+
+
+                
 			}
 		}
 	}
