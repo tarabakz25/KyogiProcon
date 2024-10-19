@@ -318,7 +318,7 @@ int main()
 	// 抜き型生成
 	generateNukigata();
 
-#if SERVER
+#if SERVER_GET
 	receive_problem("kamiyama5eb116f8fbfc79f1a32e91d16a2c7aa661e3e0de274f40259259516c");
 #endif
 
@@ -413,7 +413,7 @@ int main()
 	ofstream ofs("answer.json");
 	ofs << final_answer.dump(4); // インデント付きでJSONを書き込む
 
-#if SERVER
+#if SERVER_POST
 	send_problem("kamiyama5eb116f8fbfc79f1a32e91d16a2c7aa661e3e0de274f40259259516c");
 #endif
 
