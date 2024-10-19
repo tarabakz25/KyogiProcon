@@ -319,7 +319,7 @@ int main()
 	generateNukigata();
 
 #if SERVER
-	receive_problem("token1");
+	receive_problem("kamiyama5eb116f8fbfc79f1a32e91d16a2c7aa661e3e0de274f40259259516c");
 #endif
 
 	// Json読み込み
@@ -414,7 +414,7 @@ int main()
 	ofs << final_answer.dump(4); // インデント付きでJSONを書き込む
 
 #if SERVER
-	send_problem("token1");
+	send_problem("kamiyama5eb116f8fbfc79f1a32e91d16a2c7aa661e3e0de274f40259259516c");
 #endif
 
 	return 0;
