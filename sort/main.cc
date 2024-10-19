@@ -402,7 +402,7 @@ int main()
 	auto end = chrono::system_clock::now();
 	double time = static_cast<double>(chrono::duration_cast<chrono::milliseconds>(end - start).count() / 1000.0);
 
-	cout << "\033[31m" << "FINISHED!!" << "\033[m" << " count:" << counter << " time:" << time << endl;
+	cout << "\033[31m" << "FINISHED!!" << "\033[m" << " count:" << counter << " time:" << time << " match:" << calculateMatchRate(sB, gB) << endl;
 
 	// 回答JSONの作成
 	ordered_json final_answer;
