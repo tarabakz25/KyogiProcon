@@ -28,6 +28,7 @@ double matchRate;	  // 一致率
 int HEIGHT, WIDTH;
 chrono::system_clock::time_point start, end;
 vector<int> number{ 256, 128, 64, 32, 16, 8, 4, 2, 1 };
+int num = 0;
 
 /* 回答用構造体 */
 struct Answer {
@@ -311,6 +312,199 @@ void katanuki(vec& sB, vec& gB, int i, int j, int targeti, int targetj, int dire
 	}
 }
 
+void beam_katanuki(vec& sB, vec& gB, int i, int j, int targeti, int targetj, int direction)
+{
+	vector<int> use_nukigata_size; // 使う抜き型のサイズ
+
+	int diff = direction == 0 ? diff = targeti - i : direction == 2 || direction == 4 ? diff = targetj - j : diff = j - targetj;
+
+	for (int size : number) {
+		if (size <= diff) {
+			use_nukigata_size.push_back(size);
+			diff -= size;
+		}
+	}
+	if (diff > 0)
+		use_nukigata_size.push_back(1);
+
+	for (int n : use_nukigata_size) {
+		vec unplug(HEIGHT, vector<int>(WIDTH, -1)); // 抜き出す数字
+		vec push(HEIGHT, vector<int>(WIDTH, -1));	// 寄せる数字
+
+		// 左だけの場合
+		if (direction == 2) {
+			rep(di, n)
+			{
+				int curtRow = i + di;
+				if (curtRow >= HEIGHT)
+					break;
+				else {
+					copy(sB[curtRow].begin() + j, sB[curtRow].begin() + j + n, unplug[di].begin());
+					sB[curtRow].erase(sB[curtRow].begin() + j, sB[curtRow].begin() + j + n);
+					sB[curtRow].insert(sB[curtRow].end(), unplug[di].begin(), unplug[di].begin() + n);
+				}
+			}
+		}
+
+		// 直線上にないときの右
+		else if (direction == 5) {
+			rep(di, n)
+			{
+				int curtRow = targeti + di;
+				if (curtRow >= HEIGHT)
+					break;
+				else {
+					copy(sB[curtRow].begin() + targetj + 1, sB[curtRow].begin() + targetj + n + 1, unplug[di].begin());
+					sB[curtRow].erase(sB[curtRow].begin() + targetj + 1, sB[curtRow].begin() + targetj + n + 1);
+					sB[curtRow].insert(sB[curtRow].begin(), unplug[di].begin(), unplug[di].begin() + n);
+				}
+			}
+			targetj += n;
+		}
+
+		// 直線上にないときの左
+		else if (direction == 4) {
+			rep(di, n)
+			{
+				int curtRow = targeti + di;
+				if (curtRow >= HEIGHT)
+					break;
+				else {
+					copy(sB[curtRow].begin() + j, sB[curtRow].begin() + j + n, unplug[di].begin());
+					sB[curtRow].erase(sB[curtRow].begin() + j, sB[curtRow].begin() + j + n);
+					sB[curtRow].insert(sB[curtRow].end(), unplug[di].begin(), unplug[di].begin() + n);
+				}
+			}
+		}
+
+		// 上の場合
+		else if (direction == 0) {
+			unsigned height_diff = HEIGHT - i - n;
+			rep(di, n)
+			{
+				int curtRow = i + di;
+				if (j + n >= WIDTH)
+					copy(sB[curtRow].begin() + j, sB[curtRow].end(), unplug[di].begin());
+				else
+					copy(sB[curtRow].begin() + j, sB[curtRow].begin() + j + n, unplug[di].begin());
+			}
+			rep(di, height_diff)
+			{
+				int curtRow = i + di;
+				if (j + n >= WIDTH)
+					copy(sB[curtRow + n].begin() + j, sB[curtRow + n].end(), push[di].begin());
+				else
+					copy(sB[curtRow + n].begin() + j, sB[curtRow + n].begin() + j + n, push[di].begin());
+			}
+			rep(di, height_diff)
+			{
+				if (push[di][0] == -1)
+					break;
+				rep(dj, n)
+				{
+					if (push[di][dj] == -1)
+						break;
+					else
+						sB[i + di][j + dj] = push[di][dj];
+				}
+			}
+			rep(di, n)
+			{
+				if (unplug[di][0] == -1)
+					break;
+				rep(dj, n)
+				{
+					if (unplug[di][dj] == -1)
+						break;
+					else
+						sB[i + height_diff + di][j + dj] = unplug[di][dj];
+				}
+			}
+		} else {
+			cerr << "ERROR!" << endl;
+		}
+
+		auto end = chrono::system_clock::now();
+        #if ALL_BREAK 
+		scorePrint(sB, gB, start, end, i, j, diff, direction);
+        #endif
+		//this_thread::sleep_for(chrono::seconds(1));
+	}
+}
+
+int beam_search(int deep, int katanuki_cost, int di, int dj, int i, int j, vec sB, vec gB){
+	if (deep == DEEP){
+		return 0;
+	}
+	deep++;
+	//cout << "深さ:" << deep << endl;
+	int diffi = di - i;
+	int diffj = dj - j;
+	if (diffj < 0){
+		beam_katanuki(sB, gB, i, j, di, dj, 5);
+		beam_katanuki(sB, gB, i, j, di, dj, 0);
+	}
+	if (diffi > 0){
+		beam_katanuki(sB, gB, i, j, di, dj, 4);
+		beam_katanuki(sB, gB, i, j, di, dj, 0);
+	}
+	else {
+		beam_katanuki(sB, gB, i, j, di, dj, 2);
+	}
+	if (j + 1 == WIDTH && i + 1 == HEIGHT) {
+		return 0;
+	}
+	else if (j + 1 == WIDTH){
+		i++;
+		j = 0;
+	}
+	else j++;
+
+	int target = gB[i][j];
+	bool flag = false;
+	int time = 0;
+
+	vector<int> cost;
+
+	rep2(targeti, i, HEIGHT) {
+		if (targeti == i) {
+			rep2(targetj, j, WIDTH) {
+				int now = sB[targeti][targetj];
+				if (time > 20) break;
+				if (now == target) {
+					time++;
+					int katanuki_cost = nukigata_size_cost(targeti - i, abs(targetj - j));
+					//cout << num << "コスト" << katanuki_cost << endl;
+					//サーチを実装
+					if (katanuki_cost < COST){
+						katanuki_cost += beam_search(deep, katanuki_cost, targeti, targetj, i, j, sB, gB);
+						cost.push_back(katanuki_cost);								
+					}
+				}				
+			}
+		} else {
+			rep(targetj, WIDTH) {
+				int now = sB[di][dj];
+				if (time > 20) break;
+				if (now == target) {
+					time++;
+					int katanuki_cost = nukigata_size_cost(di - i, abs(dj - j));
+					//cout << num << "コスト" << katanuki_cost << endl;
+					if (katanuki_cost < COST){
+						int beam = beam_search(deep, katanuki_cost, targeti, targetj, i, j, sB, gB);
+						katanuki_cost += beam
+						cost.push_back(katanuki_cost);		
+					}
+				}
+			}
+		}
+		if (time > 20) break;
+	}
+	sort(cost.begin(), cost.end());
+	//cout << "Node" << deep << " return:" << endl;
+	return (cost[0]);
+}
+
 int main()
 {
 	// 時間を計測
@@ -338,6 +532,7 @@ int main()
 			if (sB[i][j] != gB[i][j]) {
 				int target = gB[i][j];
 				bool flag = false;
+				int time = 0;
 
 				// 評価をかけるための変数
 				vector<pair<int, pair<int, int>>> cost;
@@ -349,10 +544,20 @@ int main()
 						rep2(dj, j, WIDTH)
 						{
 							int now = sB[di][dj];
+							if (time > 20) break;
 
 							if (now == target) {
+								time++;
 								int katanuki_cost = nukigata_size_cost(di - i, abs(dj - j));
-								cost.push_back(make_pair(katanuki_cost, make_pair(di, dj)));
+								//サーチを実装
+								if (katanuki_cost < COST){
+									//cout << "beam_search:start" << endl;
+									//cout << "width:" << COST << endl;
+									int deep = 0;
+									katanuki_cost += beam_search(deep, katanuki_cost, di, dj, i, j, sB, gB);
+									cost.push_back(make_pair(katanuki_cost, make_pair(di, dj)));
+									//cout << katanuki_cost << endl;
+								}
 
 								if (katanuki_cost == 1) {
 									flag = true;
@@ -365,9 +570,18 @@ int main()
 						{
 							int now = sB[di][dj];
 
+							if (time > 20) break;
 							if (now == target) {
+								time++;
 								int katanuki_cost = nukigata_size_cost(di - i, abs(dj - j));
-								cost.push_back(make_pair(katanuki_cost, make_pair(di, dj)));
+								//cout << "beam_search:start" << endl;
+								//cout << "width:" << COST << endl;
+								//サーチを実装
+								if (katanuki_cost < COST){
+									int deep = 0;
+									katanuki_cost += beam_search(deep, katanuki_cost, di, dj, i, j, sB, gB);
+									cost.push_back(make_pair(katanuki_cost, make_pair(di, dj)));
+								}
 
 								if (katanuki_cost == 1) {
 									flag = true;
@@ -376,8 +590,8 @@ int main()
 							}
 						}
 					}
-					if (flag)
-						break;
+					if (flag) break;
+					if (time > 20) break;
 				}
 
 				sort(cost.begin(), cost.end());
@@ -396,6 +610,8 @@ int main()
 					}
 				}
 			}
+			num++;
+			cout << num << endl;
 		}
 	}
 

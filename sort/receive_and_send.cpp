@@ -65,7 +65,7 @@ void receive_problem(string token){
             //jsonファイルとして書き込む
             ordered_json problem = ordered_json::parse(readBuffer);
 
-            ofstream write_file("./problem.json");
+            ofstream write_file("/Users/itougakuto/KyogiProcon-kizu/sort/problem.json");
             if (write_file.is_open()) {
                 write_file << problem.dump(4); //からファイルを入れて消す。
                 write_file.close();
@@ -88,7 +88,7 @@ void send_problem(string token){
     CURLcode res; //リクエスト結果
     string readBuffer; //サーバーからのデータ保存
 
-    ifstream sendfile("./answer.json");
+    ifstream sendfile("/Users/itougakuto/KyogiProcon-kizu/sort/answer.json");
     if (!sendfile.is_open()) {
         cerr << "送信用のファイルが開けません。" << endl;
         return;

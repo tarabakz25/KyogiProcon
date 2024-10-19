@@ -3,6 +3,8 @@
 #define SERVER 0 //サーバー送受信
 #define SORT_FILE "problem.json" // サイズの設定
 #define ALL_BREAK 0
+#define DEEP 3  //ビームサーチの深さ
+#define COST 6 //ビームサーチの幅
 
 /* 
 
