@@ -3,10 +3,8 @@
 */
 
 #include "json.hpp"
-#if SERVER
 #include "receive_and_send.cpp"
 #include <curl/curl.h>
-#endif
 #include "setting.hh"
 #include <bits/stdc++.h>
 #include <chrono>
@@ -21,6 +19,7 @@ typedef long long ll;
 using namespace std;
 using vec = vector<vector<int>>;
 using json = nlohmann::json;
+using ordered_json = nlohmann::ordered_json;
 
 /* 変数の先宣言 */
 int counter = 0;	  // 手数のカウント
@@ -38,7 +37,7 @@ struct Answer {
 	int y;
 	int s;
 };
-json answers = json::array();
+ordered_json answers = ordered_json::array();
 
 /* ぬき型たち */
 map<int, vec> all1_nukigata;
@@ -134,9 +133,9 @@ vector<int> stringToVector(const string& str)
 
 void loadBoard(const json& j, vec& sB, vec& gB)
 {
-	for (const auto& line : j["problem"]["board"]["start"])
+	for (const auto& line : j["board"]["start"])
 		sB.push_back(stringToVector(line.get<string>()));
-	for (const auto& line : j["problem"]["board"]["goal"])
+	for (const auto& line : j["board"]["goal"])
 		gB.push_back(stringToVector(line.get<string>()));
 }
 
@@ -162,16 +161,16 @@ void katanuki(vec& sB, vec& gB, int i, int j, int targeti, int targetj, int dire
 
 		// 左だけの場合
 		if (direction == 2) {
-			json answer;
-			answer["x"] = j;
-			answer["y"] = i;
-			answer["s"] = direction > 3 ? direction - 2 : direction;
-
+			ordered_json answer;
 			if (log2(n) != 0) {
 				answer["p"] = unsigned(3 * (log2(n) - 1) + 1);
 			} else {
 				answer["p"] = 0;
 			}
+			answer["x"] = j;
+			answer["y"] = i;
+			answer["s"] = direction > 3 ? direction - 2 : direction;
+
 			answers.push_back(answer);
 
 			rep(di, n)
@@ -189,15 +188,16 @@ void katanuki(vec& sB, vec& gB, int i, int j, int targeti, int targetj, int dire
 
 		// 直線上にないときの右
 		else if (direction == 5) {
-			json answer;
-			answer["x"] = targetj + 1;
-			answer["y"] = targeti;
-			answer["s"] = direction > 3 ? direction - 2 : direction;
+			ordered_json answer;
 			if (log2(n) != 0) {
 				answer["p"] = unsigned(3 * (log2(n) - 1) + 1);
 			} else {
 				answer["p"] = 0;
 			}
+			answer["x"] = targetj + 1;
+			answer["y"] = targeti;
+			answer["s"] = direction > 3 ? direction - 2 : direction;
+			
 			answers.push_back(answer);
 
 			rep(di, n)
@@ -216,15 +216,16 @@ void katanuki(vec& sB, vec& gB, int i, int j, int targeti, int targetj, int dire
 
 		// 直線上にないときの左
 		else if (direction == 4) {
-			json answer;
-			answer["x"] = j;
-			answer["y"] = targeti;
-			answer["s"] = direction > 3 ? direction - 2 : direction;
+			ordered_json answer;
 			if (log2(n) != 0) {
 				answer["p"] = unsigned(3 * (log2(n) - 1) + 1);
 			} else {
 				answer["p"] = 0;
 			}
+			answer["x"] = j;
+			answer["y"] = targeti;
+			answer["s"] = direction > 3 ? direction - 2 : direction;
+			
 			answers.push_back(answer);
 
 			rep(di, n)
@@ -244,15 +245,16 @@ void katanuki(vec& sB, vec& gB, int i, int j, int targeti, int targetj, int dire
 		else if (direction == 0) {
 			unsigned height_diff = HEIGHT - i - n;
 
-			json answer;
-			answer["x"] = j;
-			answer["y"] = i;
-			answer["s"] = direction > 3 ? direction - 2 : direction;
+			ordered_json answer;
 			if (log2(n) != 0) {
 				answer["p"] = unsigned(3 * (log2(n) - 1) + 1);
 			} else {
 				answer["p"] = 0;
 			}
+			answer["x"] = j;
+			answer["y"] = i;
+			answer["s"] = direction > 3 ? direction - 2 : direction;
+			
 			answers.push_back(answer);
 
 			rep(di, n)
@@ -403,7 +405,7 @@ int main()
 	cout << "\033[31m" << "FINISHED!!" << "\033[m" << " count:" << counter << " time:" << time << endl;
 
 	// 回答JSONの作成
-	json final_answer;
+	ordered_json final_answer;
 	final_answer["n"] = counter;   // 手数を保存
 	final_answer["ops"] = answers; // 操作履歴を保存
 
