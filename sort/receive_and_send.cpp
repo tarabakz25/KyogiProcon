@@ -8,6 +8,7 @@
 #include <filesystem>
 
 #include "json.hpp"
+#include "setting.hh"
 
 using namespace std;
 using json = nlohmann::json;
@@ -35,7 +36,7 @@ void receive_problem(string token){
     curl = curl_easy_init();  //libcurlのイニシャライズ(初期化)
     if(curl){ //成功した、返されたら
         //URL設定
-        curl_easy_setopt(curl, CURLOPT_URL, "http://172.29.1.2:80/problem");
+        curl_easy_setopt(curl, CURLOPT_URL, PROBLEM_ADRESS);
 
         //HTTPヘッダ設定
         struct curl_slist* headers = NULL;
@@ -104,7 +105,7 @@ void send_problem(string token){
     curl = curl_easy_init();  //libcurlのイニシャライズ(初期化)
     if(curl){ //成功した、返されたら
         //URL設定
-        curl_easy_setopt(curl, CURLOPT_URL, "http://172.29.1.2:80/answer");
+        curl_easy_setopt(curl, CURLOPT_URL, ANSWER_ADRESS);
 
         //HTTPヘッダ設定
         struct curl_slist* headers = NULL;
