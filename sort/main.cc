@@ -3,10 +3,8 @@
 */
 
 #include "json.hpp"
-#if SERVER
 #include "receive_and_send.cpp"
 #include <curl/curl.h>
-#endif
 #include "setting.hh"
 #include <bits/stdc++.h>
 #include <chrono>
