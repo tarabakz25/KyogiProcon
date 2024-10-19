@@ -491,8 +491,7 @@ int beam_search(int deep, int katanuki_cost, int di, int dj, int i, int j, vec s
 					int katanuki_cost = nukigata_size_cost(di - i, abs(dj - j));
 					//cout << num << "コスト" << katanuki_cost << endl;
 					if (katanuki_cost < COST){
-						int beam = beam_search(deep, katanuki_cost, targeti, targetj, i, j, sB, gB);
-						katanuki_cost += beam
+						katanuki_cost += beam_search(deep, katanuki_cost, targeti, targetj, i, j, sB, gB);
 						cost.push_back(katanuki_cost);		
 					}
 				}
