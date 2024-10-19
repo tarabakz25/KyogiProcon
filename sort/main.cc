@@ -4,10 +4,10 @@
 
 #include "json.hpp"
 #include "receive_and_send.cpp"
-#include <curl/curl.h>
 #include "setting.hh"
 #include <bits/stdc++.h>
 #include <chrono>
+#include <curl/curl.h>
 #include <thread>
 
 typedef long long ll;
@@ -28,16 +28,6 @@ double matchRate;	  // 一致率
 int HEIGHT, WIDTH;
 chrono::system_clock::time_point start, end;
 vector<int> number{ 256, 128, 64, 32, 16, 8, 4, 2, 1 };
-
-/* 回答用構造体 */
-struct Answer {
-	int n;
-	int p;
-	int x;
-	int y;
-	int s;
-};
-ordered_json answers = ordered_json::array();
 
 /* ぬき型たち */
 map<int, vec> all1_nukigata;
@@ -140,7 +130,7 @@ void loadBoard(const json& j, vec& sB, vec& gB)
 }
 
 // 型抜き i,jには異点の座標、targetには目標座標を送る。
-void katanuki(vec& sB, vec& gB, int i, int j, int targeti, int targetj, int direction)
+void katanuki(vec& sB, vec& gB, int i, int j, int targeti, int targetj, int direction, json& answers)
 {
 	vector<int> use_nukigata_size; // 使う抜き型のサイズ
 
@@ -161,7 +151,7 @@ void katanuki(vec& sB, vec& gB, int i, int j, int targeti, int targetj, int dire
 
 		// 左だけの場合
 		if (direction == 2) {
-			ordered_json answer;
+			json answer;
 			if (log2(n) != 0) {
 				answer["p"] = unsigned(3 * (log2(n) - 1) + 1);
 			} else {
@@ -188,7 +178,7 @@ void katanuki(vec& sB, vec& gB, int i, int j, int targeti, int targetj, int dire
 
 		// 直線上にないときの右
 		else if (direction == 5) {
-			ordered_json answer;
+			json answer;
 			if (log2(n) != 0) {
 				answer["p"] = unsigned(3 * (log2(n) - 1) + 1);
 			} else {
@@ -197,7 +187,7 @@ void katanuki(vec& sB, vec& gB, int i, int j, int targeti, int targetj, int dire
 			answer["x"] = targetj + 1;
 			answer["y"] = targeti;
 			answer["s"] = direction > 3 ? direction - 2 : direction;
-			
+
 			answers.push_back(answer);
 
 			rep(di, n)
@@ -216,7 +206,7 @@ void katanuki(vec& sB, vec& gB, int i, int j, int targeti, int targetj, int dire
 
 		// 直線上にないときの左
 		else if (direction == 4) {
-			ordered_json answer;
+			json answer;
 			if (log2(n) != 0) {
 				answer["p"] = unsigned(3 * (log2(n) - 1) + 1);
 			} else {
@@ -225,7 +215,7 @@ void katanuki(vec& sB, vec& gB, int i, int j, int targeti, int targetj, int dire
 			answer["x"] = j;
 			answer["y"] = targeti;
 			answer["s"] = direction > 3 ? direction - 2 : direction;
-			
+
 			answers.push_back(answer);
 
 			rep(di, n)
@@ -245,7 +235,7 @@ void katanuki(vec& sB, vec& gB, int i, int j, int targeti, int targetj, int dire
 		else if (direction == 0) {
 			unsigned height_diff = HEIGHT - i - n;
 
-			ordered_json answer;
+			json answer;
 			if (log2(n) != 0) {
 				answer["p"] = unsigned(3 * (log2(n) - 1) + 1);
 			} else {
@@ -254,7 +244,7 @@ void katanuki(vec& sB, vec& gB, int i, int j, int targeti, int targetj, int dire
 			answer["x"] = j;
 			answer["y"] = i;
 			answer["s"] = direction > 3 ? direction - 2 : direction;
-			
+
 			answers.push_back(answer);
 
 			rep(di, n)
@@ -304,10 +294,80 @@ void katanuki(vec& sB, vec& gB, int i, int j, int targeti, int targetj, int dire
 		counter++;
 
 		auto end = chrono::system_clock::now();
-        #if ALL_BREAK 
+#if ALL_BREAK
 		scorePrint(sB, gB, start, end, i, j, diff, direction);
-        #endif
-		//this_thread::sleep_for(chrono::seconds(1));
+#endif
+		// this_thread::sleep_for(chrono::seconds(1));
+	}
+}
+
+void beam_search(vec& sB, vec& gB, int i, int j, int count, int total_cost, vector<pair<int, json>>& all_answers, json& answers)
+{
+	int target = gB[i][j];
+	vector<pair<int, pair<int, int>>> cost;
+	bool flag = false;
+
+	// 全探索をかける。
+	rep2(di, i, HEIGHT)
+	{
+		if (di == i) {
+			rep2(dj, j, WIDTH)
+			{
+				int now = sB[di][dj];
+
+				if (now == target) {
+					int katanuki_cost = nukigata_size_cost(di - i, abs(dj - j));
+					cost.push_back(make_pair(katanuki_cost, make_pair(di, dj)));
+
+					if (katanuki_cost == 1) {
+						flag = true;
+						break;
+					}
+				}
+			}
+		} else {
+			rep(dj, WIDTH)
+			{
+				int now = sB[di][dj];
+
+				if (now == target) {
+					int katanuki_cost = nukigata_size_cost(di - i, abs(dj - j));
+					cost.push_back(make_pair(katanuki_cost, make_pair(di, dj)));
+
+					if (katanuki_cost == 1) {
+						flag = true;
+						break;
+					}
+				}
+			}
+		}
+		if (flag)
+			break;
+	}
+
+	sort(cost.begin(), cost.end());
+	total_cost += cost[0].first;
+
+	if (cost[0].second.first == i)
+		katanuki(sB, gB, i, j, 0, cost[0].second.second, 2, answers);
+	else if (cost[0].second.second == j)
+		katanuki(sB, gB, i, j, cost[0].second.first, 0, 0, answers);
+	else {
+		if (j >= cost[0].second.second) {
+			katanuki(sB, gB, i, j, cost[0].second.first, cost[0].second.second, 5, answers);
+			katanuki(sB, gB, i, j, cost[0].second.first, cost[0].second.second, 0, answers);
+		} else {
+			katanuki(sB, gB, i, j, cost[0].second.first, cost[0].second.second, 4, answers);
+			katanuki(sB, gB, i, j, cost[0].second.first, cost[0].second.second, 0, answers);
+		}
+	}
+
+	if (count == DEPTH) {
+		all_answers.push_back(make_pair(total_cost, answers));
+		return;
+	} else {
+		count++;
+		beam_search(sB, gB, i, j, count, total_cost, all_answers, answers);
 	}
 }
 
@@ -331,71 +391,17 @@ int main()
 	HEIGHT = sB.size(), WIDTH = gB[0].size();
 	double matchRate = calculateMatchRate(sB, gB);
 
+	json answers = json::array();
+
 	rep(i, HEIGHT)
 	{
 		rep(j, WIDTH)
 		{
-			if (sB[i][j] != gB[i][j]) {
-				int target = gB[i][j];
-				bool flag = false;
+			vector<pair<int, json>> all_answers;
+			beam_search(sB, gB, i, j, 0, 0, all_answers, answers);
 
-				// 評価をかけるための変数
-				vector<pair<int, pair<int, int>>> cost;
-
-				// 全探索をかける。
-				rep2(di, i, HEIGHT)
-				{
-					if (di == i) {
-						rep2(dj, j, WIDTH)
-						{
-							int now = sB[di][dj];
-
-							if (now == target) {
-								int katanuki_cost = nukigata_size_cost(di - i, abs(dj - j));
-								cost.push_back(make_pair(katanuki_cost, make_pair(di, dj)));
-
-								if (katanuki_cost == 1) {
-									flag = true;
-									break;
-								}
-							}
-						}
-					} else {
-						rep(dj, WIDTH)
-						{
-							int now = sB[di][dj];
-
-							if (now == target) {
-								int katanuki_cost = nukigata_size_cost(di - i, abs(dj - j));
-								cost.push_back(make_pair(katanuki_cost, make_pair(di, dj)));
-
-								if (katanuki_cost == 1) {
-									flag = true;
-									break;
-								}
-							}
-						}
-					}
-					if (flag)
-						break;
-				}
-
-				sort(cost.begin(), cost.end());
-
-				if (cost[0].second.first == i)
-					katanuki(sB, gB, i, j, 0, cost[0].second.second, 2);
-				else if (cost[0].second.second == j)
-					katanuki(sB, gB, i, j, cost[0].second.first, 0, 0);
-				else {
-					if (j >= cost[0].second.second) {
-						katanuki(sB, gB, i, j, cost[0].second.first, cost[0].second.second, 5);
-						katanuki(sB, gB, i, j, cost[0].second.first, cost[0].second.second, 0);
-					} else {
-						katanuki(sB, gB, i, j, cost[0].second.first, cost[0].second.second, 4);
-						katanuki(sB, gB, i, j, cost[0].second.first, cost[0].second.second, 0);
-					}
-				}
-			}
+			sort(all_answers.begin(), all_answers.end());
+			answers = all_answers[0].second;
 		}
 	}
 
