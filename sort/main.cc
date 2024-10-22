@@ -3,8 +3,6 @@
 */
 
 #include "json.hpp"
-#include "receive_and_send.cpp"
-#include <curl/curl.h>
 #include "setting.hh"
 #include <bits/stdc++.h>
 #include <chrono>
@@ -41,6 +39,13 @@ ordered_json answers = ordered_json::array();
 
 /* ぬき型たち */
 map<int, vec> all1_nukigata;
+
+vec shuffling(vec& sB, vec& gB, int height, int width)
+{
+	vec shuffling_gB = gB;
+
+	rep(i, height / 4) katanuki(shuffling_gB, i * 4, 0, 2, 2);
+}
 
 // システムの関数
 void generateNukigata()
@@ -90,7 +95,7 @@ double calculateMatchRate(const vec& sB, const vec& gB)
 	return (double)matchCount / totalElements * 100.0;
 }
 
-void scorePrint(const vec& sB, const vec& gB, chrono::system_clock::time_point start, chrono::system_clock::time_point end, int i, int j, int diff, int direction)
+void scorePrint(const vec& sB, const vec& gB, chrono::system_clock::time_point start, chrono::system_clock::time_point end, int i, int j)
 {
 
 #if PRINTING
@@ -139,12 +144,139 @@ void loadBoard(const json& j, vec& sB, vec& gB)
 		gB.push_back(stringToVector(line.get<string>()));
 }
 
-// 型抜き i,jには異点の座標、targetには目標座標を送る。
-void katanuki(vec& sB, vec& gB, int i, int j, int targeti, int targetj, int direction)
+// 型抜き i,jには適応したいどこと
+void katanuki(vec& sB, int i, int j, int n, int direction)
 {
-	vector<int> use_nukigata_size; // 使う抜き型のサイズ
 
-	int diff = direction == 0 ? diff = targeti - i : direction == 2 || direction == 4 ? diff = targetj - j : diff = j - targetj;
+	vec unplug(HEIGHT, vector<int>(WIDTH, -1)); // 抜き出す数字
+	vec push(HEIGHT, vector<int>(WIDTH, -1));	// 寄せる数字
+
+	// 左
+	if (direction == 2) {
+		ordered_json answer;
+		if (log2(n) != 0) {
+			answer["p"] = unsigned(3 * (log2(n) - 1) + 1);
+		} else {
+			answer["p"] = 0;
+		}
+		answer["x"] = j;
+		answer["y"] = i;
+		answer["s"] = direction > 3 ? direction - 2 : direction;
+
+		answers.push_back(answer);
+
+		rep(di, n)
+		{
+			int curtRow = i + di;
+			if (curtRow >= HEIGHT)
+				break;
+			else {
+				copy(sB[curtRow].begin() + j, sB[curtRow].begin() + j + n, unplug[di].begin());
+				sB[curtRow].erase(sB[curtRow].begin() + j, sB[curtRow].begin() + j + n);
+				sB[curtRow].insert(sB[curtRow].end(), unplug[di].begin(), unplug[di].begin() + n);
+			}
+		}
+	}
+
+	// 右
+	else if (direction == 3) {
+		ordered_json answer;
+		if (log2(n) != 0) {
+			answer["p"] = unsigned(3 * (log2(n) - 1) + 1);
+		} else {
+			answer["p"] = 0;
+		}
+		answer["x"] = j - n;
+		answer["y"] = i;
+		answer["s"] = direction > 3 ? direction - 2 : direction;
+
+		answers.push_back(answer);
+
+		rep(di, n)
+		{
+			int curtRow = i + di;
+			if (curtRow >= HEIGHT)
+				break;
+			else {
+				copy(sB[curtRow].begin() + j, sB[curtRow].begin() + j + n, unplug[di].begin());
+				sB[curtRow].erase(sB[curtRow].begin() + j, sB[curtRow].begin() + j + n);
+				sB[curtRow].insert(sB[curtRow].begin(), unplug[di].begin(), unplug[di].begin() + n);
+			}
+		}
+	}
+
+	// 上
+	else if (direction == 0) {
+		unsigned height_diff = HEIGHT - i - n;
+
+		ordered_json answer;
+		if (log2(n) != 0) {
+			answer["p"] = unsigned(3 * (log2(n) - 1) + 1);
+		} else {
+			answer["p"] = 0;
+		}
+		answer["x"] = j;
+		answer["y"] = i;
+		answer["s"] = direction > 3 ? direction - 2 : direction;
+
+		answers.push_back(answer);
+
+		rep(di, n)
+		{
+			int curtRow = i + di;
+			if (j + n >= WIDTH)
+				copy(sB[curtRow].begin() + j, sB[curtRow].end(), unplug[di].begin());
+			else
+				copy(sB[curtRow].begin() + j, sB[curtRow].begin() + j + n, unplug[di].begin());
+		}
+		rep(di, height_diff)
+		{
+			int curtRow = i + di;
+			if (j + n >= WIDTH)
+				copy(sB[curtRow + n].begin() + j, sB[curtRow + n].end(), push[di].begin());
+			else
+				copy(sB[curtRow + n].begin() + j, sB[curtRow + n].begin() + j + n, push[di].begin());
+		}
+		rep(di, height_diff)
+		{
+			if (push[di][0] == -1)
+				break;
+			rep(dj, n)
+			{
+				if (push[di][dj] == -1)
+					break;
+				else
+					sB[i + di][j + dj] = push[di][dj];
+			}
+		}
+		rep(di, n)
+		{
+			if (unplug[di][0] == -1)
+				break;
+			rep(dj, n)
+			{
+				if (unplug[di][dj] == -1)
+					break;
+				else
+					sB[i + height_diff + di][j + dj] = unplug[di][dj];
+			}
+		}
+	} else {
+		cerr << "ERROR!" << endl;
+	}
+
+	counter++;
+	// this_thread::sleep_for(chrono::seconds(1));
+}
+
+vector<int> use_nukigata(int i, int j, int targeti, int targetj, int direction)
+{
+	vector<int> use_nukigata_size;
+	int diff;
+
+	if(direction == 0) diff = targeti - i;
+	else if(direction == 2) diff = targetj - j;
+	else diff = j - targetj + 1;
 
 	for (int size : number) {
 		if (size <= diff) {
@@ -155,160 +287,7 @@ void katanuki(vec& sB, vec& gB, int i, int j, int targeti, int targetj, int dire
 	if (diff > 0)
 		use_nukigata_size.push_back(1);
 
-	for (int n : use_nukigata_size) {
-		vec unplug(HEIGHT, vector<int>(WIDTH, -1)); // 抜き出す数字
-		vec push(HEIGHT, vector<int>(WIDTH, -1));	// 寄せる数字
-
-		// 左だけの場合
-		if (direction == 2) {
-			ordered_json answer;
-			if (log2(n) != 0) {
-				answer["p"] = unsigned(3 * (log2(n) - 1) + 1);
-			} else {
-				answer["p"] = 0;
-			}
-			answer["x"] = j;
-			answer["y"] = i;
-			answer["s"] = direction > 3 ? direction - 2 : direction;
-
-			answers.push_back(answer);
-
-			rep(di, n)
-			{
-				int curtRow = i + di;
-				if (curtRow >= HEIGHT)
-					break;
-				else {
-					copy(sB[curtRow].begin() + j, sB[curtRow].begin() + j + n, unplug[di].begin());
-					sB[curtRow].erase(sB[curtRow].begin() + j, sB[curtRow].begin() + j + n);
-					sB[curtRow].insert(sB[curtRow].end(), unplug[di].begin(), unplug[di].begin() + n);
-				}
-			}
-		}
-
-		// 直線上にないときの右
-		else if (direction == 5) {
-			ordered_json answer;
-			if (log2(n) != 0) {
-				answer["p"] = unsigned(3 * (log2(n) - 1) + 1);
-			} else {
-				answer["p"] = 0;
-			}
-			answer["x"] = targetj + 1;
-			answer["y"] = targeti;
-			answer["s"] = direction > 3 ? direction - 2 : direction;
-			
-			answers.push_back(answer);
-
-			rep(di, n)
-			{
-				int curtRow = targeti + di;
-				if (curtRow >= HEIGHT)
-					break;
-				else {
-					copy(sB[curtRow].begin() + targetj + 1, sB[curtRow].begin() + targetj + n + 1, unplug[di].begin());
-					sB[curtRow].erase(sB[curtRow].begin() + targetj + 1, sB[curtRow].begin() + targetj + n + 1);
-					sB[curtRow].insert(sB[curtRow].begin(), unplug[di].begin(), unplug[di].begin() + n);
-				}
-			}
-			targetj += n;
-		}
-
-		// 直線上にないときの左
-		else if (direction == 4) {
-			ordered_json answer;
-			if (log2(n) != 0) {
-				answer["p"] = unsigned(3 * (log2(n) - 1) + 1);
-			} else {
-				answer["p"] = 0;
-			}
-			answer["x"] = j;
-			answer["y"] = targeti;
-			answer["s"] = direction > 3 ? direction - 2 : direction;
-			
-			answers.push_back(answer);
-
-			rep(di, n)
-			{
-				int curtRow = targeti + di;
-				if (curtRow >= HEIGHT)
-					break;
-				else {
-					copy(sB[curtRow].begin() + j, sB[curtRow].begin() + j + n, unplug[di].begin());
-					sB[curtRow].erase(sB[curtRow].begin() + j, sB[curtRow].begin() + j + n);
-					sB[curtRow].insert(sB[curtRow].end(), unplug[di].begin(), unplug[di].begin() + n);
-				}
-			}
-		}
-
-		// 上の場合
-		else if (direction == 0) {
-			unsigned height_diff = HEIGHT - i - n;
-
-			ordered_json answer;
-			if (log2(n) != 0) {
-				answer["p"] = unsigned(3 * (log2(n) - 1) + 1);
-			} else {
-				answer["p"] = 0;
-			}
-			answer["x"] = j;
-			answer["y"] = i;
-			answer["s"] = direction > 3 ? direction - 2 : direction;
-			
-			answers.push_back(answer);
-
-			rep(di, n)
-			{
-				int curtRow = i + di;
-				if (j + n >= WIDTH)
-					copy(sB[curtRow].begin() + j, sB[curtRow].end(), unplug[di].begin());
-				else
-					copy(sB[curtRow].begin() + j, sB[curtRow].begin() + j + n, unplug[di].begin());
-			}
-			rep(di, height_diff)
-			{
-				int curtRow = i + di;
-				if (j + n >= WIDTH)
-					copy(sB[curtRow + n].begin() + j, sB[curtRow + n].end(), push[di].begin());
-				else
-					copy(sB[curtRow + n].begin() + j, sB[curtRow + n].begin() + j + n, push[di].begin());
-			}
-			rep(di, height_diff)
-			{
-				if (push[di][0] == -1)
-					break;
-				rep(dj, n)
-				{
-					if (push[di][dj] == -1)
-						break;
-					else
-						sB[i + di][j + dj] = push[di][dj];
-				}
-			}
-			rep(di, n)
-			{
-				if (unplug[di][0] == -1)
-					break;
-				rep(dj, n)
-				{
-					if (unplug[di][dj] == -1)
-						break;
-					else
-						sB[i + height_diff + di][j + dj] = unplug[di][dj];
-				}
-			}
-		} else {
-			cerr << "ERROR!" << endl;
-		}
-
-		counter++;
-
-		auto end = chrono::system_clock::now();
-        #if ALL_BREAK 
-		scorePrint(sB, gB, start, end, i, j, diff, direction);
-        #endif
-		//this_thread::sleep_for(chrono::seconds(1));
-	}
+	return use_nukigata_size;
 }
 
 int main()
@@ -381,20 +360,37 @@ int main()
 				}
 
 				sort(cost.begin(), cost.end());
+				vector<int> sizes;
 
-				if (cost[0].second.first == i)
-					katanuki(sB, gB, i, j, 0, cost[0].second.second, 2);
-				else if (cost[0].second.second == j)
-					katanuki(sB, gB, i, j, cost[0].second.first, 0, 0);
+				if (cost[0].second.first == i){
+					sizes = use_nukigata(i, j, i, cost[0].second.second, 2);
+					for(int size : sizes) katanuki(sB, i, j, size, 2);
+				}
+				else if (cost[0].second.second == j){
+					sizes = use_nukigata(i, j, cost[0].second.first, j, 0);
+					for(int size : sizes) katanuki(sB, i, j, size, 0);
+				}
 				else {
 					if (j >= cost[0].second.second) {
-						katanuki(sB, gB, i, j, cost[0].second.first, cost[0].second.second, 5);
-						katanuki(sB, gB, i, j, cost[0].second.first, cost[0].second.second, 0);
+						sizes = use_nukigata(i, j, i, cost[0].second.second + 1, 3);
+						for(int size : sizes){
+							katanuki(sB, cost[0].second.first, cost[0].second.second + 1, size, 3);
+							cost[0].second.second += size;
+						}
+						sizes = use_nukigata(i, j, cost[0].second.first, j, 0);
+						for(int size : sizes) katanuki(sB, i, j, size, 0);
 					} else {
-						katanuki(sB, gB, i, j, cost[0].second.first, cost[0].second.second, 4);
-						katanuki(sB, gB, i, j, cost[0].second.first, cost[0].second.second, 0);
+						sizes = use_nukigata(i, j, i, cost[0].second.second, 2);
+						for(int size : sizes) katanuki(sB, cost[0].second.first, j, size, 2);
+						sizes = use_nukigata(i, j , cost[0].second.first, j, 0);
+						for(int size : sizes) katanuki(sB, i, j, size, 0);
 					}
 				}
+
+#if ALL_BREAK
+				auto end = chrono::system_clock::now();
+				scorePrint(sB, gB, start, end, i, j);
+#endif
 			}
 		}
 	}
