@@ -3,10 +3,11 @@
 #define SORT_FILE "problem.json" // サイズの設定
 #define ALL_BREAK 1
 
-#define SHUFFLE 0  // 松江をパクるぞ
+#define SHUFFLE 1  // 松江をパクるぞ
 
 /* 
 
 jikken: 17623 0.715
+
 
 */

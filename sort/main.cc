@@ -29,23 +29,15 @@ vector<int> number{ 256, 128, 64, 32, 16, 8, 4, 2, 1 };
 
 /* 回答用構造体 */
 struct Answer {
-	int n;
-	int p;
-	int x;
-	int y;
-	int s;
+	int size;
+	int i;
+	int j;
+	int direction;
 };
 ordered_json answers = ordered_json::array();
 
 /* ぬき型たち */
 map<int, vec> all1_nukigata;
-
-vec shuffling(vec& sB, vec& gB, int height, int width)
-{
-	vec shuffling_gB = gB;
-
-	rep(i, height / 4) katanuki(shuffling_gB, i * 4, 0, 2, 2);
-}
 
 // システムの関数
 void generateNukigata()
@@ -95,7 +87,7 @@ double calculateMatchRate(const vec& sB, const vec& gB)
 	return (double)matchCount / totalElements * 100.0;
 }
 
-void scorePrint(const vec& sB, const vec& gB, chrono::system_clock::time_point start, chrono::system_clock::time_point end, int i, int j)
+void scorePrint(const vec& sB, const vec& gB, chrono::system_clock::time_point start, chrono::system_clock::time_point end)
 {
 
 #if PRINTING
@@ -125,7 +117,7 @@ void scorePrint(const vec& sB, const vec& gB, chrono::system_clock::time_point s
 	end = chrono::system_clock::now();
 	double time = static_cast<double>(chrono::duration_cast<chrono::milliseconds>(end - start).count() / 1000.0);
 	double score = calculateMatchRate(sB, gB);
-	cout << "MatchRate:" << (int)score << "%" << " " << "Count:" << counter << " " << "time:" << (int)time << "s" << " now:(" << i << ", " << j << ")" << endl;
+	cout << "MatchRate:" << (int)score << "%" << " " << "Count:" << counter << " " << "time:" << (int)time << "s" << endl;
 }
 
 vector<int> stringToVector(const string& str)
@@ -274,9 +266,12 @@ vector<int> use_nukigata(int i, int j, int targeti, int targetj, int direction)
 	vector<int> use_nukigata_size;
 	int diff;
 
-	if(direction == 0) diff = targeti - i;
-	else if(direction == 2) diff = targetj - j;
-	else diff = j - targetj + 1;
+	if (direction == 0)
+		diff = targeti - i;
+	else if (direction == 2)
+		diff = targetj - j;
+	else
+		diff = j - targetj + 1;
 
 	for (int size : number) {
 		if (size <= diff) {
@@ -288,6 +283,20 @@ vector<int> use_nukigata(int i, int j, int targeti, int targetj, int direction)
 		use_nukigata_size.push_back(1);
 
 	return use_nukigata_size;
+}
+
+vector<Answer> shuffling(vec& gB)
+{
+	vector<Answer> shuffling_answers;
+
+	rep(i, HEIGHT)
+	{
+		katanuki(gB, i, 0, 2, 2);
+		Answer answer = { 2, (int)i, WIDTH - 2, 3 };
+		shuffling_answers.push_back(answer);
+	}
+
+	return shuffling_answers;
 }
 
 int main()
@@ -308,7 +317,11 @@ int main()
 	vec sB, gB;
 	loadBoard(J, sB, gB);
 	HEIGHT = sB.size(), WIDTH = gB[0].size();
-	double matchRate = calculateMatchRate(sB, gB);
+
+#if SHUFFLE
+	const vec no_shuffle_gB = gB;
+	vector<Answer> shuffle_answers = shuffling(gB);
+#endif
 
 	rep(i, HEIGHT)
 	{
@@ -362,43 +375,54 @@ int main()
 				sort(cost.begin(), cost.end());
 				vector<int> sizes;
 
-				if (cost[0].second.first == i){
+				if (cost[0].second.first == i) {
 					sizes = use_nukigata(i, j, i, cost[0].second.second, 2);
-					for(int size : sizes) katanuki(sB, i, j, size, 2);
-				}
-				else if (cost[0].second.second == j){
+					for (int size : sizes)
+						katanuki(sB, i, j, size, 2);
+				} else if (cost[0].second.second == j) {
 					sizes = use_nukigata(i, j, cost[0].second.first, j, 0);
-					for(int size : sizes) katanuki(sB, i, j, size, 0);
-				}
-				else {
+					for (int size : sizes)
+						katanuki(sB, i, j, size, 0);
+				} else {
 					if (j >= cost[0].second.second) {
 						sizes = use_nukigata(i, j, i, cost[0].second.second + 1, 3);
-						for(int size : sizes){
+						for (int size : sizes) {
 							katanuki(sB, cost[0].second.first, cost[0].second.second + 1, size, 3);
 							cost[0].second.second += size;
 						}
 						sizes = use_nukigata(i, j, cost[0].second.first, j, 0);
-						for(int size : sizes) katanuki(sB, i, j, size, 0);
+						for (int size : sizes)
+							katanuki(sB, i, j, size, 0);
 					} else {
 						sizes = use_nukigata(i, j, i, cost[0].second.second, 2);
-						for(int size : sizes) katanuki(sB, cost[0].second.first, j, size, 2);
-						sizes = use_nukigata(i, j , cost[0].second.first, j, 0);
-						for(int size : sizes) katanuki(sB, i, j, size, 0);
+						for (int size : sizes)
+							katanuki(sB, cost[0].second.first, j, size, 2);
+						sizes = use_nukigata(i, j, cost[0].second.first, j, 0);
+						for (int size : sizes)
+							katanuki(sB, i, j, size, 0);
 					}
 				}
 
 #if ALL_BREAK
 				auto end = chrono::system_clock::now();
-				scorePrint(sB, gB, start, end, i, j);
+				scorePrint(sB, gB, start, end);
 #endif
 			}
 		}
 	}
 
+#if SHUFFLE
+	for (int i = shuffle_answers.size() - 1; i >= 0; i--) {
+		katanuki(sB, shuffle_answers[i].i, shuffle_answers[i].j, shuffle_answers[i].size, shuffle_answers[i].direction);
+		auto end = chrono::system_clock::now();
+		scorePrint(sB, no_shuffle_gB, start, end);
+	}
+#endif
+
 	auto end = chrono::system_clock::now();
 	double time = static_cast<double>(chrono::duration_cast<chrono::milliseconds>(end - start).count() / 1000.0);
 
-	cout << "\033[31m" << "FINISHED!!" << "\033[m" << " count:" << counter << " time:" << time << " match:" << calculateMatchRate(sB, gB) << endl;
+	cout << "\033[31m" << "FINISHED!!" << "\033[m" << " count:" << counter << " time:" << time << " match:" << calculateMatchRate(sB, no_shuffle_gB) << endl;
 
 	// 回答JSONの作成
 	ordered_json final_answer;
