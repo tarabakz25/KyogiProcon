@@ -100,10 +100,14 @@ void scorePrint(const vec& sB, const vec& gB, chrono::system_clock::time_point s
 		rep(dj, WIDTH)
 		{
 #if !DEBUG
-			if (sB[di][dj] == gB[di][dj])
-				cout << "\033[31m" << sB[di][dj] << "\033[m";
-			else
-				cout << sB[di][dj];
+			if (sB[di][dj] == 0)
+				cout << "\033[43m" << sB[di][dj] << "\033[m";
+			else if (sB[di][dj] == 1)
+				cout << "\033[44m" << sB[di][dj] << "\033[m";
+			else if (sB[di][dj] == 2)
+				cout << "\033[42m" << sB[di][dj] << "\033[m";
+			else if (sB[di][dj] == 3)
+				cout << "\033[47m" << sB[di][dj] << "\033[m";
 #endif
 #if DEBUG
 			cout << sB[di][dj];
@@ -258,7 +262,6 @@ void katanuki(vec& sB, int i, int j, int n, int direction)
 	}
 
 	counter++;
-	// this_thread::sleep_for(chrono::seconds(1));
 }
 
 vector<int> use_nukigata(int i, int j, int targeti, int targetj, int direction)
@@ -289,13 +292,18 @@ vector<Answer> shuffling(vec& gB)
 {
 	vector<Answer> shuffling_answers;
 
-	rep(i, HEIGHT)
+	rep(x, 10)
 	{
-		katanuki(gB, i, 0, 2, 2);
-		Answer answer = { 2, (int)i, WIDTH - 2, 3 };
-		shuffling_answers.push_back(answer);
+		rep(i, HEIGHT)
+		{
+			int size = 2;
+			if(i % 2 == 0){
+				katanuki(gB, i, 0, size, 2);
+				Answer answer = { size, (int)i, WIDTH - size, 3 };
+				shuffling_answers.push_back(answer);
+			}
+		}
 	}
-
 	return shuffling_answers;
 }
 
@@ -406,6 +414,7 @@ int main()
 #if ALL_BREAK
 				auto end = chrono::system_clock::now();
 				scorePrint(sB, gB, start, end);
+				this_thread::sleep_for(chrono::milliseconds(10));
 #endif
 			}
 		}
