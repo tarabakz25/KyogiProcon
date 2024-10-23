@@ -100,10 +100,17 @@ void scorePrint(const vec& sB, const vec& gB, chrono::system_clock::time_point s
 		rep(dj, WIDTH)
 		{
 #if !DEBUG
+#if !PRINT_COLOR
 			if (sB[di][dj] == gB[di][dj])
 				cout << "\033[31m" << sB[di][dj] << "\033[m";
 			else
 				cout << sB[di][dj];
+#else
+			if(sB[di][dj] == 0) cout << "\033[34m" << sB[di][dj] << "\033[m";
+			else if(sB[di][dj] == 1) cout << "\033[33m" << sB[di][dj] << "\033[m";
+			else if(sB[di][dj] == 2) cout << "\033[32m" << sB[di][dj] << "\033[m";
+            else if(sB[di][dj] == 3) cout << sB[di][dj];
+#endif
 #endif
 #if DEBUG
 			cout << sB[di][dj];
@@ -162,7 +169,11 @@ void katanuki(vec& sB, int i, int j, int n, int direction)
 			int curtRow = i + di;
 			if (curtRow >= HEIGHT)
 				break;
-			else {
+			else if (j < 0) {
+				copy(sB[curtRow].begin(), sB[curtRow].begin() + j + n, unplug[di].begin());
+				sB[curtRow].erase(sB[curtRow].begin(), sB[curtRow].begin() + j + n);
+				sB[curtRow].insert(sB[curtRow].end(), unplug[di].begin(), unplug[di].begin() + n);
+			} else {
 				copy(sB[curtRow].begin() + j, sB[curtRow].begin() + j + n, unplug[di].begin());
 				sB[curtRow].erase(sB[curtRow].begin() + j, sB[curtRow].begin() + j + n);
 				sB[curtRow].insert(sB[curtRow].end(), unplug[di].begin(), unplug[di].begin() + n);
@@ -189,7 +200,11 @@ void katanuki(vec& sB, int i, int j, int n, int direction)
 			int curtRow = i + di;
 			if (curtRow >= HEIGHT)
 				break;
-			else {
+			if (j + n >= WIDTH) {
+				copy(sB[curtRow].end()-1 + j, sB[curtRow].end(), unplug[di].begin());
+				sB[curtRow].erase(sB[curtRow].end()-1 + j, sB[curtRow].end());
+				sB[curtRow].insert(sB[curtRow].begin(), unplug[di].begin(), unplug[di].begin() + n);
+			} else {
 				copy(sB[curtRow].begin() + j, sB[curtRow].begin() + j + n, unplug[di].begin());
 				sB[curtRow].erase(sB[curtRow].begin() + j, sB[curtRow].begin() + j + n);
 				sB[curtRow].insert(sB[curtRow].begin(), unplug[di].begin(), unplug[di].begin() + n);
@@ -218,6 +233,8 @@ void katanuki(vec& sB, int i, int j, int n, int direction)
 			int curtRow = i + di;
 			if (j + n >= WIDTH)
 				copy(sB[curtRow].begin() + j, sB[curtRow].end(), unplug[di].begin());
+			else if (j < 0)
+				copy(sB[curtRow].begin(), sB[curtRow].begin() + j + n, unplug[di].begin());
 			else
 				copy(sB[curtRow].begin() + j, sB[curtRow].begin() + j + n, unplug[di].begin());
 		}
@@ -226,6 +243,8 @@ void katanuki(vec& sB, int i, int j, int n, int direction)
 			int curtRow = i + di;
 			if (j + n >= WIDTH)
 				copy(sB[curtRow + n].begin() + j, sB[curtRow + n].end(), push[di].begin());
+			else if (j < 0)
+				copy(sB[curtRow].begin(), sB[curtRow].begin() + j + n, push[di].begin());
 			else
 				copy(sB[curtRow + n].begin() + j, sB[curtRow + n].begin() + j + n, push[di].begin());
 		}
@@ -258,7 +277,7 @@ void katanuki(vec& sB, int i, int j, int n, int direction)
 	}
 
 	counter++;
-	// this_thread::sleep_for(chrono::seconds(1));
+	this_thread::sleep_for(chrono::milliseconds(10));
 }
 
 vector<int> use_nukigata(int i, int j, int targeti, int targetj, int direction)
@@ -289,11 +308,14 @@ vector<Answer> shuffling(vec& gB)
 {
 	vector<Answer> shuffling_answers;
 
-	rep(i, HEIGHT)
+	rep(x, 1)
 	{
-		katanuki(gB, i, 0, 2, 2);
-		Answer answer = { 2, (int)i, WIDTH - 2, 3 };
-		shuffling_answers.push_back(answer);
+		rep(i, HEIGHT)
+		{
+			katanuki(gB, i, -255, 256, 2);
+			Answer answer = { 256, (int)i, WIDTH + 255, 3 };
+			shuffling_answers.push_back(answer);
+		}
 	}
 
 	return shuffling_answers;
@@ -422,7 +444,7 @@ int main()
 	auto end = chrono::system_clock::now();
 	double time = static_cast<double>(chrono::duration_cast<chrono::milliseconds>(end - start).count() / 1000.0);
 
-	cout << "\033[31m" << "FINISHED!!" << "\033[m" << " count:" << counter << " time:" << time << " match:" << calculateMatchRate(sB, no_shuffle_gB) << endl;
+	cout << "\033[31m" << "FINISHED!!" << "\033[m" << " count:" << counter << " time:" << time << " match:" << calculateMatchRate(sB, gB) << endl;
 
 	// 回答JSONの作成
 	ordered_json final_answer;
